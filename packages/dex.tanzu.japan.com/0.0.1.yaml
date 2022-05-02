@@ -1,0 +1,251 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: Package
+metadata:
+  name: dex.tanzu.japan.com.0.0.1
+spec:
+  refName: dex.tanzu.japan.com
+  version: 0.0.1
+  valuesSchema:
+    openAPIv3:
+      title: dex.tanzu-jp values schema
+      properties:
+        namespace:
+          type: string
+          description: Namespace where dex will be installed.
+          default: dex
+          examples:
+          - dex
+        domain:
+          type: string
+          description: Domain of dex.
+          default: example.com
+          examples:
+          - example.com
+        github_clientId:
+          type: string
+          description: Github client id.
+        github_clientSecret:
+          type: string
+          description: Github client secret
+        github_organization:
+          type: string
+          description: Github ord id.
+        harbor_staticSecret:
+          type: string
+          description: harbor static secret
+        harbor_callback:
+          type: string
+          description: harbor callback
+        tls_secret_name:
+          type: string
+          description: TLS certificate secret name
+  template:
+    spec:
+      fetch:
+      - inline:
+          paths:
+            config/base.yaml: |
+              ---
+              # Source: dex/templates/serviceaccount.yaml
+              apiVersion: v1
+              kind: ServiceAccount
+              metadata:
+                name: dex
+              ---
+              # Source: dex/templates/secret.yaml
+              apiVersion: v1
+              kind: Secret
+              metadata:
+                name: dex
+              type: Opaque
+              data:
+                config.yaml: "e30="
+              ---
+              # Source: dex/templates/rbac.yaml
+              apiVersion: rbac.authorization.k8s.io/v1
+              kind: ClusterRole
+              metadata:
+                name: dex
+              rules:
+                - apiGroups: ["dex.coreos.com"]
+                  resources: ["*"]
+                  verbs: ["*"]
+                - apiGroups: ["apiextensions.k8s.io"]
+                  resources: ["customresourcedefinitions"]
+                  verbs: ["create"]
+              ---
+              # Source: dex/templates/rbac.yaml
+              apiVersion: rbac.authorization.k8s.io/v1
+              kind: ClusterRoleBinding
+              metadata:
+                name: dex
+              roleRef:
+                kind: ClusterRole
+                apiGroup: rbac.authorization.k8s.io
+                name: dex
+              subjects:
+              - kind: ServiceAccount
+                namespace: dex
+                name: dex
+              ---
+              # Source: dex/templates/service.yaml
+              apiVersion: v1
+              kind: Service
+              metadata:
+                name: dex
+              spec:
+                type: ClusterIP
+                ports:
+                  - name: http
+                    port: 5556
+                    targetPort: http
+                    protocol: TCP
+                    appProtocol: http
+                  - name: telemetry
+                    port: 5558
+                    targetPort: telemetry
+                    protocol: TCP
+                    appProtocol: http
+                selector:
+                  app.kubernetes.io/name: dex
+              ---
+              # Source: dex/templates/deployment.yaml
+              apiVersion: apps/v1
+              kind: Deployment
+              metadata:
+                name: dex
+              spec:
+                replicas: 1
+                selector:
+                  matchLabels:
+                    app.kubernetes.io/name: dex
+                template:
+                  metadata:
+                    labels:
+                      app.kubernetes.io/name: dex
+                  spec:
+                    serviceAccountName: dex
+                    securityContext:
+                      {}
+                    containers:
+                      - name: dex
+                        securityContext:
+                          {}
+                        image: "ghcr.io/dexidp/dex:v2.31.0"
+                        imagePullPolicy: IfNotPresent
+                        args:
+                          - dex
+                          - serve
+                          - --web-http-addr
+                          - 0.0.0.0:5556
+                          - --telemetry-addr
+                          - 0.0.0.0:5558
+                          - /etc/dex/config.yaml
+                        env:
+                        ports:
+                          - name: http
+                            containerPort: 5556
+                            protocol: TCP
+                          - name: telemetry
+                            containerPort: 5558
+                            protocol: TCP
+                        livenessProbe:
+                          httpGet:
+                            path: /healthz/live
+                            port: telemetry
+                        readinessProbe:
+                          httpGet:
+                            path: /healthz/ready
+                            port: telemetry
+                        resources:
+                          {}
+                        volumeMounts:
+                          - name: config
+                            mountPath: /etc/dex
+                            readOnly: true
+                    volumes:
+                      - name: config
+                        secret:
+                          secretName: dex
+        path: config/
+      template:
+      - ytt:
+          ignoreUnknownComments: true
+          paths:
+          - config/
+          inline:
+            paths:
+              overlay.yaml: |
+                #@ load("@ytt:data", "data")
+                #@ load("@ytt:overlay", "overlay")
+                #@ load("@ytt:base64", "base64")
+                #@ load("@ytt:yaml", "yaml")
+                
+                #@ def github_config():
+                #@overlay/match missing_ok=True
+                #@overlay/match-child-defaults missing_ok=True
+                issuer: #@ "https://dex." + data.values.domain + "/dex"
+                storage:
+                  type: kubernetes
+                  config:
+                    inCluster: true
+                enablePasswordDB: true
+                connectors:
+                - type: github
+                  id: github
+                  name: GitHub
+                  config:
+                    clientID: #@ data.values.github_clientId
+                    clientSecret: #@ data.values.github_clientSecret
+                    redirectURI: #@ "https://dex." + data.values.domain + "/dex/callback"
+                    orgs:
+                    - name: #@ data.values.github_organization
+                    loadAllGroups: false
+                oauth2:
+                  skipApprovalScreen: true
+                staticClients:
+                - id: dex-harbor-authenticator
+                  name: dex-harbor-authenticator
+                  secret: #@ data.values.harbor_staticSecret 
+                  redirectURIs:
+                    - #@ data.values.harbor_callback
+                #@ end
+                
+                #@overlay/match by=overlay.subset({"kind": "Secret","metadata": {"name": "dex"}})
+                ---
+                data:
+                  #@overlay/replace via=lambda a,b: base64.encode("{}".format(yaml.encode(overlay.apply(github_config()))))
+                  config.yaml:
+                
+                #@overlay/match by=overlay.all, expects="1+"
+                ---
+                metadata:
+                  #@overlay/match missing_ok=True
+                  namespace: #@ data.values.namespace
+
+                #@overlay/append
+                ---
+                apiVersion: projectcontour.io/v1
+                kind: HTTPProxy
+                metadata:
+                  name: dex
+                spec:
+                  routes:
+                  - conditions:
+                    - prefix: /
+                    services:
+                    - name: dex
+                      port: 5556
+                  virtualhost:
+                    fqdn: #@ "dex." + data.values.domain
+                    tls:
+                      secretName: #@ data.values.tls_secret_name
+                #@overlay/append
+                ---
+                apiVersion: v1
+                kind: Namespace
+                metadata:
+                  name: #@ data.values.namespace
+
+      deploy:
+        - kapp: {}

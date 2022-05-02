@@ -1,0 +1,141 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: Package
+metadata:
+  name: concourse.tanzu.japan.com.0.0.1
+spec:
+  refName: concourse.tanzu.japan.com
+  version: 0.0.1
+  valuesSchema:
+    openAPIv3:
+      title: concourse.tanzu-jp values schema
+      properties:
+        domain:
+          type: string
+          description: Domain of concourse.
+          default: example.com
+          examples:
+          - example.com
+        namespace:
+          type: string
+          description: Namespace of concourse.
+          default: concourse
+          examples:
+          - concourse
+        local_user:
+          type: string
+          description: Local user
+        local_password:
+          type: string
+          description: Local password
+        github_clientId:
+          type: string
+          description: Github client id.
+        github_clientSecret:
+          type: string
+          description: Github client secret
+        github_organization:
+          type: string
+          description: Github ord id.
+        tls_secret_name:
+          type: string
+          description: TLS certificate secret name
+  template:
+    spec:
+      fetch:
+      - imgpkgBundle:
+          image: harbor.cl01.lespaulstudioplus.info/pkgr/concourse-app:latest
+      template:
+      - ytt:
+          ignoreUnknownComments: true
+          inline:
+            paths:
+              overlay.yaml: |
+                #@ load("@ytt:data", "data")
+                #@ load("@ytt:base64", "base64")
+                #@ load("@ytt:overlay", "overlay")
+                #@ load("@ytt:yaml", "yaml")
+
+                #@ def github_config():
+                roles:
+                - name: member
+                  github:
+                    orgs: 
+                    - #@ data.values.github_organization
+                #@ end
+
+
+                #@overlay/match by=overlay.subset({"kind": "ConfigMap","metadata": {"name": "concourse-web"}})
+                ---
+                data:
+                  #@overlay/match missing_ok=True
+                  main-team.yml: #@ "{}".format(yaml.encode(github_config()))
+                
+                #@overlay/match by=overlay.subset({"kind": "Secret","metadata": {"name": "concourse-web"}})
+                ---
+                data:
+                  #@overlay/match missing_ok=True
+                  github-client-id: #@ base64.encode(data.values.github_clientId)
+                  #@overlay/match missing_ok=True
+                  github-client-secret: #@ base64.encode(data.values.github_clientSecret)
+                  #@overlay/match missing_ok=True
+                  local-users: #@ base64.encode(data.values.local_user + ":" + data.values.local_password)
+                
+                #@overlay/match by=overlay.subset({"kind": "Deployment","metadata": {"name": "concourse-web"}})
+                ---
+                spec:
+                  #@overlay/match missing_ok=True
+                  template:
+                    #@overlay/match missing_ok=True
+                    spec:
+                      #@overlay/match missing_ok=True
+                      containers:
+                      #@overlay/match by="name"
+                      - name: concourse-web
+                        #@overlay/match missing_ok=True
+                        env:
+                        #@overlay/match by="name"
+                        - name: CONCOURSE_EXTERNAL_URL
+                          value: #@ "https://concourse." + data.values.domain
+
+                
+                #@ def namespace_key_empty(left, right):
+                #@   if "metadata" in dict(left).keys():
+                #@     if not "namespace" in dict(left["metadata"]).keys():
+                #@        return True
+                #@     end
+                #@   end
+                #@   return False
+                #@ end
+                
+                #@ namespace = lambda indexOrKey, left, right: namespace_key_empty(left, right)
+                #@overlay/match by=namespace, expects="0+"
+                ---
+                metadata:
+                  #@overlay/match missing_ok=True
+                  namespace: #@ data.values.namespace
+
+                #@overlay/append
+                ---
+                apiVersion: projectcontour.io/v1
+                kind: HTTPProxy
+                metadata:
+                  name: concourse
+                spec:
+                  routes:
+                  - conditions:
+                    - prefix: /
+                    services:
+                    - name: concourse-web
+                      port: 8080
+                    timeoutPolicy:
+                      response: 10m
+                  virtualhost:
+                    fqdn: #@ "concourse." + data.values.domain
+                    tls:
+                      secretName: #@ data.values.tls_secret_name
+      - kbld:
+          paths:
+          - "-"
+          - .imgpkg/images.yml
+      deploy:
+        - kapp: {}

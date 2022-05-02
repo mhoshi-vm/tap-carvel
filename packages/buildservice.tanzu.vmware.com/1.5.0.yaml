@@ -1,0 +1,114 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: Package
+metadata:
+  name: buildservice.tanzu.vmware.com.1.5.0
+spec:
+  refName: buildservice.tanzu.vmware.com
+  version: 1.5.0
+  capacityRequirementsDescription: Cluster with nodes > 50GB ephemeral storage, Registry > 10GB available space
+  releaseNotes: https://docs.vmware.com/en/VMware-Tanzu-Build-Service/index.html
+  releasedAt: "2022-03-18T00:00:00Z"
+  valuesSchema:
+    openAPIv3:
+      properties:
+        admin_groups:
+          description: 'Optional: Comma separated list of groups that will be granted
+              admin privileges on Build Service.'
+          examples:
+            - group1,group2
+          type: string
+        admin_users:
+          description: 'Optional: Comma separated list of users who will be granted
+              admin privileges on Build Service.'
+          examples:
+            - user1,user2
+          type: string
+        ca_cert_data:
+          description: 'Optional: TBS registry ca certificate'
+          type: string
+        descriptor_name:
+          description: Name of descriptor to import (required for dependency updater
+            feature)
+          examples:
+            - lite
+            - full
+          type: string
+        descriptor_version:
+          description: 'Optional: Version of descriptor to use during install. This
+              will override the version installed by default.'
+          type: string
+        enable_automatic_dependency_updates:
+          description: 'Optional: Allow automatic import of new dependency updates
+              from Tanzunet'
+          type: boolean
+        http_proxy:
+          description: 'Optional: the HTTP proxy to use for network traffic.'
+          type: string
+        https_proxy:
+          description: 'Optional: the HTTPS proxy to use for network traffic.'
+          type: string
+        kp_default_repository:
+          description: Docker repository used for builder images and dependencies
+          examples:
+            - registry.io/build-service
+          type: string
+        kp_default_repository_password:
+          description: Password for kp_default_repository
+          examples:
+            - password
+          type: string
+        kp_default_repository_secret.name:
+          description: Secret name for kp_default_repository credentials of type kubernetes.io/dockerconfigjson.
+            Mutually exclusive with kp_default_repository_username/password.
+          type: string
+        kp_default_repository_secret.namespace:
+          description: Secret namespace for kp_default_repository credentials. Mutually
+            exclusive with kp_default_repository_username/password.
+          type: string
+        kp_default_repository_username:
+          description: Username for kp_default_repository
+          examples:
+            - janedoe@vmware.com
+            - _json_key
+          type: string
+        no_proxy:
+          description: 'Optional: A comma-separated list of hostnames, IP addresses,
+              or IP ranges in CIDR format that should not use a proxy.'
+          type: string
+        tanzunet_password:
+          description: 'Optional: Tanzunet registry password required for dependency
+              import at install.'
+          examples:
+            - password
+          type: string
+        tanzunet_secret.name:
+          description: 'Optional: Secret name for tanzu network registry credentials
+              of type kubernetes.io/dockerconfigjson. Mutually exclusive with tanzunet_username/password.'
+          type: string
+        tanzunet_secret.namespace:
+          description: 'Optional: Secret namespace for tanzu network registry credentials.
+              Mutually exclusive with tanzunet_username/password.'
+          type: string
+        tanzunet_username:
+          description: 'Optional: Tanzunet registry username required for dependency
+              import at install.'
+          examples:
+            - janedoe@vmware.com
+          type: string
+      title: buildservice.tanzu.vmware.com values schema
+  template:
+    spec:
+      fetch:
+        - imgpkgBundle:
+            image: dev.registry.tanzu.vmware.com/build-service/bundle@sha256:c06384097223c1be975eb377bd05dcbb2adba2ad2a2019ebddcd72a23a9d7938
+      template:
+        - ytt:
+            paths:
+              - config/
+        - kbld:
+            paths:
+              - '-'
+              - .imgpkg/images.yml
+      deploy:
+        - kapp: {}
+
