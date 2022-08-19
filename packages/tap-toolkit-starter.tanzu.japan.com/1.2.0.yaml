@@ -1,0 +1,276 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: Package
+metadata:
+  name: tap-setup.tanzu.japan.com.1.2.0
+spec:
+  refName: tap-setup.tanzu.japan.com
+  version: 1.2.0
+  valuesSchema:
+    openAPIv3:
+      title: tap-setup.tanzu-jp values schema
+      properties:
+        domain:
+          type: string
+          description: domain_name
+        sso_redirect_url:
+          type: string
+          description: app sso redirect url
+        storage_class:
+          type: string
+          description: storage class
+        rabbitmq_enabled:
+          type: boolean
+          description: Enable rabbitmq
+        postgres_enabled:
+          type: boolean
+          description: Enable postgres
+  template:
+    spec:
+      fetch:
+      - inline:
+          paths:
+            config/base.yaml: |
+              ---
+              apiVersion: services.apps.tanzu.vmware.com/v1alpha1
+              kind: ClusterInstanceClass
+              metadata:
+                name: claimable-secret
+              spec:
+                description:
+                  short: Claimable Secret 
+                pool:
+                  kind: Secret
+                  labelSelector:
+                    matchLabels:
+                      claimable: "true"
+              ---
+              apiVersion: services.apps.tanzu.vmware.com/v1alpha1
+              kind: ResourceClaimPolicy
+              metadata:
+                name: secrets-cross-namespace
+                namespace: service-instances
+              spec:
+                consumingNamespaces:
+                - '*'
+                subject:
+                  kind: Secret
+              ---
+              apiVersion: v1
+              kind: Namespace
+              metadata:
+                name: service-instances
+        path: config/
+      template:
+      - ytt:
+          ignoreUnknownComments: true
+          paths:
+          - config/
+          inline:
+            paths:
+              overlay.yaml: |
+                #@ load("@ytt:data", "data")
+                #@ load("@ytt:overlay", "overlay")
+
+                #@ if data.values.rabbitmq_enabled:
+                ---
+                apiVersion: rbac.authorization.k8s.io/v1
+                kind: ClusterRole
+                metadata:
+                  name: resource-claims-rmq
+                  labels:
+                    servicebinding.io/controller: "true"
+                rules:
+                - apiGroups: ["rabbitmq.com"]
+                  resources: ["rabbitmqclusters"]
+                  verbs: ["get", "list", "watch"]
+                ---
+                apiVersion: services.apps.tanzu.vmware.com/v1alpha1
+                kind: ClusterInstanceClass
+                metadata:
+                  name: rabbitmq
+                spec:
+                  description:
+                    short: It's a RabbitMQ cluster!
+                  pool:
+                    group: rabbitmq.com
+                    kind: RabbitmqCluster
+                ---
+                apiVersion: services.apps.tanzu.vmware.com/v1alpha1
+                kind: ResourceClaimPolicy
+                metadata:
+                  name: rabbitmqcluster-cross-namespace
+                  namespace: service-instances
+                spec:
+                  consumingNamespaces:
+                  - '*'
+                  subject:
+                    group: rabbitmq.com
+                    kind: RabbitmqCluster
+                ---
+                apiVersion: rabbitmq.com/v1beta1
+                kind: RabbitmqCluster
+                metadata:
+                  name: rmq-1
+                  namespace: service-instances
+                #@ end
+                
+                #@ if data.values.postgres_enabled:
+                ---
+                apiVersion: rbac.authorization.k8s.io/v1
+                kind: ClusterRole
+                metadata:
+                  name: resource-claims-postgres
+                  labels:
+                    resourceclaims.services.apps.tanzu.vmware.com/controller: "true"
+                rules:
+                - apiGroups: ["sql.tanzu.vmware.com"]
+                  resources: ["postgres"]
+                  verbs: ["get", "list", "watch", "update"]
+                ---
+                apiVersion: services.apps.tanzu.vmware.com/v1alpha1
+                kind: ClusterInstanceClass
+                metadata:
+                  name: postgres
+                spec:
+                  description:
+                    short: It's a Postgres cluster!
+                  pool:
+                    group: sql.tanzu.vmware.com
+                    kind: Postgres
+                ---
+                apiVersion: services.apps.tanzu.vmware.com/v1alpha1
+                kind: ResourceClaimPolicy
+                metadata:
+                  name: postgrescluster-cross-namespace
+                  namespace: service-instances
+                spec:
+                  consumingNamespaces:
+                  - '*'
+                  subject:
+                    group: sql.tanzu.vmware.com
+                    kind: Postgres
+                ---
+                apiVersion: sql.tanzu.vmware.com/v1
+                kind: Postgres
+                metadata:
+                  name: postgres-1
+                  namespace: service-instances
+                spec:
+                  memory: 100Mi
+                  cpu: "0.1"
+                  storageSize: 10G
+                  storageClassName: #@ data.values.storage_class
+                  monitorStorageClassName: #@ data.values.storage_class
+                  highAvailability:
+                    enabled: false
+                #@ end
+                
+                ---
+                apiVersion: sso.apps.tanzu.vmware.com/v1alpha1
+                kind: AuthServer
+                metadata:
+                  name: basic-authserver
+                  namespace: service-instances
+                  labels:
+                    name: basic-authserver
+                  annotations:
+                    sso.apps.tanzu.vmware.com/allow-client-namespaces: "service-instances"
+                    sso.apps.tanzu.vmware.com/allow-unsafe-issuer-uri: ""
+                    sso.apps.tanzu.vmware.com/allow-unsafe-identity-provider: ""
+                spec:
+                  replicas: 1
+                  issuerURI: #@ "https://authserver." + data.values.domain	
+                  tokenSignature:
+                    signAndVerifyKeyRef:
+                      name: "authserver-signing-key"
+                  identityProviders:
+                    - name: "internal"
+                      internalUnsafe:
+                        users:
+                          - username: "user"
+                            password: "$2a$10$201z9o/tHlocFsHFTo0plukh03ApBYe4dRiXcqeyRQH6CNNtS8jWK"
+                ---
+                apiVersion: secretgen.k14s.io/v1alpha1
+                kind: RSAKey
+                metadata:
+                  name: authserver-signing-key
+                  namespace: service-instances
+                spec:
+                  secretTemplate:
+                    type: Opaque
+                    stringData:
+                      key.pem: $(privateKey)
+                      pub.pem: $(publicKey)
+                ---
+                apiVersion: v1
+                kind: Service
+                metadata:
+                  name: basic-authserver
+                  namespace: service-instances 
+                spec:
+                  selector:
+                    app.kubernetes.io/part-of: basic-authserver
+                    app.kubernetes.io/component: authorization-server
+                  ports:
+                    - port: 80
+                      targetPort: 8080
+                ---
+                apiVersion: projectcontour.io/v1
+                kind: HTTPProxy
+                metadata:
+                  name: basic-authserver
+                  namespace: service-instances
+                spec:
+                  virtualhost:
+                    fqdn: #@ "authserver." + data.values.domain
+                    tls:
+                      secretName: tanzu-system-ingress/cnrs-default-tls
+                  routes:
+                    - conditions:
+                        - prefix: /
+                      services:
+                        - name: basic-authserver
+                          port: 80
+                ---
+                apiVersion: sso.apps.tanzu.vmware.com/v1alpha1
+                kind: ClientRegistration
+                metadata:
+                   name: basic-client-registration
+                   namespace: service-instances
+                spec:
+                   authServerSelector:
+                      matchLabels:
+                         name: basic-authserver
+                   redirectURIs:
+                      - #@ data.values.sso_redirect_url
+                   requireUserConsent: false
+                   clientAuthenticationMethod: basic
+                   authorizationGrantTypes:
+                      - "authorization_code"
+                   scopes:
+                      - name: "openid"
+                ---
+                apiVersion: services.apps.tanzu.vmware.com/v1alpha1
+                kind: ClusterInstanceClass
+                metadata:
+                  name: appsso
+                spec:
+                  description:
+                    short: It's a SSO service!
+                  pool:
+                    group: sso.apps.tanzu.vmware.com
+                    kind: ClientRegistration
+                ---
+                apiVersion: services.apps.tanzu.vmware.com/v1alpha1
+                kind: ResourceClaimPolicy
+                metadata:
+                  name: appsso-cross-namespace
+                  namespace: service-instances
+                spec:
+                  consumingNamespaces:
+                  - '*'
+                  subject:
+                    group: sso.apps.tanzu.vmware.com
+                    kind: ClientRegistration
+      deploy:
+        - kapp: {}

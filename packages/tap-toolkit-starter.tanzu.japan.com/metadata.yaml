@@ -1,0 +1,11 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: PackageMetadata
+metadata:
+  name: tap-toolkit-starter.tanzu.japan.com
+spec:
+  displayName: "TAP Toolkit Starter"
+  shortDescription: "TAP Toolkit Starter"
+  supportDescription: "https://carvel.dev/"
+  providerName: "VMware"
+  maintainers:
+  - name: "Machi Hoshino"
