@@ -230,7 +230,7 @@ spec:
                           - name: source-revision
                         steps:
                           - name: test
-                            image: gradle
+                            image: harbor.lespaulstudioplus.info/library/gradle
                             script: |-
                               cd `mktemp -d`
                 ---

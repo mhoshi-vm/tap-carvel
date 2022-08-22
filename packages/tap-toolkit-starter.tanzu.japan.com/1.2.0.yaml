@@ -1,13 +1,13 @@
 apiVersion: data.packaging.carvel.dev/v1alpha1
 kind: Package
 metadata:
-  name: tap-setup.tanzu.japan.com.1.2.0
+  name: tap-toolkit-starter.tanzu.japan.com.1.2.0
 spec:
-  refName: tap-setup.tanzu.japan.com
+  refName: tap-toolkit-starter.tanzu.japan.com
   version: 1.2.0
   valuesSchema:
     openAPIv3:
-      title: tap-setup.tanzu-jp values schema
+      title: tap-toolkit-starter.tanzu-jp values schema
       properties:
         domain:
           type: string
@@ -54,11 +54,44 @@ spec:
                 - '*'
                 subject:
                   kind: Secret
+                  group: "" 
               ---
               apiVersion: v1
               kind: Namespace
               metadata:
                 name: service-instances
+              ---
+              apiVersion: v1
+              kind: Secret
+              metadata:
+                name: tap-registry
+                namespace: service-instances
+                annotations:
+                  secretgen.carvel.dev/image-pull-secret: ""
+              type: kubernetes.io/dockerconfigjson
+              data:
+                .dockerconfigjson: e30K
+              ---
+              apiVersion: v1
+              kind: ServiceAccount
+              metadata:
+                name: default
+                namespace: service-instances
+              secrets:
+                - name: tap-registry
+              imagePullSecrets:
+                - name: tap-registry
+              ---
+              apiVersion: rbac.authorization.k8s.io/v1
+              kind: ClusterRole
+              metadata:
+                name: resource-claims-secret
+                labels:
+                  servicebinding.io/controller: "true"
+              rules:
+              - apiGroups: [""]
+                resources: ["secrets"]
+                verbs: ["get", "list", "watch"]
         path: config/
       template:
       - ytt:
@@ -112,6 +145,9 @@ spec:
                 metadata:
                   name: rmq-1
                   namespace: service-instances
+                spec:
+                  imagePullSecrets: 
+                  - name: tap-registry
                 #@ end
                 
                 #@ if data.values.postgres_enabled:
@@ -153,7 +189,7 @@ spec:
                 apiVersion: sql.tanzu.vmware.com/v1
                 kind: Postgres
                 metadata:
-                  name: postgres-1
+                  name: postgres-11
                   namespace: service-instances
                 spec:
                   memory: 100Mi
