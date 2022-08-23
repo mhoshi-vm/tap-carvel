@@ -128,6 +128,21 @@ spec:
                     metadata:
                       #@overlay/replace
                       name: carto-validating-webhook-configuration
+                ---
+                apiVersion: v1
+                kind: Secret
+                metadata:
+                  name: remove-has-tests-annotation # secret name referred in annotation
+                  namespace: tap-install
+                stringData:
+                  remove-has-tests-annotation.yaml: |
+                    #@ load("@ytt:overlay", "overlay")
+                    #@overlay/match by=overlay.subset({"kind":"ClusterSupplyChain", "spec": {"selector":{"apps.tanzu.vmware.com/has-tests": "true"}}}), expects="0+"
+                    ---
+                    spec:
+                      selector:
+                        #@overlay/remove missing_ok=True
+                        apps.tanzu.vmware.com/has-tests: "true"
 
                 #@ namespaces = data.values.dev_namespaces
                 #@ for namespace in namespaces:
@@ -204,6 +219,33 @@ spec:
                 stringData:
                   username: #@ data.values.git_username
                   password: #@ data.values.git_password
+                ---
+                apiVersion: rbac.authorization.k8s.io/v1
+                kind: RoleBinding
+                metadata:
+                  name: dev-permit-app-editor
+                  namespace: #@ namespace
+                roleRef:
+                  apiGroup: rbac.authorization.k8s.io
+                  kind: ClusterRole
+                  name: app-editor
+                subjects:
+                  - kind: Group
+                    name: tap-demo
+                    apiGroup: rbac.authorization.k8s.io
+                ---
+                apiVersion: rbac.authorization.k8s.io/v1
+                kind: ClusterRoleBinding
+                metadata:
+                  name: #@ namespace + "-permit-app-editor"
+                roleRef:
+                  apiGroup: rbac.authorization.k8s.io
+                  kind: ClusterRole
+                  name: app-editor-cluster-access
+                subjects:
+                  - kind: Group
+                    name: tap-demo
+ 
                 #@ if data.values.blank_pipeline_and_scan:
                 ---
                 apiVersion: tekton.dev/v1beta1
@@ -380,6 +422,20 @@ spec:
                   resources:
                   - apps
                   verbs: ['get', 'watch', 'list']
+                ---
+                apiVersion: rbac.authorization.k8s.io/v1
+                kind: ClusterRole
+                metadata:
+                  name: additional-k8s-deliverable
+                  labels:
+                    apps.tanzu.vmware.com/aggregate-to-deliverable: "true"
+                rules:
+                - apiGroups: [""]
+                  resources: ["services"]
+                  verbs: ["get", "list", "watch", "create", "patch", "update", "delete", "deletecollection"]
+                - apiGroups: ["apps"]
+                  resources: ["deployments", "statefulsets"]
+                  verbs: ["get", "list", "watch", "create", "patch", "update", "delete", "deletecollection"]
                 #@ end
       deploy:
         - kapp: {}

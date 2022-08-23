@@ -139,15 +139,17 @@ spec:
                   subject:
                     group: rabbitmq.com
                     kind: RabbitmqCluster
+                #@ for j in range(1,5):
                 ---
                 apiVersion: rabbitmq.com/v1beta1
                 kind: RabbitmqCluster
                 metadata:
-                  name: rmq-1
+                  name: #@ "rmq-" + str(j)
                   namespace: service-instances
                 spec:
                   imagePullSecrets: 
                   - name: tap-registry
+                #@ end
                 #@ end
                 
                 #@ if data.values.postgres_enabled:
@@ -185,20 +187,22 @@ spec:
                   subject:
                     group: sql.tanzu.vmware.com
                     kind: Postgres
+                #@ for j in range(1,5):
                 ---
                 apiVersion: sql.tanzu.vmware.com/v1
                 kind: Postgres
                 metadata:
-                  name: postgres-11
+                  name: #@ "postgres-1" + str(j)
                   namespace: service-instances
                 spec:
-                  memory: 100Mi
-                  cpu: "0.1"
+                  memory: 400Mi
+                  cpu: "0.4"
                   storageSize: 10G
                   storageClassName: #@ data.values.storage_class
                   monitorStorageClassName: #@ data.values.storage_class
                   highAvailability:
                     enabled: false
+                #@ end
                 #@ end
                 
                 ---
@@ -243,6 +247,8 @@ spec:
                 metadata:
                   name: basic-authserver
                   namespace: service-instances 
+                  annotations:
+                    kapp.k14s.io/disable-default-label-scoping-rules: ""
                 spec:
                   selector:
                     app.kubernetes.io/part-of: basic-authserver
