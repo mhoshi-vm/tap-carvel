@@ -15,6 +15,14 @@ spec:
         sso_redirect_url:
           type: string
           description: app sso redirect url
+        sso_testuser_enabled:
+          type: boolean
+          default: false
+          description: Enable test users
+        sso_providers:
+          type: object
+          default: []
+          description: SSO providers
         storage_class:
           type: string
           description: storage class
@@ -34,10 +42,10 @@ spec:
               apiVersion: services.apps.tanzu.vmware.com/v1alpha1
               kind: ClusterInstanceClass
               metadata:
-                name: claimable-secret
+                name: secrets
               spec:
                 description:
-                  short: Claimable Secret 
+                  short: It's a set of Secrets!
                 pool:
                   kind: Secret
                   labelSelector:
@@ -224,11 +232,18 @@ spec:
                     signAndVerifyKeyRef:
                       name: "authserver-signing-key"
                   identityProviders:
+                    #@ if data.values.sso_testuser_enabled:
+                    #@overlay/match by="name", missing_ok=True
                     - name: "internal"
                       internalUnsafe:
                         users:
                           - username: "user"
                             password: "$2a$10$201z9o/tHlocFsHFTo0plukh03ApBYe4dRiXcqeyRQH6CNNtS8jWK"
+                    #@ end
+                    #@ for sso_provider in data.values.sso_providers:
+                    #@overlay/match by="name", missing_ok=True
+                    - #@ sso_provider
+                    #@ end
                 ---
                 apiVersion: secretgen.k14s.io/v1alpha1
                 kind: RSAKey
