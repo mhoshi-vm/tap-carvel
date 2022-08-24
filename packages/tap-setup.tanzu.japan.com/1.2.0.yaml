@@ -94,13 +94,12 @@ spec:
                 #@ def dockerhub_config_fragment():
                 username: #@ data.values.registry_username
                 password: #@ data.values.registry_password
-                auth: #@ base64.encode(data.values.registry_username + ":" + data.values.registry_password)
                 #@ end
                 
                 #@ docker_config = { data.values.registry : dockerhub_config_fragment()}
                 
                 #@ def dockerhub_config():
-                auth: #@ docker_config 
+                auths: #@ docker_config 
                 #@ end
 
                 #@overlay/append
@@ -153,7 +152,6 @@ spec:
                   .dockerconfigjson: #@ base64.encode("{}".format(yaml.decode(yaml.encode(dockerhub_config()))))
                 kind: Secret
                 metadata:
-                  creationTimestamp: null
                   name: registry-credentials
                   namespace: #@ namespace
                 type: kubernetes.io/dockerconfigjson
