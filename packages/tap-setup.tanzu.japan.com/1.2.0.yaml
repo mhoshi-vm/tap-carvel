@@ -41,6 +41,9 @@ spec:
         blank_pipeline_and_scan:
           type: boolean
           description: Enable blank tekton pipeline and scan template
+        metastore_enabled:
+          type: boolean
+          description: Enable blank tekton pipeline and scan template
   template:
     spec:
       fetch:
@@ -57,26 +60,6 @@ spec:
                 - secretName: cnrs-default-tls
                   targetNamespaces:
                   - "*"
-              ---
-              apiVersion: rbac.authorization.k8s.io/v1
-              kind: ClusterRoleBinding
-              metadata:
-                name: metadata-store-ready-only
-              roleRef:
-                apiGroup: rbac.authorization.k8s.io
-                kind: ClusterRole
-                name: metadata-store-read-only
-              subjects:
-              - kind: ServiceAccount
-                name: metadata-store-read-client
-                namespace: metadata-store
-              ---
-              apiVersion: v1
-              kind: ServiceAccount
-              metadata:
-                name: metadata-store-read-client
-                namespace: metadata-store
-              automountServiceAccountToken: false
         path: config/
       template:
       - ytt:
@@ -142,6 +125,29 @@ spec:
                       selector:
                         #@overlay/remove missing_ok=True
                         apps.tanzu.vmware.com/has-tests: "true"
+                 
+                #@ if data.values.metastore_enabled:
+                ---
+                apiVersion: rbac.authorization.k8s.io/v1
+                kind: ClusterRoleBinding
+                metadata:
+                  name: metadata-store-ready-only
+                roleRef:
+                  apiGroup: rbac.authorization.k8s.io
+                  kind: ClusterRole
+                  name: metadata-store-read-only
+                subjects:
+                - kind: ServiceAccount
+                  name: metadata-store-read-client
+                  namespace: metadata-store
+                ---
+                apiVersion: v1
+                kind: ServiceAccount
+                metadata:
+                  name: metadata-store-read-client
+                  namespace: metadata-store
+                automountServiceAccountToken: false
+                #@ end
 
                 #@ namespaces = data.values.dev_namespaces
                 #@ for namespace in namespaces:
@@ -342,6 +348,7 @@ spec:
                 #@ end
                 #@ end
 
+                #@ if data.values.tap_gui_viewer_enabled: 
                 ---
                 apiVersion: rbac.authorization.k8s.io/v1
                 kind: ClusterRole
@@ -356,7 +363,6 @@ spec:
                 - apiGroups: ["apps"]
                   resources: ["deployments", "statefulsets"]
                   verbs: ["get", "list", "watch", "create", "patch", "update", "delete", "deletecollection"]
-                #@ if data.values.tap_gui_viewer_enabled: 
                 ---
                 apiVersion: v1
                 kind: Namespace

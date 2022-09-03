@@ -36,9 +36,6 @@ spec:
         harbor_callback:
           type: string
           description: harbor callback
-        tls_secret_name:
-          type: string
-          description: TLS certificate secret name
   template:
     spec:
       fetch:

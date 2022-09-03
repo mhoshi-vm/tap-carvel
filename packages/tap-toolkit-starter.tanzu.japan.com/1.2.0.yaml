@@ -12,9 +12,9 @@ spec:
         domain:
           type: string
           description: domain_name
-        sso_redirect_url:
-          type: string
-          description: app sso redirect url
+        sso_redirect_urls:
+          type: array
+          description: app sso redirect urls
         sso_testuser_enabled:
           type: boolean
           default: false
@@ -298,8 +298,7 @@ spec:
                    authServerSelector:
                       matchLabels:
                          name: basic-authserver
-                   redirectURIs:
-                      - #@ data.values.sso_redirect_url
+                   redirectURIs: #@ data.values.sso_redirect_urls
                    requireUserConsent: false
                    clientAuthenticationMethod: basic
                    authorizationGrantTypes:
