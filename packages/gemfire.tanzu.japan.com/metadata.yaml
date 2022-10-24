@@ -1,0 +1,11 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: PackageMetadata
+metadata:
+  name: gemfire.tanzu.japan.com
+spec:
+  displayName: "Tanzu Gemfire"
+  shortDescription: "Tanzu Gemfire"
+  supportDescription: "https://carvel.dev/"
+  providerName: "VMware"
+  maintainers:
+  - name: "Machi Hoshino"

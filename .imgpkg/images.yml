@@ -2,9 +2,6 @@
 apiVersion: imgpkg.carvel.dev/v1alpha1
 images:
 - annotations:
-    kbld.carvel.dev/id: dev.registry.tanzu.vmware.com/tanzu-sql-postgres/carvel/tanzu-postgres-operator-bundle@sha256:74b4a66fc0e3baa6410a245517959c2ad7098634df97b54f97544ab6c7686ba8
-  image: dev.registry.tanzu.vmware.com/tanzu-sql-postgres/carvel/tanzu-postgres-operator-bundle@sha256:74b4a66fc0e3baa6410a245517959c2ad7098634df97b54f97544ab6c7686ba8
-- annotations:
-    kbld.carvel.dev/id: dev.registry.tanzu.vmware.com/tanzu-sql-postgres/carvel/tanzu-postgres-operator-bundle@sha256:80eebefdbdb89d1a97ace192d9d11d8140ae1ddd8e2be46edc2911fae450a6b6
-  image: dev.registry.tanzu.vmware.com/tanzu-sql-postgres/carvel/tanzu-postgres-operator-bundle@sha256:80eebefdbdb89d1a97ace192d9d11d8140ae1ddd8e2be46edc2911fae450a6b6
+    kbld.carvel.dev/id: registry.tanzu.vmware.com/tanzu-gemfire-for-kubernetes/gemfire-for-kubernetes-carvel-bundle:2.1.0
+  image: registry.tanzu.vmware.com/tanzu-gemfire-for-kubernetes/gemfire-for-kubernetes-carvel-bundle@sha256:029d336d8f5ac00e417d1497f055a186b2a0dc92e0b97e6380737fc381a90367
 kind: ImagesLock

@@ -1,0 +1,53 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: Package
+metadata:
+  name: gemfire.tanzu.japan.com.2.1.0
+spec:
+  refName: gemfire.tanzu.japan.com
+  version: 2.1.0
+  template:
+    spec:
+      fetch:
+      - imgpkgBundle:
+          image: registry.tanzu.vmware.com/tanzu-gemfire-for-kubernetes/gemfire-for-kubernetes-carvel-bundle:2.1.0
+        path: gemfire/
+      template:
+      - ytt:
+          ignoreUnknownComments: true
+          paths:
+          - gemfire/operator.yaml
+          - gemfire/certificates.yaml
+          - gemfire/functions.lib.yml
+          inline:
+            paths:
+              base.yaml: |
+                ---
+                apiVersion: v1
+                kind: Namespace
+                metadata:
+                  name: gemfire-system
+                ---
+                apiVersion: v1
+                kind: Secret
+                metadata:
+                  name: reg-secret
+                  namespace: gemfire-system
+                  annotations:
+                    secretgen.carvel.dev/image-pull-secret: ""
+                type: kubernetes.io/dockerconfigjson
+                data:
+                  .dockerconfigjson: e30K
+              values-update.yaml: |
+                #@data/values
+                ---
+                namespace: gemfire-system
+                name: gemfire-operator
+                certManagerNamespace: ""
+                imagePullSecretName: "reg-secret"
+                tlsSecretName: ""
+                registry:
+                  server: ""
+                  username: ""
+                  password: ""
+      deploy:
+        - kapp: {}
