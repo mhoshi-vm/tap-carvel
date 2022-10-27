@@ -231,7 +231,7 @@ spec:
                   name: gemfire
                 spec:
                   description:
-                    short: It's a Gemfire Cluster !
+                    short: It's a Gemfire cluster !
                   pool:
                     kind: Secret
                     labelSelector:
@@ -292,7 +292,7 @@ spec:
                 type: servicebinding.io/redis
                 stringData:
                   type: redis
-                  cluster.nodes: #@ "gemfire-redis" + str(j) + "-server-0.gemfire-redis" + str(j) + "-server.service-instances.svc.local:6379"
+                  cluster.nodes: #@ "gemfire-redis" + str(j) + "-server-0.gemfire-redis" + str(j) + "-server.service-instances:6379"
                 #@ end
                 #@ end
                 
