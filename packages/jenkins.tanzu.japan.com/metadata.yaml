@@ -1,0 +1,11 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: PackageMetadata
+metadata:
+  name: jenkins.tanzu.japan.com
+spec:
+  displayName: "Jenkins"
+  shortDescription: "Jenkins Build great things at any scale"
+  supportDescription: "https://www.jenkins.io/"
+  providerName: "Bitnami"
+  maintainers:
+  - name: "Machi Hoshino"

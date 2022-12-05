@@ -23,6 +23,9 @@ spec:
         registry_password:
           type: string
           description: contanier registry password
+        gradle_image:
+          type: string
+          description: gradle image path used for tekton
         git_username:
           type: string
           description: Git username
@@ -260,9 +263,9 @@ spec:
                         params:
                           - name: source-url
                           - name: source-revision
-                        steps:
+                        steps: 
                           - name: test
-                            image: harbor.lespaulstudioplus.info/library/gradle
+                            image: #@ data.values.gradle_image
                             script: |-
                               cd `mktemp -d`
 
