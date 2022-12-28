@@ -1,0 +1,40 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: Package
+metadata:
+  name: tap-yaml2source-supplychain.tanzu.japan.com.1.3.4
+spec:
+  refName: tap-yaml2source-supplychain.tanzu.japan.com
+  version: 1.3.4
+  valuesSchema:
+    openAPIv3:
+      title: tap-yaml2source-supplychain.tanzu-jp values schema
+      properties:
+        git_username:
+          type: string
+          description: Git username
+        git_repository:
+          type: string
+          description: Git repository
+        image_registry_path:
+          type: string
+          description: Image registry path
+        image_registry:
+          type: string
+          description: Image registry
+        config_registry_path:
+          type: string
+          description: Config registry path
+        config_registry:
+          type: string
+          description: Config registry
+  template:
+    spec:
+      fetch:
+      - git:
+          url: https://github.com/mhoshi-vm/tap-carvel
+          ref: origin/pkgr
+          subPath: manifests/tap-yaml2source-supplychain.tanzu.japan.com/1.3.4
+      template:
+      - ytt: {}
+      deploy:
+      - kapp: {}

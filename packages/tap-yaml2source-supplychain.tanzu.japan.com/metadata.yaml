@@ -1,0 +1,11 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: PackageMetadata
+metadata:
+  name: tap-yaml2source-supplychain.tanzu.japan.com
+spec:
+  displayName: "TAP YAML2Source Supplychain"
+  shortDescription: "TAP YAML2Source Supplychain"
+  supportDescription: "https://carvel.dev/"
+  providerName: "VMware"
+  maintainers:
+  - name: "Machi Hoshino"
