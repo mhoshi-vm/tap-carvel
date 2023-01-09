@@ -114,6 +114,12 @@ metadata:
   annotations:
     kapp.k14s.io/exists: ""
     kapp.k14s.io/change-group: "tkcrd"
+spec:
+  group: gemfire.vmware.com
+  versions:
+    - name: v1
+  names:
+    kind: GemFireCluster
 #@ count = data.values.gemfire.count + 1
 #@ for j in range(1,count):
 ---

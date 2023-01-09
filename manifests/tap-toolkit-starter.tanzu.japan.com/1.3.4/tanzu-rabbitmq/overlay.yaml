@@ -96,6 +96,12 @@ metadata:
   annotations:
     kapp.k14s.io/exists: ""
     kapp.k14s.io/change-group: "tkcrd"
+spec:
+  group: rabbitmq.com
+  versions:
+    - name: v1beta1
+  names:
+    kind: RabbitmqCluster
 #@ count = data.values.rabbitmq.count + 1
 #@ for j in range(1,count):
 ---
