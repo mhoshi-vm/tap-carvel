@@ -17,6 +17,7 @@ jobs:
         shell: bash
         run: |
           wget -O- https://carvel.dev/install.sh > /tmp/install.sh
+          chmod +x /tmp/install.sh
           /tmp/install.sh
       - name: Calculate variables
         shell: bash
