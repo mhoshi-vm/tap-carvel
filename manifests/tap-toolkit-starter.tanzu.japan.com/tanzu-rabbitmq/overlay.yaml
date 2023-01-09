@@ -1,0 +1,120 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:overlay", "overlay")
+
+
+#@ if data.values.rabbitmq.enabled:
+#@ if data.values.rabbitmq.package.install:
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: rabbitmq-install
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: tap-registry
+  namespace: rabbitmq-install
+  annotations:
+    secretgen.carvel.dev/image-pull-secret: ""
+type: kubernetes.io/dockerconfigjson
+data:
+  .dockerconfigjson: e30K
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: default
+  namespace: rabbitmq-install
+secrets:
+  - name: tap-registry
+imagePullSecrets:
+  - name: tap-registry
+---
+apiVersion: packaging.carvel.dev/v1alpha1
+kind: PackageRepository
+metadata:
+  generation: 2
+  name: tmq-pack
+  namespace: rabbitmq-install
+  annotations:
+    kapp.k14s.io/change-group: "pkgr"
+spec:
+  fetch:
+    imgpkgBundle:
+      image: #@ data.values.rabbitmq.package.repo + ":" + data.values.rabbitmq.package.version
+---
+apiVersion: packaging.carvel.dev/v1alpha1
+kind: PackageInstall
+metadata:
+  name: rabbitmq
+  namespace: rabbitmq-install
+spec:
+  packageRef:
+    refName: rabbitmq.tanzu.vmware.com
+    versionSelection:
+      constraints: #@ data.values.rabbitmq.package.operator_version
+#@ end
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: resource-claims-rmq
+  labels:
+    servicebinding.io/controller: "true"
+rules:
+- apiGroups: ["rabbitmq.com"]
+  resources: ["rabbitmqclusters"]
+  verbs: ["get", "list", "watch"]
+---
+apiVersion: services.apps.tanzu.vmware.com/v1alpha1
+kind: ClusterInstanceClass
+metadata:
+  name: rabbitmq
+spec:
+  description:
+    short: It's a RabbitMQ cluster!
+  pool:
+    group: rabbitmq.com
+    kind: RabbitmqCluster
+---
+apiVersion: services.apps.tanzu.vmware.com/v1alpha1
+kind: ResourceClaimPolicy
+metadata:
+  name: rabbitmqcluster-cross-namespace
+  namespace: service-instances
+spec:
+  consumingNamespaces:
+  - '*'
+  subject:
+    group: rabbitmq.com
+    kind: RabbitmqCluster
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: rabbitmqclusters.rabbitmq.com
+  annotations:
+    kapp.k14s.io/exists: ""
+    kapp.k14s.io/change-group: "crd"
+#@ count = data.values.rabbitmq.count + 1
+#@ for j in range(1,count):
+---
+apiVersion: rabbitmq.com/v1beta1
+kind: RabbitmqCluster
+metadata:
+  name: #@ "rmq-" + str(j)
+  namespace: service-instances
+  annotations:
+    kapp.k14s.io/change-rule: "upsert after upserting crd"
+spec:
+  imagePullSecrets:
+  - name: tap-registry
+  rabbitmq:
+    additionalPlugins:
+      - rabbitmq_shovel
+      - rabbitmq_shovel_management
+      - rabbitmq_management
+      - rabbitmq_prometheus
+      - rabbitmq_peer_discovery_k8s
+#@ end
+#@ end

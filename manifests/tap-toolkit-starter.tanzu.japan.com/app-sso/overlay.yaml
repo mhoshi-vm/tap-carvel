@@ -1,0 +1,105 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:overlay", "overlay")
+
+---
+apiVersion: sso.apps.tanzu.vmware.com/v1alpha1
+kind: AuthServer
+metadata:
+  name: basic-authserver
+  namespace: service-instances
+  labels:
+    name: basic-authserver
+  annotations:
+    sso.apps.tanzu.vmware.com/allow-client-namespaces: "service-instances"
+    sso.apps.tanzu.vmware.com/allow-unsafe-issuer-uri: ""
+    sso.apps.tanzu.vmware.com/allow-unsafe-identity-provider: ""
+spec:
+  replicas: 1
+  tls:
+    secretRef:
+      name: cnrs-default-tls
+  tokenSignature:
+    signAndVerifyKeyRef:
+      name: "authserver-signing-key"
+  identityProviders:
+    #@ if data.values.sso.testuser_enabled:
+    #@overlay/match by="name", missing_ok=True
+    - name: "internal"
+      internalUnsafe:
+        users:
+          - username: "user"
+            password: "{bcrypt}$2a$10$201z9o/tHlocFsHFTo0plukh03ApBYe4dRiXcqeyRQH6CNNtS8jWK"
+    #@ end
+    #@ for sso_provider in data.values.sso.providers:
+    #@overlay/match by="name", missing_ok=True
+    - #@ sso_provider
+    #@ end
+---
+apiVersion: secretgen.carvel.dev/v1alpha1
+kind: SecretExport
+metadata:
+  name: cnrs-default-tls
+  namespace: tanzu-system-ingress
+spec:
+  toNamespace: service-instances
+---
+apiVersion: secretgen.carvel.dev/v1alpha1
+kind: SecretImport
+metadata:
+  name: cnrs-default-tls
+  namespace: service-instances
+spec:
+  fromNamespace: tanzu-system-ingress
+---
+apiVersion: secretgen.k14s.io/v1alpha1
+kind: RSAKey
+metadata:
+  name: authserver-signing-key
+  namespace: service-instances
+spec:
+  secretTemplate:
+    type: Opaque
+    stringData:
+      key.pem: $(privateKey)
+      pub.pem: $(publicKey)
+---
+apiVersion: sso.apps.tanzu.vmware.com/v1alpha1
+kind: ClientRegistration
+metadata:
+   name: basic-client-registration
+   namespace: service-instances
+spec:
+   authServerSelector:
+      matchLabels:
+         name: basic-authserver
+   redirectURIs: #@ data.values.sso.redirect_urls
+   requireUserConsent: false
+   clientAuthenticationMethod: basic
+   authorizationGrantTypes:
+      - client_credentials
+      - authorization_code
+   scopes:
+      - name: "openid"
+---
+apiVersion: services.apps.tanzu.vmware.com/v1alpha1
+kind: ClusterInstanceClass
+metadata:
+  name: appsso
+spec:
+  description:
+    short: It's a SSO service!
+  pool:
+    group: sso.apps.tanzu.vmware.com
+    kind: ClientRegistration
+---
+apiVersion: services.apps.tanzu.vmware.com/v1alpha1
+kind: ResourceClaimPolicy
+metadata:
+  name: appsso-cross-namespace
+  namespace: service-instances
+spec:
+  consumingNamespaces:
+  - '*'
+  subject:
+    group: sso.apps.tanzu.vmware.com
+    kind: ClientRegistration

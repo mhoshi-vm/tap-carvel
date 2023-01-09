@@ -1,0 +1,42 @@
+name: Publish Templates
+
+on:
+  push:
+    brach:
+      - main
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install carvel
+        shell: bash
+        run: |
+          wget -O- https://carvel.dev/install.sh > /tmp/install.sh
+          /tmp/install.sh
+      - name: Calculate variables
+        shell: bash
+        run: |
+          REPOSITORY_NAME=${{github.event.repository.name}}
+          echo "REPOSITORY_NAME=${REPOSITORY_NAME,,}" >>${GITHUB_ENV}
+          echo "REPOSITORY_OWNER=${GITHUB_REPOSITORY_OWNER,,}" >>${GITHUB_ENV}
+          echo "REPOSITORY_TAG=${GITHUB_REF#refs/tags/}" >>${GITHUB_ENV}
+      - name: Build and publish
+        shell: bash
+        run: |
+          mkdir .imgpkg
+          kbld -f ./ --imgpkg-lock-output .imgpkg/images.yml
+          imgpkg push -b ghcr.io/${REPOSITORY_OWNER}/${REPOSITORY_NAME} -f ./ --file-exclusion manifests --file-exclusion .gitignore --file-exclusion .git --file-exclusion .github  --registry-username=${{github.actor}} --registry-password=${{secrets.GITHUB_TOKEN}}
+      - name: Create release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          release_name: "${{env.REPOSITORY_NAME}}"
+          draft: false
+          prerelease: false

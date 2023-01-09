@@ -9,24 +9,19 @@ spec:
     openAPIv3:
       title: tap-yaml2source-supplychain.tanzu-jp values schema
       properties:
-        git_username:
-          type: string
-          description: Git username
-        git_repository:
-          type: string
-          description: Git repository
-        image_registry_path:
-          type: string
-          description: Image registry path
-        image_registry:
-          type: string
-          description: Image registry
-        config_registry_path:
-          type: string
-          description: Config registry path
-        config_registry:
-          type: string
-          description: Config registry
+        jenkins:
+          type: object
+          description: jenkins object
+          properties:
+            url:
+              type: string
+              description: jenkins url
+            username:
+              type: string
+              description: jenkins username
+            password:
+              type: string
+              description: jenkins password
   template:
     spec:
       fetch:
