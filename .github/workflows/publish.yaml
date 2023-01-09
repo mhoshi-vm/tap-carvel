@@ -30,7 +30,6 @@ jobs:
         shell: bash
         run: |
           mkdir .imgpkg
-          kbld -f ./ --imgpkg-lock-output .imgpkg/images.yml
           imgpkg push -b ghcr.io/${REPOSITORY_OWNER}/${REPOSITORY_NAME} -f ./ --file-exclusion manifests --file-exclusion .gitignore --file-exclusion .git --file-exclusion .github  --registry-username=${{github.actor}} --registry-password=${{secrets.GITHUB_TOKEN}}
       - name: Create release
         id: create_release
