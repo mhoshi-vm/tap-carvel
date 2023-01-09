@@ -147,7 +147,7 @@ spec:
               description: Enable test users
               default: true
             providers:
-              nullable: true
+              type: array
               description: Providers
               default: []
             redirect_urls:
