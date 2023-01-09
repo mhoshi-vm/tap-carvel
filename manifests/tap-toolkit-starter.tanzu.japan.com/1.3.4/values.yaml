@@ -63,6 +63,8 @@ gemfire:
 
 #@schema/desc "AppSSO starter"
 sso:
+  #@schema/desc "domain of sso (soon to be deprecated)"
+  domain: "example.com"
   #@schema/desc "Enable test users"
   testuser_enabled: true
   #@schema/desc "Providers"

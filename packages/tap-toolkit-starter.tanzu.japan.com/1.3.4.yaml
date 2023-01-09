@@ -142,6 +142,10 @@ spec:
           additionalProperties: false
           description: AppSSO starter
           properties:
+            domain:
+              type: string
+              description: domain of sso (soon to be deprecated)
+              default: example.com
             testuser_enabled:
               type: boolean
               description: Enable test users

@@ -15,9 +15,7 @@ metadata:
     sso.apps.tanzu.vmware.com/allow-unsafe-identity-provider: ""
 spec:
   replicas: 1
-  tls:
-    secretRef:
-      name: cnrs-default-tls
+  issuerURI: #@ "https://authserver." + data.values.sso.domain
   tokenSignature:
     signAndVerifyKeyRef:
       name: "authserver-signing-key"
@@ -34,22 +32,6 @@ spec:
     #@overlay/match by="name", missing_ok=True
     - #@ sso_provider
     #@ end
----
-apiVersion: secretgen.carvel.dev/v1alpha1
-kind: SecretExport
-metadata:
-  name: cnrs-default-tls
-  namespace: tanzu-system-ingress
-spec:
-  toNamespace: service-instances
----
-apiVersion: secretgen.carvel.dev/v1alpha1
-kind: SecretImport
-metadata:
-  name: cnrs-default-tls
-  namespace: service-instances
-spec:
-  fromNamespace: tanzu-system-ingress
 ---
 apiVersion: secretgen.k14s.io/v1alpha1
 kind: RSAKey
@@ -103,3 +85,35 @@ spec:
   subject:
     group: sso.apps.tanzu.vmware.com
     kind: ClientRegistration
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: basic-authserver
+  namespace: service-instances
+  annotations:
+    kapp.k14s.io/disable-default-label-scoping-rules: ""
+spec:
+  selector:
+    app.kubernetes.io/part-of: basic-authserver
+    app.kubernetes.io/component: authorization-server
+  ports:
+    - port: 80
+      targetPort: 8080
+---
+apiVersion: projectcontour.io/v1
+kind: HTTPProxy
+metadata:
+  name: basic-authserver
+  namespace: service-instances
+spec:
+  virtualhost:
+    fqdn: #@ "authserver." + data.values.sso.domain
+    tls:
+      secretName: tanzu-system-ingress/cnrs-default-tls
+  routes:
+    - conditions:
+        - prefix: /
+      services:
+        - name: basic-authserver
+          port: 80
