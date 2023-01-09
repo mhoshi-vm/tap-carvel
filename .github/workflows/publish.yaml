@@ -3,7 +3,7 @@ name: Publish Templates
 on:
   push:
     brach:
-      - main
+      - pkgr
 
 jobs:
   publish:
