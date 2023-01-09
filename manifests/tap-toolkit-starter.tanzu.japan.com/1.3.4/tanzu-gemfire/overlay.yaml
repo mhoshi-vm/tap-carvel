@@ -120,6 +120,7 @@ spec:
     - name: v1
   names:
     kind: GemFireCluster
+  scope: Namespaced
 #@ count = data.values.gemfire.count + 1
 #@ for j in range(1,count):
 ---
