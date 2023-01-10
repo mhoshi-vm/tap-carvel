@@ -53,6 +53,20 @@ spec:
     refName: postgres-operator.sql.tanzu.vmware.com
     versionSelection:
       constraints: #@ data.values.postgres.package.operator_version
+  values:
+  - secretRef:
+      name: change-default-reg-secret
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: change-default-reg-secret
+  namespace: postgres-install
+stringData:
+  change-default-reg-secret.yml: |
+    #@data/values-schema
+    ---    
+    dockerRegistrySecretName: tap-registry
 #@ end
 ---
 apiVersion: rbac.authorization.k8s.io/v1
