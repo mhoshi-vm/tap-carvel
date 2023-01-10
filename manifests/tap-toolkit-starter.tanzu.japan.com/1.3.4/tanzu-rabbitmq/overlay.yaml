@@ -23,12 +23,26 @@ data:
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: default
+  name: kapp-sa
   namespace: rabbitmq-install
 secrets:
   - name: tap-registry
 imagePullSecrets:
   - name: tap-registry
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: rabbit-kapp-role-binding
+  namespace: rabbitmq-install
+subjects:
+- kind: ServiceAccount
+  name: kapp-sa
+  namespace: rabbitmq-install
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
 ---
 apiVersion: packaging.carvel.dev/v1alpha1
 kind: PackageRepository
@@ -49,7 +63,7 @@ metadata:
   name: rabbitmq
   namespace: rabbitmq-install
 spec:
-  serviceAccountName: default
+  serviceAccountName: kapp-sa 
   packageRef:
     refName: rabbitmq.tanzu.vmware.com
     versionSelection:
