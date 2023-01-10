@@ -17,10 +17,10 @@ metadata:
     name: basic-authserver
   annotations:
     sso.apps.tanzu.vmware.com/allow-client-namespaces: "service-instances"
-    #@ if data.values.sso.tls.enabled:
+    #@ if not data.values.sso.tls.enabled:
     sso.apps.tanzu.vmware.com/allow-unsafe-issuer-uri: ""
     #@ end
-    #@ if data.values.sso.testuser_enabled::
+    #@ if data.values.sso.testuser_enabled:
     sso.apps.tanzu.vmware.com/allow-unsafe-identity-provider: ""
     #@ end
 spec:
@@ -119,7 +119,7 @@ metadata:
 spec:
   virtualhost:
     fqdn: #@ "authserver." + data.values.sso.domain
-    #@ if data.values.sso.tls.enabled
+    #@ if data.values.sso.tls.enabled:
     tls:
       secretName: #@ data.values.sso.tls.secretname
     #@ end 
