@@ -30,13 +30,3 @@ jobs:
         shell: bash
         run: |
           imgpkg push -b ghcr.io/${REPOSITORY_OWNER}/${REPOSITORY_NAME} -f ./ --file-exclusion manifests --file-exclusion .gitignore --file-exclusion .git --file-exclusion .github  --registry-username=${{github.actor}} --registry-password=${{secrets.GITHUB_TOKEN}}
-      - name: Create release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          release_name: "${{env.REPOSITORY_NAME}}"
-          tag_name: latest
-          draft: false
-          prerelease: false
