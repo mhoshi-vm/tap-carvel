@@ -49,6 +49,7 @@ metadata:
   name: rabbitmq
   namespace: rabbitmq-install
 spec:
+  serviceAccountName: default
   packageRef:
     refName: rabbitmq.tanzu.vmware.com
     versionSelection:

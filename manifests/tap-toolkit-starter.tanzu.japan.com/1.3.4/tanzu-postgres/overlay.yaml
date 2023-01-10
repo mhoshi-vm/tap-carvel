@@ -33,8 +33,7 @@ imagePullSecrets:
 apiVersion: packaging.carvel.dev/v1alpha1
 kind: PackageRepository
 metadata:
-  generation: 2
-  name: tmq-pack
+  name: tds-pack
   namespace: postgres-install
   annotations:
     kapp.k14s.io/change-group: "pkgr"
@@ -49,6 +48,7 @@ metadata:
   name: postgres
   namespace: postgres-install
 spec:
+  serviceAccountName: default
   packageRef:
     refName: postgres-operator.sql.tanzu.vmware.com
     versionSelection:

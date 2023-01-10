@@ -35,52 +35,50 @@ metadata:
   name: gemfire
   namespace: gemfire-install
 spec:
+  fetch:
+  - imgpkgBundle:
+      image:  #@ data.values.gemfire.package.repo + ":" + data.values.gemfire.package.version
+    path: gemfire/
   template:
-    spec:
-      fetch:
-      - imgpkgBundle:
-          image:  #@ data.values.gemfire.package.repo + ":" + data.values.gemfire.package.version
-        path: gemfire/
-      template:
-      - ytt:
-          ignoreUnknownComments: true
-          paths:
-          - gemfire/operator.yaml
-          - gemfire/certificates.yaml
-          - gemfire/functions.lib.yml
-          inline:
-            paths:
-              base.yaml: |
-                ---
-                apiVersion: v1
-                kind: Namespace
-                metadata:
-                  name: gemfire-system
-                ---
-                apiVersion: v1
-                kind: Secret
-                metadata:
-                  name: reg-secret
-                  namespace: gemfire-system
-                  annotations:
-                    secretgen.carvel.dev/image-pull-secret: ""
-                type: kubernetes.io/dockerconfigjson
-                data:
-                  .dockerconfigjson: e30K
-              values-update.yaml: |
-                #@data/values
-                ---
-                namespace: gemfire-system
-                name: gemfire-operator
-                certManagerNamespace: ""
-                imagePullSecretName: "reg-secret"
-                tlsSecretName: ""
-                registry:
-                  server: ""
-                  username: ""
-                  password: ""
-      deploy:
-        - kapp: {}
+  - ytt:
+      ignoreUnknownComments: true
+      paths:
+      - gemfire/operator.yaml
+      - gemfire/certificates.yaml
+      - gemfire/functions.lib.yml
+      inline:
+        paths:
+          base.yaml: |
+            ---
+            apiVersion: v1
+            kind: Namespace
+            metadata:
+              name: gemfire-system
+            ---
+            apiVersion: v1
+            kind: Secret
+            metadata:
+              name: reg-secret
+              namespace: gemfire-system
+              annotations:
+                secretgen.carvel.dev/image-pull-secret: ""
+            type: kubernetes.io/dockerconfigjson
+            data:
+              .dockerconfigjson: e30K
+          values-update.yaml: |
+            #@data/values
+            ---
+            namespace: gemfire-system
+            name: gemfire-operator
+            certManagerNamespace: ""
+            imagePullSecretName: "reg-secret"
+            tlsSecretName: ""
+            registry:
+              server: ""
+              username: ""
+              password: ""
+  deploy:
+    - kapp: {}
 #@ end
 ---
 apiVersion: services.apps.tanzu.vmware.com/v1alpha1
