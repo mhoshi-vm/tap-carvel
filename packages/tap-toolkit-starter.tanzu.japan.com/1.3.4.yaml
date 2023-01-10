@@ -146,6 +146,19 @@ spec:
               type: string
               description: domain of sso (soon to be deprecated)
               default: example.com
+            tls:
+              type: object
+              additionalProperties: false
+              description: tls setting (soon to be deprecated)
+              properties:
+                enabled:
+                  type: boolean
+                  description: enable (recommended to true)
+                  default: false
+                secretname:
+                  type: string
+                  description: secret name
+                  default: tanzu-system-ingress/cnrs-default-tls
             testuser_enabled:
               type: boolean
               description: Enable test users

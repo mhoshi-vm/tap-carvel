@@ -1,6 +1,12 @@
 #@ load("@ytt:data", "data")
 #@ load("@ytt:overlay", "overlay")
 
+
+#@ if data.values.sso.tls.enabled:
+#@ http_prefix  = "https://authserver."
+#@ else:
+#@ http_prefix  = "http://authserver."
+#@ end
 ---
 apiVersion: sso.apps.tanzu.vmware.com/v1alpha1
 kind: AuthServer
@@ -11,11 +17,15 @@ metadata:
     name: basic-authserver
   annotations:
     sso.apps.tanzu.vmware.com/allow-client-namespaces: "service-instances"
+    #@ if data.values.sso.tls.enabled:
     sso.apps.tanzu.vmware.com/allow-unsafe-issuer-uri: ""
+    #@ end
+    #@ if data.values.sso.testuser_enabled::
     sso.apps.tanzu.vmware.com/allow-unsafe-identity-provider: ""
+    #@ end
 spec:
   replicas: 1
-  issuerURI: #@ "https://authserver." + data.values.sso.domain
+  issuerURI: #@ http_prefix + data.values.sso.domain
   tokenSignature:
     signAndVerifyKeyRef:
       name: "authserver-signing-key"
@@ -109,8 +119,10 @@ metadata:
 spec:
   virtualhost:
     fqdn: #@ "authserver." + data.values.sso.domain
+    #@ if data.values.sso.tls.enabled
     tls:
-      secretName: tanzu-system-ingress/cnrs-default-tls
+      secretName: #@ data.values.sso.tls.secretname
+    #@ end 
   routes:
     - conditions:
         - prefix: /

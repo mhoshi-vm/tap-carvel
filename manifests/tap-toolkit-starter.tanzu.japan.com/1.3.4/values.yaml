@@ -65,6 +65,12 @@ gemfire:
 sso:
   #@schema/desc "domain of sso (soon to be deprecated)"
   domain: "example.com"
+  #@schema/desc "tls setting (soon to be deprecated)"
+  tls:
+   #@schema/desc "enable (recommended to true)"
+   enabled: false
+   #@schema/desc "secret name"
+   secretname: tanzu-system-ingress/cnrs-default-tls
   #@schema/desc "Enable test users"
   testuser_enabled: true
   #@schema/desc "Providers"
