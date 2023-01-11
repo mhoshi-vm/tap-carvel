@@ -53,6 +53,8 @@ spec:
   fetch:
   - imgpkgBundle:
       image:  #@ data.values.gemfire.package.repo + ":" + data.values.gemfire.package.version
+      secretRef:
+        name: tap-registry
     path: gemfire/
   template:
   - ytt:
