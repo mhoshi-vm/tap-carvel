@@ -22,12 +22,26 @@ data:
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: default
+  name: kapp-sa
   namespace: gemfire-install
 secrets:
   - name: tap-registry
 imagePullSecrets:
   - name: tap-registry
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: gemfire-kapp-role-binding
+  namespace: gemfire-install
+subjects:
+- kind: ServiceAccount
+  name: kapp-sa
+  namespace: gemfire-install
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
 ---
 apiVersion: kappctrl.k14s.io/v1alpha1
 kind: App
@@ -35,6 +49,7 @@ metadata:
   name: gemfire
   namespace: gemfire-install
 spec:
+  serviceAccountName: kapp-sa
   fetch:
   - imgpkgBundle:
       image:  #@ data.values.gemfire.package.repo + ":" + data.values.gemfire.package.version
