@@ -1,0 +1,68 @@
+#@ load("@ytt:yaml", "yaml")
+#@ load("@ytt:data", "data")
+#@ load("@ytt:overlay", "overlay")
+
+#@ namespaces = data.values.dev_namespaces
+#@ for namespace in namespaces:
+#@overlay/append
+#@ if data.values.blank_pipeline_and_scan.enabled:
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: developer-defined-tekton-pipeline
+  namespace: #@ namespace
+  labels:
+    apps.tanzu.vmware.com/pipeline: test
+spec:
+  params:
+    - name: source-url
+    - name: source-revision
+  tasks:
+    - name: test
+      taskSpec:
+        steps:
+          - name: test
+            image: #@ data.values.blank_pipeline_and_scan.test_image
+            script: |-
+              echo hello
+---
+apiVersion: scanning.apps.tanzu.vmware.com/v1beta1
+kind: ScanPolicy
+metadata:
+  name: scan-policy
+  namespace: #@ namespace
+spec:
+  regoFile: |
+    package main
+
+    deny[msg] {
+    	false
+    	msg = "dummy"
+    }
+---
+apiVersion: packaging.carvel.dev/v1alpha1
+kind: PackageInstall
+metadata:
+  name: #@ "grype-" + namespace
+  namespace: tap-install
+spec:
+  packageRef:
+    refName: grype.scanning.apps.tanzu.vmware.com
+    versionSelection:
+      constraints: 1.3.1
+      prereleases: {}
+  serviceAccountName: tap-install-sa
+  values:
+  - secretRef:
+      name: #@ "grype-values-" + namespace
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: #@ "grype-values-" + namespace
+  namespace: tap-install
+stringData:
+  values.yaml: #@ yaml.encode({ "namespace": namespace, "targetImagePullSecret": "tqp-registry" })
+#@ end
+#@ end

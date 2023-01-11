@@ -1,0 +1,94 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:overlay", "overlay")
+
+#@ namespaces = data.values.dev_namespaces
+#@ for namespace in namespaces:
+#@overlay/append
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: #@ namespace
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: tap-registry
+  namespace: #@ namespace
+  annotations:
+    secretgen.carvel.dev/image-pull-secret: ""
+type: kubernetes.io/dockerconfigjson
+data:
+  .dockerconfigjson: e30K
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: default
+  namespace: #@ namespace
+secrets:
+  #@ if data.values.imageops.enabled:
+  - name: registry-credentials
+  #@ end
+  - name: tap-registry
+  #@ if data.values.gitops.enabled:
+  - name: git-ssh
+  #@ end
+imagePullSecrets:
+  #@ if data.values.imageops.enabled:
+  - name: registry-credentials
+  #@ end
+  - name: tap-registry
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: default-permit-deliverable
+  namespace: #@ namespace
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: deliverable
+subjects:
+  - kind: ServiceAccount
+    name: default
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: default-permit-workload
+  namespace: #@ namespace
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: workload
+subjects:
+  - kind: ServiceAccount
+    name: default
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: dev-permit-app-editor
+  namespace: #@ namespace
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: app-editor
+subjects:
+  - kind: Group
+    name: tap-demo
+    apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: #@ namespace + "-permit-app-editor"
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: app-editor-cluster-access
+subjects:
+  - kind: Group
+    name: tap-demo
+#@ end

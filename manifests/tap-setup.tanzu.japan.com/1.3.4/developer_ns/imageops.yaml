@@ -1,0 +1,32 @@
+#@ load("@ytt:yaml", "yaml")
+#@ load("@ytt:data", "data")
+#@ load("@ytt:overlay", "overlay")
+#@ load("@ytt:base64", "base64")
+
+#@ def dockerhub_config_fragment():
+username: #@ data.values.imageops.username
+password: #@ data.values.imageops.password
+#@ end
+
+#@ docker_config = { data.values.imageops.registry : dockerhub_config_fragment()}
+
+#@ def dockerhub_config():
+auths: #@ docker_config
+#@ end
+
+#@ if data.values.imageops.enabled:
+#@ namespaces = data.values.dev_namespaces
+#@ for namespace in namespaces:
+#@overlay/append
+---
+apiVersion: v1
+data:
+  .dockerconfigjson: #@ base64.encode("{}".format(yaml.decode(yaml.encode(dockerhub_config()))))
+kind: Secret
+metadata:
+  name: registry-credentials
+  namespace: #@ namespace
+type: kubernetes.io/dockerconfigjson
+---
+#@ end
+#@ end
