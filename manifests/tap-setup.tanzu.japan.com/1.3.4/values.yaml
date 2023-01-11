@@ -7,8 +7,8 @@ tls:
   key: dummy
 
 #@schema/desc "Developer namespaces"
-#@schema/default ["dev_ns1"]
-dev_namespaces: ["dev_ns1"]
+#@schema/default ["dev-ns1"]
+dev_namespaces: ["dev-ns1"]
 
 #@schema/desc "imageops credentials"
 imageops:

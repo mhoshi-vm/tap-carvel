@@ -28,9 +28,9 @@ spec:
           description: Developer namespaces
           items:
             type: string
-            default: dev_ns1
+            default: dev-ns1
           default:
-          - dev_ns1
+          - dev-ns1
         imageops:
           type: object
           additionalProperties: false
