@@ -7,7 +7,7 @@ stringData:
   add-w-kbld-supplychain.yaml: |
     #@ load("@ytt:overlay", "overlay")
     
-    #@overlay/match by=overlay.subset({"kind": "ClusterSupplyChain"})
+    #@overlay/match by=overlay.subset({"kind": "ClusterSupplyChain"}),expects="1+"
     ---
     metadata:
       #@overlay/replace via=lambda a,_: a+"-w-kbld"
