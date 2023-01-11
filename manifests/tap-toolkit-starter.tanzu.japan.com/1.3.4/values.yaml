@@ -75,8 +75,7 @@ sso:
   testuser_enabled: true
   #@schema/desc "Providers"
   #@schema/type any=True
-  providers: 
-  - "aaa"
+  providers: []
   #@schema/desc "Redirect URLs"
   redirect_urls: 
   - https://example.com
