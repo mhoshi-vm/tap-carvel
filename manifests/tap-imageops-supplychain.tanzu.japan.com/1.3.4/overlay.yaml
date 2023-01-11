@@ -20,4 +20,4 @@ stringData:
       resources:
       #@overlay/match by=overlay.subset({"name": "config-writer"})
       - templateRef:
-          name: config-writer-w-kbld
+          name: config-writer-template-w-kbld
