@@ -1,0 +1,11 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: PackageMetadata
+metadata:
+  name: tap-imageops-supplychain.tanzu.japan.com
+spec:
+  displayName: "TAP ImageOps SupplyChain"
+  shortDescription: "TAP ImageOps SupplyChain"
+  supportDescription: "https://carvel.dev/"
+  providerName: "VMware"
+  maintainers:
+  - name: "Machi Hoshino"
