@@ -1,0 +1,37 @@
+#@ load("@ytt:data", "data")
+
+#@ namespaces = data.values.dev_namespaces
+#@ for namespace in namespaces:
+#@overlay/append
+#@ if data.values.bucketrepo.enabled:
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: bucketrepo-settings-xml
+  namespace: #@ namespace
+type: service.binding/maven
+stringData:
+  type: maven
+  settings.xml: |
+    <settings xmlns="http://maven.apache.org/SETTINGS/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 https://maven.apache.org/xsd/settings-1.0.0.xsd">
+      <servers>
+        <server>
+          <id>bucketrepo</id>
+          <username>admin</username>
+          <password>changeme</password>
+        </server>
+      </servers>
+
+      <mirrors>
+        <mirror>
+          <id>bucketrepo</id>
+          <name>bucketrepo</name>
+          <url>http://bucketrepo.bucketrepo.svc.cluster.local/bucketrepo</url>
+          <mirrorOf>*</mirrorOf>
+        </mirror>
+      </mirrors>
+    </settings>
+#@ end
+#@ end
