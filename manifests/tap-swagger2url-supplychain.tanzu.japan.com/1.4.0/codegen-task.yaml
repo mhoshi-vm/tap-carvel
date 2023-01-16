@@ -102,6 +102,9 @@ spec:
 
         echo "$(params.git_repository)" | tee "$(results.url.path)"
         echo "$(params.git_branch)" | tee "$(results.revision.path)"
+      volumeMounts:
+        - name: source-dir
+          mountPath: /source
   volumes:
     - name: source-dir
       emptyDir: {}
