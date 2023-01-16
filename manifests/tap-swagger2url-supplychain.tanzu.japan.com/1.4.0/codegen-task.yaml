@@ -61,7 +61,8 @@ spec:
       - /source/openapi.yaml 
       - -g 
       - spring 
-      - -o /source
+      - -o 
+      - /source
       volumeMounts:
         - name: source-dir
           mountPath: /source
