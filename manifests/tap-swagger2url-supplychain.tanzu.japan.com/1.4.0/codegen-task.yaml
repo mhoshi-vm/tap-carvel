@@ -98,7 +98,7 @@ spec:
         git push origin $(params.git_branch)
 
         echo "$(params.git_repository)" | tee "$(results.url.path)"
-        echo "$(params.git_branc)" | tee "$(results.revision.path)"
+        echo "$(params.git_branch)" | tee "$(results.revision.path)"
   volumes:
     - name: source-dir
       emptyDir: {}
