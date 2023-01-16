@@ -1,0 +1,57 @@
+apiVersion: carto.run/v1alpha1
+kind: ClusterSourceTemplate
+metadata:
+  name: codegen-template
+spec:
+  urlPath: .status.taskResults[?(@.name=="url")].value
+  revisionPath: .status.taskResults[?(@.name=="revision")].value
+
+  lifecycle: tekton
+
+  ytt: |
+    #@ load("@ytt:data", "data")
+    #@
+    #@ 
+    #@ def merge_labels(fixed_values):
+    #@   labels = {}
+    #@   if hasattr(data.values.workload.metadata, "labels"):
+    #@     labels.update(data.values.workload.metadata.labels)
+    #@   end
+    #@   labels.update(fixed_values)
+    #@   return labels
+    #@ end
+
+    #@ def param(key):
+    #@   if not key in data.values.params:
+    #@     return None
+    #@   end
+    #@   return data.values.params[key]
+    #@ end
+
+    ---
+    apiVersion: tekton.dev/v1beta1
+    kind: TaskRun
+    metadata:
+      generateName: #@ data.values.workload.metadata.name + "-codegen-"
+      labels: #@ merge_labels({ "app.kubernetes.io/component": "codegen" })
+    spec:
+      serviceAccountName: #@ data.values.params.serviceAccount
+      taskRef:
+        name: codegen-task
+        kind: ClusterTask
+      params: 
+      - name: source-url
+        value: data.values.source.url
+      - name: source-revision
+        value: data.values.source.revisions
+      - name: git_repository
+        value: #@ param(git_repository)
+      - name: git_branch
+        value: #@ param("git_branch")
+      - name: git_user_name
+        value: #@ param("git_user_name")
+      - name: git_user_email
+        value: #@ param("git_user_email")
+      - name: git_commit_message
+        value: #@ param("git_commit_message")
+

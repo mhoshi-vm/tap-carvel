@@ -1,0 +1,104 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: tekton.dev/v1beta1
+kind: ClusterTask
+metadata:
+  name: codegen-task
+spec:
+  params:
+    - name: source-url
+      type: string
+    - name: source-revision
+      description: Name (reference) of the image to build.
+      type: string
+    - name: git_repository
+      description: The repository path
+      type: string
+    - name: git_branch
+      description: The git branch to read and write
+      type: string
+      default: "main"
+    - name: git_user_email
+      description: User email address
+      type: string
+      default: "example@example.com"
+    - name: git_user_name
+      description: User name
+      type: string
+      default: "Example"
+    - name: git_commit_message
+      description: Message for the git commit
+      type: string
+      default: "New Commit"
+  results:
+    - description: Url of the build.
+      name: url
+    - description: Revision of the build.
+      name: revision
+  steps:
+    - name: pull-source-code
+      image: #@ data.values.image.kpack_kp
+      script: |
+        #!/usr/bin/env bash
+
+        set -o errexit
+        set -o xtrace
+
+        imgpkg version
+        imgpkg pull -i ${source-revision} -o /source
+
+      volumeMounts:
+        - name: source-dir
+          mountPath: /source
+    - name: codegen
+      image: #@ data.values.image.openapi_generator
+      args:
+      - generate 
+      - -i 
+      - /source/openapi.yaml 
+      - -g 
+      - spring 
+      - -o /source
+      volumeMounts:
+        - name: source-dir
+          mountPath: /source
+    - name: commit-and-push
+      image: #@ data.values.image.scripting_base
+      script: |
+        #!/usr/bin/env bash
+
+        set -o errexit
+        set -o xtrace
+
+        ssh_config_file=$(mktemp)
+
+        echo "
+        UserKnownHostsFile /tekton/creds/.ssh/known_hosts
+        Include $(credentials.path)/.ssh/config
+        " > $ssh_config_file
+
+        export GIT_SSH_COMMAND="ssh -F $ssh_config_file"
+
+        cd `mktemp -d`
+
+        if git clone --depth 1 -b "$(params.git_branch)" "$(params.git_repository)" ./repo; then
+          cd ./repo
+        else
+          git clone --depth 1 "$(params.git_repository)" ./repo
+          cd ./repo
+          git checkout -b "$(params.git_branch)"
+        fi
+
+        git config user.email "$(params.git_user_email)"
+        git config user.name "$(params.git_user_name)"
+
+        cp -rap /source/* ./
+
+        git commit -m "$(params.git_commit_message)" --allow-empty
+        git push origin $(params.git_branch)
+
+        echo "$(params.git_repository)" | tee "$(results.url.path)"
+        echo "$(params.git_branc)" | tee "$(results.revision.path)"
+  volumes:
+    - name: source-dir
+      emptyDir: {}

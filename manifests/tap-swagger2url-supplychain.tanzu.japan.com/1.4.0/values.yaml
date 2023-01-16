@@ -1,0 +1,13 @@
+#@data/values-schema
+---
+git:
+  repository: ""
+  branch: main
+  username: supplychain
+  email: supplychain
+  commit_message: supplychain@cluster.local
+
+image:
+  scripting_base: registry.tanzu.vmware.com/ootb-templates/scripting-base@sha256:72dddaea72f572810d325aa6754da040d5d00e246f11cfdd1a7bcefdca071e43
+  openapi_generator: openapitools/openapi-generator-cli
+  kpack_kp: kpack/kp

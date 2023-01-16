@@ -1,0 +1,47 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: carto.run/v1alpha1
+kind: ClusterSupplyChain
+metadata:
+  name: swagger2url
+spec:
+  params:
+    - name: git_branch
+      default: #@ data.values.git.branch
+    - name: git_user_name
+      default: #@ data.values.git.username
+    - name: git_user_email
+      default: #@ data.values.git.email
+    - name: git_commit_message
+      default: #@ data.values.git.commit_message
+    - name: git_repository
+      default: #@ data.values.git.repository
+  resources:
+  - name: source-provider
+    params:
+    - name: serviceAccount
+      value: default
+    - name: gitImplementation
+      value: go-git
+    templateRef:
+      kind: ClusterSourceTemplate
+      name: source-template
+  - name: codegen
+    templateRef:
+      kind: ClusterSourceTemplate
+      name: codegen-template
+    sources:
+    - resource: source-provider
+      name: source
+  - name: workload-provider
+    templateRef:
+      kind: ClusterTemplate
+      name: codegen-workload
+    sources:
+    - resource: codegen
+      name: source
+  selectorMatchExpressions:
+  - key: apps.tanzu.vmware.com/workload-type
+    operator: In
+    values:
+    - swagger2url
