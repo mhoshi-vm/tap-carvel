@@ -102,8 +102,8 @@ spec:
         git commit -m "$(params.git_commit_message)" --allow-empty
         git push origin $(params.git_branch)
 
-        echo "$(params.git_repository)" | tee "$(results.url.path)"
-        echo "$(params.git_branch)" | tee "$(results.revision.path)"
+        echo -n "$(params.git_repository)" | tee "$(results.url.path)"
+        echo -n "$(params.git_branch)" | tee "$(results.revision.path)"
       volumeMounts:
         - name: source-dir
           mountPath: /source
