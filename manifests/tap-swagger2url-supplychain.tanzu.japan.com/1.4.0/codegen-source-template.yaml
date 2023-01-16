@@ -35,7 +35,8 @@ spec:
       generateName: #@ data.values.workload.metadata.name + "-codegen-"
       labels: #@ merge_labels({ "app.kubernetes.io/component": "codegen" })
     spec:
-      serviceAccountName: #@ data.values.params.serviceAccount
+      #@ if/end hasattr(data.values.workload.spec, "serviceAccountName"):
+      serviceAccountName: #@ data.values.workload.spec.serviceAccountName
       taskRef:
         name: codegen-task
         kind: ClusterTask
