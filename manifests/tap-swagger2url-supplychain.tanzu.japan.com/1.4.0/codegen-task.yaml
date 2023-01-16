@@ -6,9 +6,9 @@ metadata:
   name: codegen-task
 spec:
   params:
-    - name: source-url
+    - name: source_url
       type: string
-    - name: source-revision
+    - name: source_revision
       description: Name (reference) of the image to build.
       type: string
     - name: git_repository
@@ -43,9 +43,11 @@ spec:
 
         set -o errexit
         set -o xtrace
+        echo ${source_url}
+        echo ${source_revision}
 
         imgpkg version
-        imgpkg pull -i ${source-revision} -o /source
+        imgpkg pull -i ${source_revision} -o /source
 
       volumeMounts:
         - name: source-dir

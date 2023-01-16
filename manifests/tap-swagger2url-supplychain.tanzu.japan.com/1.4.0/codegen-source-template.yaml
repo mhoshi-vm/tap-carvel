@@ -41,9 +41,9 @@ spec:
         name: codegen-task
         kind: ClusterTask
       params: 
-      - name: source-url
+      - name: source_url
         value: data.values.source.url
-      - name: source-revision
+      - name: source_revision
         value: data.values.source.revisions
       - name: git_repository
         value: #@ param("git_repository")
