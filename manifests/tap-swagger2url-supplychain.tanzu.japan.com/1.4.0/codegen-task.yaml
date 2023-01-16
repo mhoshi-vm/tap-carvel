@@ -47,7 +47,7 @@ spec:
         imgpkg version
         imgpkg pull -i "$(params.source_revision)" -o /imgpkg
         cp -rp /imgpkg/* /source
-        chmod +r /source
+        chmod 777 /source
       securityContext:
         runAsUser: 0
       volumeMounts:
