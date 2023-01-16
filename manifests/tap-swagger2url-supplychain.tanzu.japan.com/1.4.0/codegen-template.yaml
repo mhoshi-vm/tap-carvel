@@ -1,19 +1,19 @@
 apiVersion: carto.run/v1alpha1
 kind: ClusterTemplate
 metadata:
-  name: codegen-workload-1
+  name: codegen-workload
 spec:
   ytt: |
     #@ load("@ytt:data", "data")    
     apiVersion: carto.run/v1alpha1
     kind: Workload
     metadata:
-      name: #@ "{}-tanzu-java-web-app".format(data.values.workload.metadata.name)
+      name: #@ "{}-codegen-api".format(data.values.workload.metadata.name)
       labels:
         apps.tanzu.vmware.com/workload-type: web
         apps.tanzu.vmware.com/has-tests: "true"
         apps.tanzu.vmware.com/auto-configure-actuators: "true"
-        app.kubernetes.io/part-of: #@ "{}-tanzu-java-web-app".format(data.values.workload.metadata.name)
+        app.kubernetes.io/part-of: #@ "{}-codegen-api".format(data.values.workload.metadata.name)
     spec:
       #@ if/end hasattr(data.values.workload.spec, "serviceAccountName"):
       serviceAccountName: #@ data.values.workload.spec.serviceAccountName
@@ -26,4 +26,3 @@ spec:
           url: #@ data.values.source.url
           ref:
             branch: #@ data.values.source.revision
-        subPath: tanzu-java-web-app
