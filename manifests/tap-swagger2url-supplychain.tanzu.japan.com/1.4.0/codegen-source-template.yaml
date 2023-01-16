@@ -45,7 +45,7 @@ spec:
       - name: source-revision
         value: data.values.source.revisions
       - name: git_repository
-        value: #@ param(git_repository)
+        value: #@ param("git_repository")
       - name: git_branch
         value: #@ param("git_branch")
       - name: git_user_name
