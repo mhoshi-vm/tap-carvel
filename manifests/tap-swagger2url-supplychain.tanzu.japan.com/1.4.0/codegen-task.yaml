@@ -43,11 +43,9 @@ spec:
 
         set -o errexit
         set -o xtrace
-        echo ${source_url}
-        echo ${source_revision}
 
         imgpkg version
-        imgpkg pull -i ${source_revision} -o /source
+        imgpkg pull -i "$(source_revision)" -o /source
 
       volumeMounts:
         - name: source-dir
