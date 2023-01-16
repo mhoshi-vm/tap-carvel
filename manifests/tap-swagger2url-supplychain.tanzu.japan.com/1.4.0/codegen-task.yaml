@@ -46,7 +46,9 @@ spec:
 
         imgpkg version
         imgpkg pull -i "$(params.source_revision)" -o /source
-
+        chmod +r /source
+      securityContext:
+        runAsUser: 0
       volumeMounts:
         - name: source-dir
           mountPath: /source
