@@ -42,9 +42,9 @@ spec:
         kind: ClusterTask
       params: 
       - name: source_url
-        value: data.values.source.url
+        value: #@ data.values.source.url
       - name: source_revision
-        value: data.values.source.revisions
+        value: #@ data.values.source.revisions
       - name: git_repository
         value: #@ param("git_repository")
       - name: git_branch
