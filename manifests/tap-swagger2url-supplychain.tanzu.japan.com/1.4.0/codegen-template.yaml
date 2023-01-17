@@ -21,6 +21,14 @@ spec:
       - name: annotations
         value:
           autoscaling.knative.dev/minScale: "1"
+      - name: api_descriptor
+        value:
+          description: OpenAPI docs
+          location:
+            path: /v3/api-docs
+          owner: #@ data.values.workload.metadata.name
+          system: dev
+          type: openapi
       source:
         git:
           url: #@ data.values.source.url
