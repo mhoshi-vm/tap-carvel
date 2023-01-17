@@ -1,0 +1,187 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: Package
+metadata:
+  name: tap-toolkit-starter.tanzu.japan.com.1.4.0
+spec:
+  refName: tap-toolkit-starter.tanzu.japan.com
+  version: 1.4.0
+  valuesSchema:
+    openAPIv3:
+      title: tap-toolkit-starter.tanzu-jp values schema
+      properties:
+        rabbitmq:
+          type: object
+          additionalProperties: false
+          description: Rabbitmq starter
+          properties:
+            enabled:
+              type: boolean
+              description: Enable starter
+              default: true
+            package:
+              type: object
+              additionalProperties: false
+              description: package installation
+              properties:
+                install:
+                  type: boolean
+                  description: install via carvel
+                  default: true
+                repo:
+                  type: string
+                  description: install repo
+                  default: registry.tanzu.vmware.com/p-rabbitmq-for-kubernetes/tanzu-rabbitmq-package-repo
+                version:
+                  type: string
+                  description: install version
+                  default: 1.4.0
+                operator_version:
+                  type: string
+                  description: operator version
+                  default: 1.4.0
+            count:
+              type: integer
+              description: instance count
+              default: 1
+        postgres:
+          type: object
+          additionalProperties: false
+          description: Postgres starter
+          properties:
+            enabled:
+              type: boolean
+              description: Enable starter
+              default: true
+            package:
+              type: object
+              additionalProperties: false
+              description: package installation
+              properties:
+                install:
+                  type: boolean
+                  description: install via carvel
+                  default: true
+                repo:
+                  type: string
+                  description: install repo
+                  default: registry.tanzu.vmware.com/packages-for-vmware-tanzu-data-services/tds-packages
+                version:
+                  type: string
+                  description: install version
+                  default: 1.5.0
+                operator_version:
+                  type: string
+                  description: operator version
+                  default: 1.9.0
+            count:
+              type: integer
+              description: instance count
+              default: 1
+            storage_class:
+              type: string
+              description: storage class
+              default: default
+            instance_version:
+              type: string
+              description: instance version
+              default: postgres-14
+        gemfire:
+          type: object
+          additionalProperties: false
+          description: Gemfire starter
+          properties:
+            enabled:
+              type: boolean
+              description: Enable starter
+              default: true
+            package:
+              type: object
+              additionalProperties: false
+              description: package installation
+              properties:
+                install:
+                  type: boolean
+                  description: install via carvel
+                  default: true
+                repo:
+                  type: string
+                  description: install repo
+                  default: registry.tanzu.vmware.com/tanzu-gemfire-for-kubernetes/gemfire-for-kubernetes-carvel-bundle
+                version:
+                  type: string
+                  description: install version
+                  default: 2.1.0
+            count:
+              type: integer
+              description: instance count
+              default: 1
+            image:
+              type: object
+              additionalProperties: false
+              description: gemfire image
+              properties:
+                repo:
+                  type: string
+                  default: registry.tanzu.vmware.com/pivotal-gemfire/vmware-gemfire
+                version:
+                  type: string
+                  default: 9.15.1
+            redis_adapter:
+              type: object
+              additionalProperties: false
+              description: redis adapter image
+              properties:
+                repo:
+                  type: string
+                  default: registry.tanzu.vmware.com/tanzu-gemfire-for-redis-apps/gemfire-for-redis-apps
+                version:
+                  type: string
+                  default: 1.0.1
+        sso:
+          type: object
+          additionalProperties: false
+          description: AppSSO starter
+          properties:
+            domain:
+              type: string
+              description: domain of sso (soon to be deprecated)
+              default: example.com
+            tls:
+              type: object
+              additionalProperties: false
+              description: tls setting (soon to be deprecated)
+              properties:
+                enabled:
+                  type: boolean
+                  description: enable (recommended to true)
+                  default: false
+                secretname:
+                  type: string
+                  description: secret name
+                  default: tanzu-system-ingress/cnrs-default-tls
+            testuser_enabled:
+              type: boolean
+              description: Enable test users
+              default: true
+            providers:
+              type: array
+              description: Providers
+              default: []
+            redirect_urls:
+              type: array
+              description: Redirect URLs
+              items:
+                type: string
+                default: https://example.com
+              default: []
+  template:
+    spec:
+      fetch:
+      - git:
+          url: https://github.com/mhoshi-vm/tap-carvel
+          ref: origin/pkgr
+          subPath: manifests/tap-toolkit-starter.tanzu.japan.com/1.4.0
+      template:
+      - ytt: {}
+      deploy:
+      - kapp: {}
