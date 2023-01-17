@@ -142,29 +142,29 @@ spec:
           additionalProperties: false
           description: AppSSO starter
           properties:
-            domain:
-              type: string
-              description: domain of sso (soon to be deprecated)
-              default: example.com
             tls:
               type: object
               additionalProperties: false
-              description: tls setting (soon to be deprecated)
+              description: tls setting
               properties:
                 enabled:
                   type: boolean
                   description: enable (recommended to true)
                   default: false
-                secretname:
+                certname:
                   type: string
-                  description: secret name
-                  default: tanzu-system-ingress/cnrs-default-tls
+                  description: cert name
+                  default: cnrs-default-tls
+                certnamespace:
+                  type: string
+                  description: cert namespace
+                  default: tanzu-system-ingress
             testuser_enabled:
               type: boolean
               description: Enable test users
               default: true
             providers:
-              type: array
+              nullable: true
               description: Providers
               default: []
             redirect_urls:

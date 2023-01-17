@@ -41,6 +41,29 @@ spec:
     #@overlay/match by="name", missing_ok=True
     - #@ sso_provider
     #@ end
+#@ if data.values.sso.tls.enabled:
+  tls:
+    secretRef:
+      name: #@ data.values.sso.tls.certname
+#@ if data.values.sso.tls.certnamespace != "":
+---
+apiVersion: secretgen.carvel.dev/v1alpha1
+kind: SecretExport
+metadata:
+  name: #@ data.values.sso.tls.certname
+  namespace: #@ data.values.sso.tls.certnamespace
+spec:
+  toNamespace: service-instances
+---
+apiVersion: secretgen.carvel.dev/v1alpha1
+kind: SecretImport
+metadata:
+  name: #@ data.values.sso.tls.certname
+  namespace: service-instances
+spec:
+  fromNamespace: #@ data.values.sso.tls.certnamespace
+#@ end
+#@ end
 ---
 apiVersion: secretgen.k14s.io/v1alpha1
 kind: RSAKey
@@ -94,37 +117,3 @@ spec:
   subject:
     group: sso.apps.tanzu.vmware.com
     kind: ClientRegistration
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: basic-authserver
-  namespace: service-instances
-  annotations:
-    kapp.k14s.io/disable-default-label-scoping-rules: ""
-spec:
-  selector:
-    app.kubernetes.io/part-of: basic-authserver
-    app.kubernetes.io/component: authorization-server
-  ports:
-    - port: 80
-      targetPort: 8080
----
-apiVersion: projectcontour.io/v1
-kind: HTTPProxy
-metadata:
-  name: basic-authserver
-  namespace: service-instances
-spec:
-  virtualhost:
-    fqdn: #@ "basic-authserver-service-instances." + data.values.sso.domain
-    #@ if data.values.sso.tls.enabled:
-    tls:
-      secretName: #@ data.values.sso.tls.secretname
-    #@ end 
-  routes:
-    - conditions:
-        - prefix: /
-      services:
-        - name: basic-authserver
-          port: 80
