@@ -164,7 +164,7 @@ spec:
               description: Enable test users
               default: true
             providers:
-              type: arry
+              type: array
               description: Providers
               items:
                 type: object
