@@ -1,3 +1,4 @@
+
 apiVersion: v1
 kind: Secret
 metadata:
@@ -5,6 +6,7 @@ metadata:
   namespace: tap-install
 stringData:
   add-w-kbld-supplychain.yaml: |
+    #@ load("@ytt:data", "data")
     #@ load("@ytt:overlay", "overlay")
     
     #@overlay/match by=overlay.subset({"kind": "ClusterSupplyChain"}),expects="1+"
