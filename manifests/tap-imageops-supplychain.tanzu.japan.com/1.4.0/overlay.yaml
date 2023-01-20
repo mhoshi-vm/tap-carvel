@@ -14,7 +14,14 @@ stringData:
       name:
 
     spec:
+      selectorMatchExpressions:
+      #@overlay/append
+      - key: withKbld
+        operator: Exists
       resources:
+      #@overlay/match by=overlay.subset({"name": "config-writer"})
+      - templateRef:
+          name: config-writer-template-w-kbld
       #@overlay/match by=overlay.subset({"name": "app-config"})
       - configs:
         #@overlay/match by=overlay.subset({"resource": "config-provider"})
@@ -27,11 +34,3 @@ stringData:
         configs:
           - resource: config-provider
             name: config
-      selectorMatchExpressions:
-      #@overlay/append
-      - key: withKbld
-        operator: Exists
-      resources:
-      #@overlay/match by=overlay.subset({"name": "config-writer"})
-      - templateRef:
-          name: config-writer-template-w-kbld
