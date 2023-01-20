@@ -36,6 +36,7 @@ spec:
     #@
     #@   return param("registry")["ca_cert_data"]
     #@ end
+
     ---
     apiVersion: tekton.dev/v1beta1
     kind: TaskRun
