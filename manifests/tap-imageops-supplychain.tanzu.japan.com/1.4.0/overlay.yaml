@@ -35,3 +35,6 @@ stringData:
         configs:
           - resource: config-provider
             name: config
+        params:
+          - name: registry
+            value: #@ data.values.registry
