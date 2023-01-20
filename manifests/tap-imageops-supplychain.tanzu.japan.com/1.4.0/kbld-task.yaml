@@ -1,21 +1,11 @@
 #@ load("@ytt:data", "data")
-#@yaml/text-templated-strings
-
-#@ if/end "image-writer" not in data.values.excluded_templates:
 ---
 apiVersion: tekton.dev/v1beta1
 kind: ClusterTask
 metadata:
-  name: image-writer-w-kbld
+  name: kbld-task
 spec:
-  description: |-
-    a task that writes a given set of files (provided as a json base64-encoded)
-    to a container image registry as an image making use of the imgpkg bundle
-    format.
   params:
-    - name: bundle
-      description: name of the registry + repository to push the bundle to
-      type: string
     - name: files
       type: string
       description: >
@@ -27,6 +17,9 @@ spec:
       description: >
         PEM encoded certificate data for the image registry where the files
         will be pushed to.
+  results:
+    - description: Updated config
+      name: config
   steps:
     - name: main
       env:
@@ -47,12 +40,15 @@ spec:
         echo -e "$(params.files)" | base64 --decode > files.json
         eval "$(cat files.json | jq -r 'to_entries | .[] | @sh "mkdir -p $(dirname \(.key)) && echo \(.value) > \(.key)"')"
 
-        imgpkg_params=""
+        mkdir -p .imgpkg
+
+        kbld_params=""
         if [[ ! -z "$(params.ca_cert_data)" ]]; then
           certs_dir=$(mktemp -d)
           echo "$(params.ca_cert_data)" > $certs_dir/cert
-          imgpkg_params="--registry-ca-cert-path=$certs_dir/cert"
+          kbld_params="--registry-ca-cert-path=$certs_dir/cert"
         fi
 
-        export IMGPKG_ENABLE_IAAS_AUTH=(@= str(data.values.iaas_auth).lower() @)
-        imgpkg push $imgpkg_params -b $(params.bundle) -f .
+        kbld ${kbld_params} -f . --imgpkg-lock-output .imgpkg/images.yml
+
+        cat files.json | jq '. + {".imgpkg/images.yml":"`cat .imgpkg/images.yml`"}' | tee "$(results.config)"

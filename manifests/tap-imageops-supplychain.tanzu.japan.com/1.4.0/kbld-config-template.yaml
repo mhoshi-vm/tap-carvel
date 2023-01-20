@@ -1,0 +1,53 @@
+apiVersion: carto.run/v1alpha1
+kind: ClusterConfigTemplate
+metadata:
+  name: kbld-config-template
+spec:
+  configPath: .status.taskResults[?(@.name=="config")].value
+
+  lifecycle: tekton
+
+  ytt: |
+    #@ load("@ytt:data", "data")
+    #@
+    #@ 
+    #@ def merge_labels(fixed_values):
+    #@   labels = {}
+    #@   if hasattr(data.values.workload.metadata, "labels"):
+    #@     labels.update(data.values.workload.metadata.labels)
+    #@   end
+    #@   labels.update(fixed_values)
+    #@   return labels
+    #@ end
+
+    #@ def param(key):
+    #@   if not key in data.values.params:
+    #@     return None
+    #@   end
+    #@   return data.values.params[key]
+    #@ end
+
+    #@ def ca_cert_data():
+    #@   if "ca_cert_data" not in param("registry"):
+    #@     return ""
+    #@   end
+    #@
+    #@   return param("registry")["ca_cert_data"]
+    #@ end
+    ---
+    apiVersion: tekton.dev/v1beta1
+    kind: TaskRun
+    metadata:
+      generateName: #@ data.values.workload.metadata.name + "-imgpkg-"
+      labels: #@ merge_labels({ "app.kubernetes.io/component": "imgpkg" })
+    spec:
+      #@ if/end hasattr(data.values.workload.spec, "serviceAccountName"):
+      serviceAccountName: #@ data.values.workload.spec.serviceAccountName
+      taskRef:
+        name: kbld-task
+        kind: ClusterTask
+      params: 
+      - name: files
+        value: #@ base64.encode(json.encode(data.values.config))
+      - name: ca_cert_data
+        value: #@ ca_cert_data()

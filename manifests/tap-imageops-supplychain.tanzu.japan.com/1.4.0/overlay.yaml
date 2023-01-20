@@ -12,7 +12,21 @@ stringData:
     metadata:
       #@overlay/replace via=lambda a,_: a+"-w-kbld"
       name:
+
     spec:
+      resources:
+      #@overlay/match by=overlay.subset({"name": "app-config"})
+      - configs:
+        #@overlay/match by=overlay.subset({"resource": "config-provider"})
+        - resource: kbld-config
+      #@overlay/append
+      - name: kbld-config
+        templateRef:
+          kind: ClusterConfigTemplate
+          name: kbld-config-template
+        configs:
+          - resource: config-provider
+            name: config
       selectorMatchExpressions:
       #@overlay/append
       - key: withKbld
