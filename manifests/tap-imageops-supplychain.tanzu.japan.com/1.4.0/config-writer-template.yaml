@@ -146,7 +146,7 @@ spec:
           - name: git_commit_message
             value: #@ param("gitops_commit_message")
           - name: git_files
-            value: #@ base64.encode(json.encode(data.values.config))
+            value: #@ data.values.config
           #@ if/end is_monorepo_approach():
           - name: sub_path
             value: #@ "config/" + data.values.workload.metadata.namespace + "/" + data.values.workload.metadata.name
