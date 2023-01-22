@@ -24,18 +24,17 @@ stringData:
       #@overlay/match by=overlay.subset({"name": "config-writer"})
       - templateRef:
           name: config-writer-template-w-kbld
-      #@overlay/match by=overlay.subset({"name": "service-bindings"})
       - configs:
-        #@overlay/match by=overlay.subset({"resource": "app-config"})
+        #@overlay/match by=overlay.subset({"resource": "api-descriptors"})
         - resource: kbld-config
-      #@overlay/match by=overlay.subset({"name": "service-bindings"})
+      #@overlay/match by=overlay.subset({"name": "config-writer"})
       #@overlay/insert before=True
       - name: kbld-config
         templateRef:
           kind: ClusterConfigTemplate
           name: kbld-config-template
         configs:
-          - resource: app-config
+          - resource: api-descriptors
             name: config
         params:
           - name: registry

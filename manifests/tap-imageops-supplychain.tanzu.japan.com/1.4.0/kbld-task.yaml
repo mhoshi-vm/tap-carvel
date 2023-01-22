@@ -52,4 +52,4 @@ spec:
 
         kbld ${kbld_params} -f . --imgpkg-lock-output .imgpkg/images.yml
 
-        cat files.json | jq --arg IMGPKG "`cat .imgpkg/images.yml`"  '. + {".imgpkg/images.yml": $IMGPKG}' | tee "$(results.config.path)"
+        cat files.json | jq -c --arg IMGPKG "`cat .imgpkg/images.yml`"  '. + {".imgpkg/images.yml": $IMGPKG}' | base64 -w 0 | tee "$(results.config.path)"

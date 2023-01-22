@@ -152,7 +152,7 @@ spec:
             value: #@ "config/" + data.values.workload.metadata.namespace + "/" + data.values.workload.metadata.name
           #@ else:
           - name: files
-            value: #@ base64.encode(json.encode(data.values.config))
+            value: #@ data.values.config
           - name: bundle
             value: #@ image()
           - name: ca_cert_data
