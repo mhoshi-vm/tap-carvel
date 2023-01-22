@@ -19,7 +19,6 @@ spec:
         will be pushed to.
   results:
     - description: Updated config
-      type: object
       name: config
   steps:
     - name: main
