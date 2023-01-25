@@ -41,10 +41,13 @@ spec:
     #@overlay/match by="name", missing_ok=True
     - #@ sso_provider
     #@ end
-#@ if data.values.sso.tls.enabled:
   tls:
+#@ if not data.values.sso.tls.enabled:
+    deactivated: true
+#@ else:
     secretRef:
       name: #@ data.values.sso.tls.certname
+
 #@ if data.values.sso.tls.certnamespace != "":
 ---
 apiVersion: secretgen.carvel.dev/v1alpha1
