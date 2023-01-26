@@ -1,5 +1,6 @@
 #@ load("@ytt:data", "data")
 
+#@ if data.values.delivery.overlay:
 #@ if/end "app-deploy" not in data.values.excluded_templates:
 ---
 apiVersion: carto.run/v1alpha1
@@ -70,3 +71,4 @@ spec:
             - "-"
       deploy:
         - kapp: {}
+#@ end
