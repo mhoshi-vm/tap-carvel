@@ -62,6 +62,7 @@ stringData:
       name:
 
     spec:
+      #@overlay/match missing_ok=True
       selector:
         #@overlay/match missing_ok=True
         withKbld: ""        
