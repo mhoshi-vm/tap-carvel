@@ -62,7 +62,7 @@ spec:
             #@ elif hasattr(data.values.params, "gitops_sub_path"):
             subPath: #@ data.values.params.gitops_sub_path
             #@ end
-
+          path: config/
         - inline:
             paths:
               config.yml: |
@@ -79,11 +79,15 @@ spec:
                     type: copy
                     sources: [new, existing]
                     resourceMatchers: *matchers
+          path: inline/
       template:
-        - ytt: {}
-        - kbld: 
-            paths:
-             - "-"
-             - .imgpkg/images.yml
+      - ytt:
+          paths:
+            - config/
+            - inline/
+      - kbld:
+          paths:
+            - "-"
+            - config/.imgpkg/images.yml
       deploy:
         - kapp: {}
