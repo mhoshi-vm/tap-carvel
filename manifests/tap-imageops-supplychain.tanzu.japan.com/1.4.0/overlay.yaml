@@ -63,7 +63,7 @@ stringData:
 
     spec:
       selector:
-        #@overlay/add
+        #@overlay/match missing_ok=True
         withKbld: ""        
       resources:
       #@overlay/match by=overlay.subset({"name": "deployer"})
