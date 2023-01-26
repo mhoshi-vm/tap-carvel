@@ -63,12 +63,15 @@ spec:
             #@ elif hasattr(data.values.params, "gitops_sub_path"):
             subPath: #@ data.values.params.gitops_sub_path
             #@ end
+          path: config/
       template:
-      - ytt: {}
+      - ytt:
+          paths:
+            - config/
       - kbld:
           paths:
             - "-"
-            - .imgpkg/images.yml
+            - config/.imgpkg/images.yml
       deploy:
         - kapp: {}
 #@ end
