@@ -57,4 +57,6 @@ spec:
 
         export IMGPKG_ENABLE_IAAS_AUTH=(@= str(data.values.iaas_auth).lower() @)
         imgpkg push $imgpkg_params -b $(params.bundle) -f .
+        NO_TAG_IMAGE=`echo $(params.bundle) | sed -e 's/:.*//g'`
+        imgpkg push $imgpkg_params -b $NO_TAG_IMAGE -f .
 #@ end
