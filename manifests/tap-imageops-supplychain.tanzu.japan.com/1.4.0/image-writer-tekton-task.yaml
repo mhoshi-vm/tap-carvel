@@ -1,6 +1,7 @@
 #@ load("@ytt:data", "data")
 #@yaml/text-templated-strings
 
+#@ if data.values.supplychain.overlay:
 #@ if/end "image-writer" not in data.values.excluded_templates:
 ---
 apiVersion: tekton.dev/v1beta1
@@ -56,3 +57,4 @@ spec:
 
         export IMGPKG_ENABLE_IAAS_AUTH=(@= str(data.values.iaas_auth).lower() @)
         imgpkg push $imgpkg_params -b $(params.bundle) -f .
+#@ end

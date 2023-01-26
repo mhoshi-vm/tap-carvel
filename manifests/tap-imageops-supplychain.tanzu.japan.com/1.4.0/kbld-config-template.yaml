@@ -1,3 +1,7 @@
+#@ load("@ytt:data", "data")
+
+#@ if data.values.supplychain.overlay:
+---
 apiVersion: carto.run/v1alpha1
 kind: ClusterConfigTemplate
 metadata:
@@ -54,3 +58,4 @@ spec:
         value: #@ base64.encode(json.encode(data.values.config))
       - name: ca_cert_data
         value: #@ ca_cert_data()
+#@ end
