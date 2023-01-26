@@ -9,4 +9,5 @@ kbld_image: kpack/kp
 #@schema/desc "target ootb to update"
 ootb_supplychain: basic
 #@schema/desc "values secret for ootb"
-ootb_values_secret: ootb-supply-chain-basic-values
+#@schema/type any=True
+ootb_values: {}

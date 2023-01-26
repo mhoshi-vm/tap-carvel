@@ -17,4 +17,4 @@ spec:
   serviceAccountName: tap-install-sa
   values:
   - secretRef:
-      name: #@ data.values.ootb_values_secret
+      name: #@ "ootb-supply-chain-" + data.values.ootb_supplychain + "-w-kbld-values"
