@@ -27,11 +27,11 @@ kind: PackageInstall
 metadata:
   annotations:
     ext.packaging.carvel.dev/ytt-paths-from-secret-name.0: add-w-kbld-delivery
-  name: #@ "ootb-supply-chain-" + data.values.ootb_supplychain + "-w-kbld"
+  name: ootb-deliver-basic-w-kbld
   namespace: tap-install
 spec:
   packageRef:
-    refName: #@ "ootb-deliver-basic-w-kbld"
+    refName: ootb-deliver-basic.tanzu.vmware.com
     versionSelection:
       constraints: 0.11.0
       prereleases: {}
