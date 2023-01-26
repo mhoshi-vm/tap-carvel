@@ -1,6 +1,5 @@
 #@ load("@ytt:data", "data")
 
-#@ if data.values.supplychain.overlay:
 #@ if/end "config-writer-template" not in data.values.excluded_templates:
 ---
 apiVersion: carto.run/v1alpha1
@@ -159,4 +158,3 @@ spec:
           - name: ca_cert_data
             value: #@ ca_cert_data()
           #@ end
-#@ end

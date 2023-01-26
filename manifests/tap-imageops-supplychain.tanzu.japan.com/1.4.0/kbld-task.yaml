@@ -1,6 +1,4 @@
 #@ load("@ytt:data", "data")
-
-#@ if data.values.supplychain.overlay:
 ---
 apiVersion: tekton.dev/v1beta1
 kind: ClusterTask
@@ -54,4 +52,3 @@ spec:
         kbld ${kbld_params} -f . --imgpkg-lock-output .imgpkg/images.yml
 
         cat files.json | jq -c --arg IMGPKG "`cat .imgpkg/images.yml`"  '. + {".imgpkg/images.yml": $IMGPKG}' | base64 -w 0 | tee "$(results.config.path)"
-#@ end
