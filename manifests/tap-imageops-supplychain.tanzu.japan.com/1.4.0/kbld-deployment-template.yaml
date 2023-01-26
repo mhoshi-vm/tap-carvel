@@ -64,28 +64,10 @@ spec:
             subPath: #@ data.values.params.gitops_sub_path
             #@ end
           path: config/
-        - inline:
-            paths:
-              config.yml: |
-                ---
-                apiVersion: kapp.k14s.io/v1alpha1
-                kind: Config
-                rebaseRules:
-                  - path: [metadata, annotations, serving.knative.dev/creator]
-                    type: copy
-                    sources: [new, existing]
-                    resourceMatchers: &matchers
-                      - apiVersionKindMatcher: {apiVersion: serving.knative.dev/v1, kind: Service}
-                  - path: [metadata, annotations, serving.knative.dev/lastModifier]
-                    type: copy
-                    sources: [new, existing]
-                    resourceMatchers: *matchers
-          path: inline/
       template:
       - ytt:
           paths:
             - config/
-            - inline/
       - kbld:
           paths:
             - "-"
