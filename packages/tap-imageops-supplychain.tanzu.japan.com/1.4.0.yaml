@@ -29,10 +29,23 @@ spec:
           type: string
           description: target ootb to update
           default: basic
-        ootb_values:
+        supplychain:
           type: object
-          description: values secret for ootb
-          default: {}
+          additionalProperties: false
+          properties:
+            values:
+              type: object
+              default: {}
+            overlay:
+              type: boolean
+              default: true
+        delivery:
+          type: object
+          additionalProperties: false
+          properties:
+            overlay:
+              type: boolean
+              default: true
   template:
     spec:
       fetch:

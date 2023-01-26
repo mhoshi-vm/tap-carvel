@@ -1,5 +1,6 @@
 #@ load("@ytt:data", "data")
 
+#@ if data.values.supplychain.overlay:
 ---
 apiVersion: packaging.carvel.dev/v1alpha1
 kind: PackageInstall
@@ -18,3 +19,24 @@ spec:
   values:
   - secretRef:
       name: #@ "ootb-supply-chain-" + data.values.ootb_supplychain + "-w-kbld-values"
+#@ end
+#@ if data.values.delivery.overlay:
+---
+apiVersion: packaging.carvel.dev/v1alpha1
+kind: PackageInstall
+metadata:
+  annotations:
+    ext.packaging.carvel.dev/ytt-paths-from-secret-name.0: add-w-kbld-delivery
+  name: #@ "ootb-supply-chain-" + data.values.ootb_supplychain + "-w-kbld"
+  namespace: tap-install
+spec:
+  packageRef:
+    refName: #@ "ootb-deliver-basic-w-kbld"
+    versionSelection:
+      constraints: 0.11.0
+      prereleases: {}
+  serviceAccountName: tap-install-sa
+#@ end
+
+
+

@@ -8,6 +8,12 @@ iaas_auth: false
 kbld_image: kpack/kp
 #@schema/desc "target ootb to update"
 ootb_supplychain: basic
-#@schema/desc "values secret for ootb"
-#@schema/type any=True
-ootb_values: {}
+
+supplychain:
+  #@schema/type any=True
+  values: {}
+  overlay: true
+
+delivery:
+  overlay: true
+
