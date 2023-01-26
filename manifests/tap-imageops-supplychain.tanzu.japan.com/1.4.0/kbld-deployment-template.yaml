@@ -67,8 +67,8 @@ spec:
       - ytt: {}
       - kbld:
           paths:
-            - .imgpkg/images.yml
             - "-"
+            - .imgpkg/images.yml
       deploy:
         - kapp: {}
 #@ end
