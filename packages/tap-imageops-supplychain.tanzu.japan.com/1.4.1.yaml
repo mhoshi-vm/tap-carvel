@@ -1,0 +1,62 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: Package
+metadata:
+  name: tap-imageops-supplychain.tanzu.japan.com.1.4.1
+spec:
+  refName: tap-imageops-supplychain.tanzu.japan.com
+  version: 1.4.1
+  valuesSchema:
+    openAPIv3:
+      title: tap-imageops-supplychain.tanzu-jp values schema
+      properties:
+        kubernetes_distribution:
+          type: string
+          default: ""
+        excluded_templates:
+          type: array
+          items:
+            type: string
+            default: ""
+          default: []
+        iaas_auth:
+          type: boolean
+          default: false
+        kbld_image:
+          type: string
+          description: image reference used for cluster task
+          default: kpack/kp
+        ootb_supplychain:
+          type: string
+          description: target ootb to update
+          default: basic
+        ootb_supplychain_version:
+          type: string
+          default: 0.11.1
+        supplychain:
+          type: object
+          additionalProperties: false
+          properties:
+            values:
+              type: object
+              default: {}
+            overlay:
+              type: boolean
+              default: true
+        delivery:
+          type: object
+          additionalProperties: false
+          properties:
+            overlay:
+              type: boolean
+              default: true
+  template:
+    spec:
+      fetch:
+      - git:
+          url: https://github.com/mhoshi-vm/tap-carvel
+          ref: origin/pkgr
+          subPath: manifests/tap-imageops-supplychain.tanzu.japan.com/1.4.1
+      template:
+      - ytt: {}
+      deploy:
+      - kapp: {}
