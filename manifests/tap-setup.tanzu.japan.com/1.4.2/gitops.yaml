@@ -1,0 +1,27 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:overlay", "overlay")
+
+#@ if data.values.gitops.enabled:
+#@overlay/append
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: git-ssh
+  namespace: tap-install
+  annotations:
+    tekton.dev/git-0: #@ data.values.gitops.url
+type: kubernetes.io/basic-auth 
+stringData:
+  username: #@ data.values.gitops.username
+  password: #@ data.values.gitops.password
+---
+apiVersion: secretgen.carvel.dev/v1alpha1
+kind: SecretExport
+metadata:
+  name: git-ssh
+  namespace: tap-install
+spec:
+  toNamespaces:
+  - *
+#@ end
