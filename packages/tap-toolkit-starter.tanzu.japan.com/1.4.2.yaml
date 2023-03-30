@@ -164,7 +164,9 @@ spec:
               description: Enable test users
               default: true
             providers:
-              nullable: true
+              type: array
+              items:
+                type: object
               description: Providers
               default: []
             redirect_urls:
