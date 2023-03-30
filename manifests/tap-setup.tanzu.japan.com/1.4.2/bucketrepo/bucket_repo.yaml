@@ -40,5 +40,5 @@ metadata:
   namespace: tap-install
 spec:
   toNamespaces:
-  - *
+  - "*"
 #@ end
