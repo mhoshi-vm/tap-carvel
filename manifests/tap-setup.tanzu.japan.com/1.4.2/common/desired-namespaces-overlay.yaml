@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Secret
 metadata:
-  name: desired-namespace-overlay
+  name: desired-namespaces-overlay
   namespace: tap-install
 stringData:
   desired-namespace-overlay.yaml: |
@@ -11,7 +11,7 @@ stringData:
     #@ load("@ytt:base64", "base64")
     
     #@ def dev_namespaces():
-    namespaces: #@ data.values.dev_namespaces
+    namespaces: aaa
     #@ end
     
     #@overlay/match by=overlay.subset({"metadata": {"name": "desired-namespaces"}})

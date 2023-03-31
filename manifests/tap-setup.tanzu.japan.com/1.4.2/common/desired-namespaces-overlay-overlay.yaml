@@ -1,0 +1,13 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:yaml", "yaml")
+#@ load("@ytt:overlay", "overlay")
+
+#@ def dev_namespaces():
+namespaces: #@ data.values.dev_namespaces
+#@ end
+
+#@overlay/match by=overlay.subset({"metadata": {"name": "desired-namespaces-overlay"}})
+---
+stringData:
+  #@overlay/replace via=lambda a,_: a.replace("namespaces: aaa", yaml.encode(dev_namespaces()))
+  desired-namespace-overlay.yaml: |
