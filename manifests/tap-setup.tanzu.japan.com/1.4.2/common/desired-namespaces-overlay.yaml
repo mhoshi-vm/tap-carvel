@@ -14,8 +14,12 @@ stringData:
     namespaces: aaa
     #@ end
     
-    #@overlay/match by=overlay.subset({"metadata": {"name": "desired-namespaces"}})
+    #@overlay/match by=overlay.subset({"metadata":{"name":"desired-namespaces"}, "kind": "ConfigMap"})
     ---
+    metadata:
+      annotations:
+        #@overlay/match missing_ok=True
+        kapp.k14s.io/exists: ""
     data:
       #@overlay/replace via=lambda a,_: a.replace("namespaces:", yaml.encode(dev_namespaces()))
       namespaces.yaml:
