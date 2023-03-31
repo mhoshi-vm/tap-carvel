@@ -1,0 +1,14 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:overlay", "overlay")
+#@ namespaces = data.values.dev_namespaces
+#@ for namespace in namespaces:
+#@overlay/append
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: #@ namespace.name
+  labels:
+    apps.tanzu.vmware.com/tap-ns: dev
+#@ end
+

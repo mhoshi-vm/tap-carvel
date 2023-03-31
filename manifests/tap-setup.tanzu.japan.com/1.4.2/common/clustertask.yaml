@@ -1,0 +1,14 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:overlay", "overlay")
+---
+apiVersion: tekton.dev/v1beta1
+kind: ClusterTask
+metadata:
+  name: hello-world
+spec:
+  steps:
+    - name: test
+      image: #@ data.values.blank_pipeline_and_scan.test_image
+      script: |-
+        echo hello
+

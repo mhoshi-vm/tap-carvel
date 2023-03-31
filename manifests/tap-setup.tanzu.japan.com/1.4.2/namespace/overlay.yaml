@@ -1,0 +1,56 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:overlay", "overlay")
+
+#@ if data.values.gitops:
+#@overlay/append
+---
+apiVersion: secretgen.carvel.dev/v1alpha1
+kind: SecretImport
+metadata:
+  name: git-ssh
+spec:
+  fromNamespace:
+  - tap-install
+#@ end
+
+#@ if data.values.bucketrepo:
+---
+apiVersion: secretgen.carvel.dev/v1alpha1
+kind: SecretImport
+metadata:
+  name: bucketrepo-settings-xml
+spec:
+  fromNamespace:
+  - tap-install
+#@ end
+
+#@ if data.values.blank_pipeline_and_scan:
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: developer-defined-tekton-pipeline
+  labels:
+    apps.tanzu.vmware.com/pipeline: test
+spec:
+  params:
+    - name: source-url
+    - name: source-revision
+  tasks:
+    - name: test
+      taskRef:
+        name: hello-world
+        kind: ClusterTask
+---
+apiVersion: scanning.apps.tanzu.vmware.com/v1beta1
+kind: ScanPolicy
+metadata:
+  name: scan-policy
+spec:
+  regoFile: |
+    package main
+    deny[msg] {
+    	false
+    	msg = "dummy"
+    }
+#@ end

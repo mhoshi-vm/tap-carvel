@@ -1,5 +1,14 @@
 #@data/values-schema
 ---
+#@schema/desc "Developer namespaces"
+
+#@schema/type any=True
+dev_namespaces: 
+- name: dev-ns1
+  gitops: true
+  bucketrepo: true
+  blank_pipeline_and_scan: true
+  
 #@schema/desc "TLS config"
 tls:
   enabled: false
@@ -23,3 +32,7 @@ tap_gui_viewer:
   enabled: true
   is_view_cluster: false
 
+#@schema/desc "Place blank pipeline and scan template"
+blank_pipeline_and_scan:
+  enabled: true
+  test_image: alpine

@@ -9,6 +9,14 @@ spec:
     openAPIv3:
       title: tap-setup.tanzu-jp values schema
       properties:
+        dev_namespaces:
+          type: object
+          description: Developer namespaces
+          default:
+          - name: dev-ns1
+            gitops: true
+            bucketrepo: true
+            blank_pipeline_and_scan: true
         tls:
           type: object
           additionalProperties: false
@@ -62,13 +70,24 @@ spec:
             is_view_cluster:
               type: boolean
               default: false
+        blank_pipeline_and_scan:
+          type: object
+          additionalProperties: false
+          description: Place blank pipeline and scan template
+          properties:
+            enabled:
+              type: boolean
+              default: true
+            test_image:
+              type: string
+              default: alpine
   template:
     spec:
       fetch:
       - git:
           url: https://github.com/mhoshi-vm/tap-carvel
           ref: origin/pkgr
-          subPath: manifests/tap-setup.tanzu.japan.com/1.4.2
+          subPath: manifests/tap-setup.tanzu.japan.com/1.4.2/common
       template:
       - ytt: {}
       deploy:
