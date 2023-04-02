@@ -45,6 +45,8 @@ kind: ServiceAccount
 metadata:
   name: default
   namespace: service-instances
+  annotations:
+    kapp.k14s.io/create-strategy: fallback-on-update  
 secrets:
   - name: tap-registry
 imagePullSecrets:
