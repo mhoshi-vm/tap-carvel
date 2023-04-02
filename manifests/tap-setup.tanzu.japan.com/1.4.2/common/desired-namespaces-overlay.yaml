@@ -5,14 +5,7 @@ metadata:
   namespace: tap-install
 stringData:
   desired-namespace-overlay.yaml: |
-    #@ load("@ytt:yaml", "yaml")
-    #@ load("@ytt:data", "data")
     #@ load("@ytt:overlay", "overlay")
-    #@ load("@ytt:base64", "base64")
-    
-    #@ def dev_namespaces():
-    namespaces: aaa
-    #@ end
     
     #@overlay/match by=overlay.subset({"metadata":{"name":"desired-namespaces"}, "kind": "ConfigMap"})
     ---
@@ -20,6 +13,3 @@ stringData:
       annotations:
         #@overlay/match missing_ok=True
         kapp.k14s.io/exists: ""
-    data:
-      #@overlay/replace via=lambda a,_: a.replace("namespaces:", yaml.encode(dev_namespaces()))
-      namespaces.yaml:
