@@ -28,7 +28,7 @@ spec:
       annotations:
         tekton.dev/git-0: https://github.com
     type: kubernetes.io/basic-auth
-    ddta:
+    data:
       username: $(.secret.data.username)
       password: $(.secret.data.password)
 #@ end
