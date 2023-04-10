@@ -26,9 +26,9 @@ spec:
   template:
     metadata:
       annotations:
-        tekton.dev/git-0: $(.secret.data.url)
+        tekton.dev/git-0: https://github.com
     type: kubernetes.io/basic-auth
-    stringData:
+    ddta:
       username: $(.secret.data.username)
       password: $(.secret.data.password)
 #@ end

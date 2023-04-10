@@ -12,7 +12,6 @@ metadata:
 stringData:
   username: #@ data.values.gitops.username
   password: #@ data.values.gitops.password
-  url: #@ data.values.gitops.url
 ---
 apiVersion: secretgen.carvel.dev/v1alpha1
 kind: SecretExport
