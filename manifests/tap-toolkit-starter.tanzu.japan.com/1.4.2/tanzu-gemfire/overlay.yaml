@@ -88,6 +88,8 @@ spec:
             namespace: gemfire-system
             name: gemfire-operator
             certManagerNamespace: ""
+            cpu: ""
+            memory: ""
             imagePullSecretName: "reg-secret"
             tlsSecretName: ""
             registry:
@@ -157,13 +159,10 @@ spec:
     replicas: 1
     resources:
       requests:
-        cpu: 0.1
         memory: 1Gi
   servers:
     replicas: 1
     resources:
-      requests:
-        cpu: 0.1
         memory: 1Gi
     libraries:
       - name: gemfire-for-redis-apps
