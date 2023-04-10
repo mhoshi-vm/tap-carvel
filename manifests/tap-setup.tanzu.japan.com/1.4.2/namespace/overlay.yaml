@@ -7,9 +7,30 @@
 apiVersion: secretgen.carvel.dev/v1alpha1
 kind: SecretImport
 metadata:
-  name: git-ssh
+  name: git-ssh-import
 spec:
   fromNamespace: tap-install
+---
+apiVersion: secretgen.carvel.dev/v1alpha1
+kind: SecretTemplate
+metadata:
+  name: git-ssh
+spec:
+  inputResources:
+  - name: secret
+    ref:
+      apiVersion: v1
+      kind: Secret
+      name: git-ssh-import
+  #! the template that follows a subset of the Secret API
+  template:
+    metadata:
+      annotations:
+        tekton.dev/git-0: $(.secret.data.url)
+    type: kubernetes.io/basic-auth
+    stringData:
+      username: $(.secret.data.username)
+      password: $(.secret.data.password)
 #@ end
 
 #@ if data.values.bucketrepo:
