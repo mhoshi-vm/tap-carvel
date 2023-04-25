@@ -1,5 +1,7 @@
 #@ load("@ytt:data", "data")
 #@ load("@ytt:overlay", "overlay")
+
+#@ if data.values.blank_pipeline_and_scan.enabled:
 ---
 apiVersion: tekton.dev/v1beta1
 kind: ClusterTask
@@ -11,4 +13,4 @@ spec:
       image: #@ data.values.blank_pipeline_and_scan.test_image
       script: |-
         echo hello
-
+#@ end
