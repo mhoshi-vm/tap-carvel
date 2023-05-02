@@ -1,0 +1,82 @@
+#@data/values-schema
+---
+#@schema/desc "Rabbitmq starter"
+rabbitmq:
+  #@schema/desc "Enable starter"
+  enabled: true
+  #@schema/desc "package installation"
+  package:
+    #@schema/desc "install via carvel"
+    install: true
+    #@schema/desc "install repo"
+    repo: registry.tanzu.vmware.com/p-rabbitmq-for-kubernetes/tanzu-rabbitmq-package-repo
+    #@schema/desc "install version"
+    version: 1.4.2
+    #@schema/desc "operator version"
+    operator_version: 1.4.2
+  #@schema/desc "instance count"
+  count: 1
+
+#@schema/desc "Postgres starter"
+postgres:
+  #@schema/desc "Enable starter"
+  enabled: true
+  #@schema/desc "package installation"
+  package:
+    #@schema/desc "install via carvel"
+    install: true
+    #@schema/desc "install repo"
+    repo: registry.tanzu.vmware.com/packages-for-vmware-tanzu-data-services/tds-packages
+    #@schema/desc "install version"
+    version: 1.7.1
+    #@schema/desc "operator version"
+    operator_version: 2.0.2
+  #@schema/desc "instance count"
+  count: 1
+  #@schema/desc "storage class"
+  storage_class: default
+  #@schema/desc "instance version"
+  instance_version: postgres-14
+
+#@schema/desc "Gemfire starter"
+gemfire:
+  #@schema/desc "Enable starter"
+  enabled: true
+  #@schema/desc "package installation"
+  package:
+    #@schema/desc "install via carvel"
+    install: true
+    #@schema/desc "install repo"
+    repo: registry.tanzu.vmware.com/tanzu-gemfire-for-kubernetes/gemfire-for-kubernetes-carvel-bundle
+    #@schema/desc "install version"
+    version: 2.2.0
+  #@schema/desc "instance count"
+  count: 1
+  #@schema/desc "gemfire image"
+  image:
+    repo: registry.tanzu.vmware.com/pivotal-gemfire/vmware-gemfire
+    version: 9.15.4
+  #@schema/desc "redis adapter image"
+  redis_adapter:
+    repo: registry.tanzu.vmware.com/tanzu-gemfire-for-redis-apps/gemfire-for-redis-apps
+    version: 1.1.0
+
+#@schema/desc "AppSSO starter"
+sso:
+  #@schema/desc "tls setting"
+  tls:
+   #@schema/desc "enable (recommended to true)"
+   enabled: false
+   #@schema/desc "cert name"
+   certname: cnrs-default-tls
+   #@schema/desc "cert namespace" 
+   certnamespace: tanzu-system-ingress
+  #@schema/desc "Enable test users"
+  testuser_enabled: true
+  #@schema/desc "Providers"
+  #@schema/type any=True
+  providers: []
+  #@schema/desc "Redirect URLs"
+  redirect_urls: 
+  - https://example.com
+

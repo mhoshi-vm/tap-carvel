@@ -1,0 +1,20 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: xrabbitmqclusters.messaging.tanzu.japan.com
+spec:
+  connectionSecretKeys:
+  - host
+  - password
+  - port
+  - provider
+  - type
+  - username
+  group: messaging.tanzu.japan.com
+  names:
+    kind: XRabbitmqCluster
+    plural: xrabbitmqclusters
+  versions:
+  - name: v1alpha1
+    referenceable: true
+    served: true

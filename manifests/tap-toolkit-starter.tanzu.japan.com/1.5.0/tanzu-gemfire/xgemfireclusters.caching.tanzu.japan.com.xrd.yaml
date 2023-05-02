@@ -1,0 +1,20 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: xgemfireclusters.caching.tanzu.japan.com
+spec:
+  connectionSecretKeys:
+  - host
+  - password
+  - port
+  - provider
+  - type
+  - username
+  group: messaging.tanzu.japan.com
+  names:
+    kind: XGemfireCluster
+    plural: xgemfireclusters
+  versions:
+  - name: v1alpha1
+    referenceable: true
+    served: true
