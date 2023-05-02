@@ -5,9 +5,9 @@
 #@schema/type any=True
 dev_namespaces: 
 - name: dev-ns1
-  gitops: true
-  bucketrepo: true
-  blank_pipeline_and_scan: true
+  gitops: "true"
+  bucketrepo: "true"
+  blank_pipeline_and_scan: "true"
   
 #@schema/desc "TLS config"
 tls:

@@ -1,7 +1,7 @@
 #@ load("@ytt:data", "data")
 #@ load("@ytt:overlay", "overlay")
 
-#@ if data.values.gitops:
+#@ if data.values.gitops == "true":
 #@overlay/append
 ---
 apiVersion: secretgen.carvel.dev/v1alpha1
@@ -33,7 +33,7 @@ spec:
       password: $(.secret.data.password)
 #@ end
 
-#@ if data.values.bucketrepo:
+#@ if data.values.bucketrepo == "true":
 ---
 apiVersion: secretgen.carvel.dev/v1alpha1
 kind: SecretImport
@@ -43,7 +43,7 @@ spec:
   fromNamespace: tap-install
 #@ end
 
-#@ if data.values.blank_pipeline_and_scan:
+#@ if data.values.blank_pipeline_and_scan == "true":
 ---
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
