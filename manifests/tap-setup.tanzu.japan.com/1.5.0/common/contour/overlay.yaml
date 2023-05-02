@@ -1,0 +1,17 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:base64", "base64")
+#@ load("@ytt:overlay", "overlay")
+
+#@ if data.values.tls.enabled:
+#@overlay/append
+---
+apiVersion: v1
+data:
+  tls.crt: #@ base64.encode(data.values.tls.crt)
+  tls.key: #@ base64.encode(data.values.tls.key)
+kind: Secret
+metadata:
+  name: cnrs-default-tls
+  namespace: tanzu-system-ingress
+type: kubernetes.io/tls
+#@ end
