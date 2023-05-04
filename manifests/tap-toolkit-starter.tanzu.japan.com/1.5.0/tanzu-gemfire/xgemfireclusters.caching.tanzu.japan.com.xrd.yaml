@@ -4,13 +4,9 @@ metadata:
   name: xgemfireclusters.caching.tanzu.japan.com
 spec:
   connectionSecretKeys:
-  - host
-  - password
-  - port
-  - provider
   - type
-  - username
-  group: messaging.tanzu.japan.com
+  - cluster.nodes
+  group: caching.tanzu.japan.com
   names:
     kind: XGemfireCluster
     plural: xgemfireclusters
@@ -18,3 +14,15 @@ spec:
   - name: v1alpha1
     referenceable: true
     served: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+          status:
+            type: object
+            properties:
+              clusterName:
+                description: Cluster Name
+                type: string
