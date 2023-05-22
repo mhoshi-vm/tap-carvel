@@ -67,8 +67,6 @@ spec:
             kind: Secret
             metadata:
               namespace: service-instances
-              labels:
-                gemfire: "true"
             type: servicebinding.io/redis
             stringData:
               type: redis

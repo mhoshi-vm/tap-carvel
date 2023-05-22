@@ -91,7 +91,7 @@ spec:
          name: basic-authserver
    redirectURIs: #@ data.values.sso.redirect_urls
    requireUserConsent: false
-   clientAuthenticationMethod: basic
+   clientAuthenticationMethod: client_secret_basic
    authorizationGrantTypes:
       - client_credentials
       - authorization_code
