@@ -18,3 +18,26 @@ spec:
   - name: v1alpha1
     referenceable: true
     served: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            properties:
+              service:
+                default:
+                  type: ClusterIP
+                description: The desired state of the Kubernetes Service to create
+                  for the cluster.
+                properties:
+                  type:
+                    default: ClusterIP
+                    description: 'Type of Service to create for the cluster. Must
+                      be one of: ClusterIP, LoadBalancer, NodePort. For more info
+                      see https://pkg.go.dev/k8s.io/api/core/v1#ServiceType'
+                    enum:
+                    - ClusterIP
+                    - LoadBalancer
+                    - NodePort
+                    type: string
+                type: object

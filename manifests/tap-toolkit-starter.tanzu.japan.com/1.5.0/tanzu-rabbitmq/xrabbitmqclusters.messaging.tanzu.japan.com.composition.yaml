@@ -78,6 +78,9 @@ spec:
       - fromFieldPath: metadata.name
         toFieldPath: spec.forProvider.manifest.metadata.name
         type: FromCompositeFieldPath
+      - fromFieldPath: spec.service.type
+        toFieldPath: spec.forProvider.manifest.spec.service.type
+        type: FromCompositeFieldPath
       - fromFieldPath: metadata.name
         toFieldPath: spec.writeConnectionSecretToRef.name
         transforms:
