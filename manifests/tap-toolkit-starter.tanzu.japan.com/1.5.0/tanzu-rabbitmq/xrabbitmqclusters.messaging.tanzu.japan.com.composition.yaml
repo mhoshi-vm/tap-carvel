@@ -18,6 +18,13 @@ spec:
             metadata:
               namespace: service-instances
             spec:
+              resources:
+                limits:
+                  cpu: 500m
+                  memory: 1Gi
+                requests:
+                  cpu: 250m
+                  memory: 250Mi
               imagePullSecrets:
               - name: tap-registry
               rabbitmq:
