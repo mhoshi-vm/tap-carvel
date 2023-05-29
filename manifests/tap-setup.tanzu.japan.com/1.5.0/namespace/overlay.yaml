@@ -1,6 +1,7 @@
 #@ load("@ytt:data", "data")
 #@ load("@ytt:overlay", "overlay")
 
+#@ if hasattr(data.values, "gitops"):
 #@ if data.values.gitops == "true":
 #@overlay/append
 ---
@@ -32,7 +33,9 @@ spec:
       username: $(.secret.data.username)
       password: $(.secret.data.password)
 #@ end
+#@ end
 
+#@ if hasattr(data.values, "bucketrepo"):
 #@ if data.values.bucketrepo == "true":
 ---
 apiVersion: secretgen.carvel.dev/v1alpha1
@@ -42,7 +45,9 @@ metadata:
 spec:
   fromNamespace: tap-install
 #@ end
+#@ end
 
+#@ if hasattr(data.values, "blank_pipeline_and_scan"):
 #@ if data.values.blank_pipeline_and_scan == "true":
 ---
 apiVersion: tekton.dev/v1beta1
@@ -72,4 +77,5 @@ spec:
     	false
     	msg = "dummy"
     }
+#@ end
 #@ end
