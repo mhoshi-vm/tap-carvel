@@ -74,29 +74,6 @@ subjects:
 
 #@overlay/append
 ---
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: dex
-  annotations:
-    cert-manager.io/issuer: #@ data.values.issuer
-spec:
-  rules:
-  - http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: dex
-            port:
-              number: 5556
-  tls:
-  - hosts:
-    - #@ "dex." + data.values.domain
-    secretName: dex-cert
-#@overlay/append
----
 apiVersion: v1
 kind: Namespace
 metadata:
