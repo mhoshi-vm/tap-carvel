@@ -1,0 +1,24 @@
+#@data/values-schema
+---
+domain: example.com
+
+ca:
+  crt: dummy
+  key: dummy
+
+certmanager:
+  enabled: true
+  package_repo: 
+    install: false
+    repo: projects.registry.vmware.com/tkg/packages/standard/repo
+    version: 2.2.0
+  package:
+    install: true
+    version: 1.10.2+vmware.1-tkg.1
+
+dex:
+  enabled: true
+  version: 0.14.3  
+
+oidc:
+  secret: aaaaaa

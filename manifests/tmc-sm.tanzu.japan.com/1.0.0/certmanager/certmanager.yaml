@@ -1,0 +1,77 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:overlay", "overlay")
+#@ load("@ytt:base64", "base64")
+#@ load("@ytt:yaml", "yaml")
+
+#@ if data.values.certmanager.enabled:
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: certmanager-install
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: kapp-sa
+  namespace: certmanager-install
+#@ if data.values.certmanager.package_repo.install:
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: certmanager-kapp-role-binding
+  namespace: certmanager-install
+subjects:
+- kind: ServiceAccount
+  name: kapp-sa
+  namespace: certmanager-install
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+---
+apiVersion: packaging.carvel.dev/v1alpha1
+kind: PackageRepository
+metadata:
+  name: tds-pack
+  namespace: certmanager-install
+  annotations:
+    kapp.k14s.io/change-group: "pkgr"
+spec:
+  fetch:
+    imgpkgBundle:
+      image: #@ data.values.certmanager.package_repo.repo + ":" + data.values.certmanager.package_repo.version
+#@ end
+#@ if data.values.certmanager.package.install:
+---
+apiVersion: packaging.carvel.dev/v1alpha1
+kind: PackageInstall
+metadata:
+  name: cert-manager
+  namespace: certmanager-install
+spec:
+  packageRef:
+    refName: cert-manager.tanzu.vmware.com
+    versionSelection:
+      constraints: #@ data.values.certmanager.package.version
+  serviceAccountName: kapp-sa
+#@ end
+---
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: tmc-local-issuer
+spec:
+  ca:
+    secretName: ca-key-pair
+---
+apiVersion: v1
+data:
+  tls.crt: #@ base64.encode(data.values.ca.crt)
+  tls.key: #@ base64.encode(data.values.ca.key)
+kind: Secret
+metadata:
+  name: ca-key-pair
+  namespace: cert-manager
+type: kubernetes.io/tls
+#@ end

@@ -58,21 +58,27 @@ metadata:
 
 #@overlay/append
 ---
-apiVersion: projectcontour.io/v1
-kind: HTTPProxy
+apiVersion: networking.k8s.io/v1
+kind: Ingress
 metadata:
   name: dex
+  annotations:
+    cert-manager.io/issuer: #@ data.values.issuer
 spec:
-  routes:
-  - conditions:
-    - prefix: /
-    services:
-    - name: dex
-      port: 5556
-  virtualhost:
-    fqdn: #@ "dex." + data.values.domain
-    tls:
-      secretName: #@ data.values.tls_secret_name
+  rules:
+  - http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: dex
+            port:
+              number: 5556
+  tls:
+  - hosts:
+    - #@ "dex." + data.values.domain
+    secretName: dex-cert
 #@overlay/append
 ---
 apiVersion: v1

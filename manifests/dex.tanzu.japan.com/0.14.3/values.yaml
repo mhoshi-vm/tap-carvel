@@ -2,7 +2,7 @@
 ---
 domain: example.com
 
-tls_secret_name: tls-secret
+issuer: local-issuer
 
 namespace: dex
 

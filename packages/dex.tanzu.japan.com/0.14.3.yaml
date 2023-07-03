@@ -12,9 +12,9 @@ spec:
         domain:
           type: string
           default: example.com
-        tls_secret_name:
+        issuer:
           type: string
-          default: tls-secret
+          default: local-issuer
         namespace:
           type: string
           default: dex

@@ -1,0 +1,82 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: Package
+metadata:
+  name: tmc-sm.tanzu.japan.com.1.0.0
+spec:
+  refName: tmc-sm.tanzu.japan.com
+  version: 1.0.0
+  valuesSchema:
+    openAPIv3:
+      title: tmc-sm.tanzu-jp values schema
+      properties:
+        domain:
+          type: string
+          default: example.com
+        ca:
+          type: object
+          additionalProperties: false
+          properties:
+            crt:
+              type: string
+              default: dummy
+            key:
+              type: string
+              default: dummy
+        certmanager:
+          type: object
+          additionalProperties: false
+          properties:
+            enabled:
+              type: boolean
+              default: true
+            package_repo:
+              type: object
+              additionalProperties: false
+              properties:
+                install:
+                  type: boolean
+                  default: false
+                repo:
+                  type: string
+                  default: projects.registry.vmware.com/tkg/packages/standard/repo
+                version:
+                  type: string
+                  default: 2.2.0
+            package:
+              type: object
+              additionalProperties: false
+              properties:
+                install:
+                  type: boolean
+                  default: true
+                version:
+                  type: string
+                  default: 1.10.2+vmware.1-tkg.1
+        dex:
+          type: object
+          additionalProperties: false
+          properties:
+            enabled:
+              type: boolean
+              default: true
+            version:
+              type: string
+              default: 0.14.3
+        oidc:
+          type: object
+          additionalProperties: false
+          properties:
+            secret:
+              type: string
+              default: aaaaaa
+  template:
+    spec:
+      fetch:
+      - git:
+          url: https://github.com/mhoshi-vm/tap-carvel
+          ref: origin/pkgr
+          subPath: manifests/tmc-sm.tanzu.japan.com/1.0.0
+      template:
+      - ytt: {}
+      deploy:
+      - kapp: {}
