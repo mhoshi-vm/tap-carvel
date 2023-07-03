@@ -2,8 +2,6 @@
 ---
 domain: example.com
 
-issuer: local-issuer
-
 namespace: dex
 
 static:

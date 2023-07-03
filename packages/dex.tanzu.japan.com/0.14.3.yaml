@@ -12,9 +12,6 @@ spec:
         domain:
           type: string
           default: example.com
-        issuer:
-          type: string
-          default: local-issuer
         namespace:
           type: string
           default: dex

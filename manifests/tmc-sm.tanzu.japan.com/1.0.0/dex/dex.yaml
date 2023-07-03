@@ -76,7 +76,7 @@ kind: Ingress
 metadata:
   name: dex
   annotations:
-    cert-manager.io/cluster-issuer: #@ data.values.issuer
+    cert-manager.io/cluster-issuer: tmc-local-issuer
     kapp.k14s.io/change-rule: "upsert after upserting tkcrd"
 spec:
   rules:
