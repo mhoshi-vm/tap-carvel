@@ -1,0 +1,11 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: PackageMetadata
+metadata:
+  name: tmc-sm.tanzu.japan.com
+spec:
+  displayName: "TMC SM Starter"
+  shortDescription: "TMC SM Starter"
+  supportDescription: "https://carvel.dev/"
+  providerName: "VMware"
+  maintainers:
+  - name: "Machi Hoshino"
