@@ -62,7 +62,15 @@ subjects:
 #@overlay/match by="name"
 - name: dex
   #@overlay/match missing_ok=True
-  namespace: default
+  namespace: #@ data.values.namespace
+
+#@overlay/match by=overlay.subset({"kind": "RoleBinding","metadata": {"name": "dex"}})
+---
+subjects:
+#@overlay/match by="name"
+- name: dex
+  #@overlay/match missing_ok=True
+  namespace: #@ data.values.namespace
 
 #@overlay/append
 ---
