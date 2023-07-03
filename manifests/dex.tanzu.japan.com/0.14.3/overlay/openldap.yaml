@@ -53,13 +53,6 @@ spec:
         ports:
         - containerPort: 1389
           name: tcp-ldap
-        readinessProbe:
-          failureThreshold: 9
-          initialDelaySeconds: 2
-          periodSeconds: 2
-          tcpSocket:
-            port: ldap
-          timeoutSeconds: 90
         resources:
           requests:
             cpu: 100m
