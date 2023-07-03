@@ -8,8 +8,6 @@
 #@overlay/match-child-defaults missing_ok=True
 domain: #@ data.values.domain
 
-issuer: tmc-local-issuer
-
 namespace: tmc-sm-dex
 
 static:
