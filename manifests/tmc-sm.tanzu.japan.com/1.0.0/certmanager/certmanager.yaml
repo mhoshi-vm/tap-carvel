@@ -50,7 +50,6 @@ metadata:
   name: cert-manager
   namespace: certmanager-install
   annotations:
-    kapp.k14s.io/exists: ""
     kapp.k14s.io/change-group: "pkg"
 spec:
   packageRef:
