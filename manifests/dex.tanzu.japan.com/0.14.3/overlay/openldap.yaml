@@ -1,0 +1,91 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kbld.k14s.io/images: |
+      - Metas:
+        - Tag: latest
+          Type: resolved
+          URL: docker.io/bitnami/openldap:latest
+        URL: index.docker.io/bitnami/openldap@sha256:fe54ae264a35f67c62d7d015bbe63e7574cd99391e0f16bd63ebb4a1b6a1230f
+  labels:
+    app.kubernetes.io/name: openldap
+  name: openldap
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: openldap
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: openldap
+    spec:
+      containers:
+      - env:
+        - name: LDAP_ROOT
+          value: null
+        - name: LDAP_ADMIN_USERNAME
+          value: admin
+        - name: LDAP_GROUP
+          value: null
+        - name: LDAP_USER_DC
+          value: null
+        - name: LDAP_ADMIN_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: adminpassword
+              name: openldap
+        - name: LDAP_USERS
+          valueFrom:
+            secretKeyRef:
+              key: users
+              name: openldap
+        - name: LDAP_PASSWORDS
+          valueFrom:
+            secretKeyRef:
+              key: passwords
+              name: openldap
+        image: index.docker.io/bitnami/openldap@sha256:fe54ae264a35f67c62d7d015bbe63e7574cd99391e0f16bd63ebb4a1b6a1230f
+        imagePullPolicy: Always
+        name: openldap
+        ports:
+        - containerPort: 1389
+          name: tcp-ldap
+        readinessProbe:
+          failureThreshold: 9
+          initialDelaySeconds: 2
+          periodSeconds: 2
+          tcpSocket:
+            port: ldap
+          timeoutSeconds: 90
+        resources:
+          requests:
+            cpu: 100m
+            memory: 64Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/name: openldap
+  name: openldap
+spec:
+  ports:
+  - name: tcp-ldap
+    port: 389
+    targetPort: tcp-ldap
+  selector:
+    app.kubernetes.io/name: openldap
+  type: ClusterIP
+---
+apiVersion: v1
+data:
+  adminpassword: null
+  passwords: null
+  users: null
+kind: Secret
+metadata:
+  name: openldap
+  namespace: openldap

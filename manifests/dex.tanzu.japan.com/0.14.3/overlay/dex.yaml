@@ -1,0 +1,81 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:overlay", "overlay")
+#@ load("@ytt:base64", "base64")
+#@ load("@ytt:yaml", "yaml")
+
+#@ def dex_config():
+#@overlay/match missing_ok=True
+#@overlay/match-child-defaults missing_ok=True
+issuer: #@ "https://dex." + data.values.domain + "/dex"
+storage:
+  type: kubernetes
+  config:
+    inCluster: true
+enablePasswordDB: true
+#@ if data.values.openldap.enabled:
+#@ admin_dn = "cn=admin," + data.values.openldap.rootdn
+#@ user_dn = "cn=" + data.values.openldap.group + "," + data.values.openldap.rootdn
+connectors:
+- type: ldap
+  id: ldap
+  name: LDAP
+  config:
+    host: openldap:389
+    bindDN: #@ admin_dn
+    bindPW: #@ data.values.openldap.adminpassword
+    userSearch:
+      baseDN: #@ user_dn
+      filter: "(objectClass=posixAccount)"
+      username: uid
+      idAttr: uid
+      nameAttr: name
+      preferredUsernameAttr: uid
+    groupSearch:
+      baseDN: #@ user_dn
+      filter: "&(objectClass=groupOfNames)(member={})"
+      userMatchers:
+      - userAttr: dn
+      nameAttr: cn
+#@ end
+staticClients:
+- id: dex-authenticator
+  name: dex-authenticator
+  secret: #@ data.values.static.secret
+  redirectURIs: #@ data.values.static.callbacks
+#@ end
+
+#@overlay/match by=overlay.subset({"kind": "Secret","metadata": {"name": "dex"}})
+---
+data:
+  #@overlay/replace via=lambda a,b: base64.encode("{}".format(yaml.encode(overlay.apply(dex_config()))))
+  config.yaml:
+
+#@overlay/match by=overlay.all, expects="1+"
+---
+metadata:
+  #@overlay/match missing_ok=True
+  namespace: #@ data.values.namespace
+
+#@overlay/append
+---
+apiVersion: projectcontour.io/v1
+kind: HTTPProxy
+metadata:
+  name: dex
+spec:
+  routes:
+  - conditions:
+    - prefix: /
+    services:
+    - name: dex
+      port: 5556
+  virtualhost:
+    fqdn: #@ "dex." + data.values.domain
+    tls:
+      secretName: #@ data.values.tls_secret_name
+#@overlay/append
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: #@ data.values.namespace

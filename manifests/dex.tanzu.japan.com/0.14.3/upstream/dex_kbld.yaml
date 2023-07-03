@@ -1,0 +1,197 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app.kubernetes.io/instance: RELEASE-NAME
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: dex
+    app.kubernetes.io/version: 2.36.0
+    helm.sh/chart: dex-0.14.3
+  name: dex
+---
+apiVersion: v1
+data:
+  config.yaml: e30=
+kind: Secret
+metadata:
+  labels:
+    app.kubernetes.io/instance: RELEASE-NAME
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: dex
+    app.kubernetes.io/version: 2.36.0
+    helm.sh/chart: dex-0.14.3
+  name: dex
+type: Opaque
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/instance: RELEASE-NAME
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: dex
+    app.kubernetes.io/version: 2.36.0
+    helm.sh/chart: dex-0.14.3
+  name: dex
+rules:
+- apiGroups:
+  - apiextensions.k8s.io
+  resources:
+  - customresourcedefinitions
+  verbs:
+  - list
+  - create
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  labels:
+    app.kubernetes.io/instance: RELEASE-NAME
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: dex
+    app.kubernetes.io/version: 2.36.0
+    helm.sh/chart: dex-0.14.3
+  name: dex-cluster
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: dex
+subjects:
+- kind: ServiceAccount
+  name: dex
+  namespace: default
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  labels:
+    app.kubernetes.io/instance: RELEASE-NAME
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: dex
+    app.kubernetes.io/version: 2.36.0
+    helm.sh/chart: dex-0.14.3
+  name: dex
+rules:
+- apiGroups:
+  - dex.coreos.com
+  resources:
+  - '*'
+  verbs:
+  - '*'
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  labels:
+    app.kubernetes.io/instance: RELEASE-NAME
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: dex
+    app.kubernetes.io/version: 2.36.0
+    helm.sh/chart: dex-0.14.3
+  name: dex
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: dex
+subjects:
+- kind: ServiceAccount
+  name: dex
+  namespace: default
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/instance: RELEASE-NAME
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: dex
+    app.kubernetes.io/version: 2.36.0
+    helm.sh/chart: dex-0.14.3
+  name: dex
+spec:
+  ports:
+  - name: http
+    port: 5556
+    protocol: TCP
+    targetPort: http
+  - name: telemetry
+    port: 5558
+    protocol: TCP
+    targetPort: telemetry
+  selector:
+    app.kubernetes.io/instance: RELEASE-NAME
+    app.kubernetes.io/name: dex
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kbld.k14s.io/images: |
+      - Metas:
+        - Tag: v2.36.0
+          Type: resolved
+          URL: ghcr.io/dexidp/dex:v2.36.0
+        URL: ghcr.io/dexidp/dex@sha256:1139d90561f8e12e6c1187e60097afd7d1096f7906776e450c1941890c3eae32
+  labels:
+    app.kubernetes.io/instance: RELEASE-NAME
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: dex
+    app.kubernetes.io/version: 2.36.0
+    helm.sh/chart: dex-0.14.3
+  name: dex
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: RELEASE-NAME
+      app.kubernetes.io/name: dex
+  template:
+    metadata:
+      annotations:
+        checksum/config: f8c8532329e2a62f98869d7f385d30b711d0f2ec9a632001f4c3a276faff1f6f
+      labels:
+        app.kubernetes.io/instance: RELEASE-NAME
+        app.kubernetes.io/name: dex
+    spec:
+      containers:
+      - args:
+        - dex
+        - serve
+        - --web-http-addr
+        - 0.0.0.0:5556
+        - --telemetry-addr
+        - 0.0.0.0:5558
+        - /etc/dex/config.yaml
+        env: null
+        image: ghcr.io/dexidp/dex@sha256:1139d90561f8e12e6c1187e60097afd7d1096f7906776e450c1941890c3eae32
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          httpGet:
+            path: /healthz/live
+            port: telemetry
+        name: dex
+        ports:
+        - containerPort: 5556
+          name: http
+          protocol: TCP
+        - containerPort: 5558
+          name: telemetry
+          protocol: TCP
+        readinessProbe:
+          httpGet:
+            path: /healthz/ready
+            port: telemetry
+        resources: {}
+        securityContext: {}
+        volumeMounts:
+        - mountPath: /etc/dex
+          name: config
+          readOnly: true
+      securityContext: {}
+      serviceAccountName: dex
+      volumes:
+      - name: config
+        secret:
+          secretName: dex

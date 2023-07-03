@@ -1,0 +1,66 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: Package
+metadata:
+  name: dex.tanzu.japan.com.0.14.3
+spec:
+  refName: dex.tanzu.japan.com
+  version: 0.14.3
+  valuesSchema:
+    openAPIv3:
+      title: dex.tanzu-jp values schema
+      properties:
+        domain:
+          type: string
+          default: example.com
+        tls_secret_name:
+          type: string
+          default: tls-secret
+        namespace:
+          type: string
+          default: dex
+        static:
+          type: object
+          additionalProperties: false
+          properties:
+            secret:
+              type: string
+              default: some-secret
+            callbacks:
+              type: array
+              items:
+                type: string
+                default: example.foo.com
+              default: []
+        openldap:
+          type: object
+          additionalProperties: false
+          properties:
+            enabled:
+              type: boolean
+              default: true
+            rootdn:
+              type: string
+              default: dc=example,dc=org
+            group:
+              type: string
+              default: users
+            adminpassword:
+              type: string
+              default: adminpassword
+            passwords:
+              type: string
+              default: bitnami1,bitnami2
+            users:
+              type: string
+              default: user01,user02
+  template:
+    spec:
+      fetch:
+      - git:
+          url: https://github.com/mhoshi-vm/tap-carvel
+          ref: origin/pkgr
+          subPath: manifests/dex.tanzu.japan.com/0.14.3
+      template:
+      - ytt: {}
+      deploy:
+      - kapp: {}

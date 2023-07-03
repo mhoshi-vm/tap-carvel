@@ -1,0 +1,20 @@
+#@data/values-schema
+---
+domain: example.com
+
+tls_secret_name: tls-secret
+
+namespace: dex
+
+static:
+  secret: some-secret
+  callbacks: 
+  - example.foo.com
+
+openldap:
+  enabled: true
+  rootdn: dc=example,dc=org
+  group: users
+  adminpassword: adminpassword
+  passwords: bitnami1,bitnami2
+  users: user01,user02
