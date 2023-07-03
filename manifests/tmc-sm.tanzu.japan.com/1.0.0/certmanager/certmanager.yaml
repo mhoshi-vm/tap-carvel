@@ -14,7 +14,6 @@ kind: ServiceAccount
 metadata:
   name: kapp-sa
   namespace: certmanager-install
-#@ if data.values.certmanager.package_repo.install:
 ---
 kind: ClusterRoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
@@ -29,6 +28,7 @@ roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
   name: cluster-admin
+#@ if data.values.certmanager.package_repo.install:
 ---
 apiVersion: packaging.carvel.dev/v1alpha1
 kind: PackageRepository
