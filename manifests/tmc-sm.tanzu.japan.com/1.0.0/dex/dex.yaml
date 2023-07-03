@@ -69,5 +69,5 @@ metadata:
   name: change-default-secret
   namespace: dex-install
 stringData:
-  change-default-reg-secret.yml: #@ base64.encode("{}".format(yaml.encode(overlay.apply(dex_config()))))
+  change-default-reg-secret.yml: #@ yaml.encode(overlay.apply(dex_config()))
 #@ end
