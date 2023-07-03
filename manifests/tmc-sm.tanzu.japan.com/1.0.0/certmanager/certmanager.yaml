@@ -57,10 +57,27 @@ spec:
   serviceAccountName: kapp-sa
 #@ end
 ---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: clusterissuers.cert-manager.io
+  annotations:
+    kapp.k14s.io/exists: ""
+    kapp.k14s.io/change-group: "tkcrd"
+spec:
+  group: cert-manager.io
+  versions:
+    - name: v1
+  names:
+    kind: ClusterIssuer
+  scope: Cluster
+---
 apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
 metadata:
   name: tmc-local-issuer
+  annotations:
+    kapp.k14s.io/change-rule: "upsert after upserting tkcrd"
 spec:
   ca:
     secretName: ca-key-pair
@@ -73,5 +90,7 @@ kind: Secret
 metadata:
   name: ca-key-pair
   namespace: cert-manager
+  annotations:
+    kapp.k14s.io/change-rule: "upsert after upserting tkcrd"
 type: kubernetes.io/tls
 #@ end
