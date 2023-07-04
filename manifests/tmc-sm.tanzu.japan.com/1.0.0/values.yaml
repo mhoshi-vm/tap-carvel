@@ -33,27 +33,4 @@ tmc:
     password: aaaaaa
 
 openldap:
-  ldif: |
-    dn: ou=tmc:admin,dc=tmc,dc=dev
-    objectClass: organizationalUnit
-    objectClass: top
-    ou: tmc:admin
-    
-    
-    dn: cn=tmc01,ou=tmc:admin,dc=tmc,dc=dev
-    cn: tmc01
-    objectClass: inetOrgPerson
-    objectClass: posixAccount
-    objectClass: shadowAccount
-    userPassword: VMware1!
-    uid: tmc01
-    mail: tmc01@tmc.com
-    uidNumber: 1000
-    homeDirectory: /home/user01
-    
-    # tmc:admin, tmc:admin, tmc.dev
-    dn: cn=tmc:admin,ou=tmc:admin,dc=tmc,dc=dev
-    cn: tmc:admin
-    objectClass: groupOfNames
-    member: cn=tmc01,ou=tmc:admin,dc=tmc,dc=dev
-
+  ldif: ""
