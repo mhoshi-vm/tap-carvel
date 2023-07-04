@@ -36,7 +36,9 @@ openldap:
   ldif: |
     dn: ou=tmc:admin,dc=tmc,dc=dev
     objectClass: organizationalUnit
+    objectClass: top
     ou: tmc:admin
+    
     
     dn: cn=tmc01,ou=tmc:admin,dc=tmc,dc=dev
     cn: tmc01
