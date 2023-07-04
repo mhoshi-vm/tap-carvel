@@ -1,3 +1,5 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:base64", "base64")
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -25,13 +27,13 @@ spec:
       containers:
       - env:
         - name: LDAP_ROOT
-          value: null
+          value: #@ data.values.openldap.rootdn
         - name: LDAP_ADMIN_USERNAME
           value: admin
         - name: LDAP_GROUP
-          value: null
+          value: #@ data.values.openldap.group
         - name: LDAP_USER_DC
-          value: null
+          value: #@ data.values.openldap.group
         - name: LDAP_ADMIN_PASSWORD
           valueFrom:
             secretKeyRef:
@@ -75,9 +77,9 @@ spec:
 ---
 apiVersion: v1
 data:
-  adminpassword: null
-  passwords: null
-  users: null
+  adminpassword: #@ base64.encode(data.values.openldap.adminpassword)
+  passwords: #@ base64.encode(data.values.openldap.passwords)
+  users: #@ base64.encode(data.values.openldap.users)
 kind: Secret
 metadata:
   name: openldap
