@@ -78,8 +78,10 @@ metadata:
     kapp.k14s.io/change-rule: "upsert after upserting tkcrd"
   namespace: tmc-sm-dex
 spec:
+  ingressClassName: tmc-local
   rules:
-  - http:
+  - host: #@ "dex." + data.values.domain
+    http:
       paths:
       - path: /
         pathType: Prefix
