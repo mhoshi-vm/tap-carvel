@@ -27,7 +27,7 @@ gitops:
 #@schema/desc "bucketrepo for faster download"
 bucketrepo:
   enabled: true
-  image: jenkinsxio/bucketrepo
+  image: jenkinsxio/bucketrepo:0.1.2
 
 #@schema/desc "Enable TAP GUI viewer"
 tap_gui_viewer:
