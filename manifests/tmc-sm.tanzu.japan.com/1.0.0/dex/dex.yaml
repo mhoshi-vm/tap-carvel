@@ -76,6 +76,7 @@ metadata:
   annotations:
     cert-manager.io/cluster-issuer: tmc-local-issuer
     kapp.k14s.io/change-rule: "upsert after upserting tkcrd"
+  namespace: tmc-sm-dex
 spec:
   rules:
   - http:
