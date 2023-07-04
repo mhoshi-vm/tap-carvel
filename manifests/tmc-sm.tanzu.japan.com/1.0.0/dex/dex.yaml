@@ -17,7 +17,7 @@ static:
 openldap:
   enabled: true
   rootdn: dc=tmc,dc=dev
-  group: "tmc:admin"
+  group: usergroups
   ldif: #@ data.values.openldap.ldif
 #@ end
 

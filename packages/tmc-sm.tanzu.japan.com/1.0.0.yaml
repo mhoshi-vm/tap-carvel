@@ -103,13 +103,20 @@ spec:
             ldif:
               type: string
               default: |
-                dn: ou=tmc:admin,dc=tmc,dc=dev
+                dn: dc=tmc,dc=dev
+                objectClass: dcObject
+                objectclass: organization
+                o: tmc
+                dc: tmc
+
+                dn: ou=usergroups,dc=tmc,dc=dev
                 objectClass: organizationalUnit
                 objectClass: top
-                ou: tmc:admin
+                ou: usergroups
 
-                dn: cn=tmc01,ou=tmc:admin,dc=tmc,dc=dev
+                dn: cn=tmc01,ou=usergroups,dc=tmc,dc=dev
                 cn: tmc01
+                sn: tmc01
                 objectClass: inetOrgPerson
                 objectClass: posixAccount
                 objectClass: shadowAccount
@@ -117,13 +124,13 @@ spec:
                 uid: tmc01
                 mail: tmc01@tmc.com
                 uidNumber: 1000
+                gidNumber: 1000
                 homeDirectory: /home/user01
 
-                # tmc:admin, tmc:admin, tmc.dev
-                dn: cn=tmc:admin,ou=tmc:admin,dc=tmc,dc=dev
+                dn: cn=tmc:admin,ou=usergroups,dc=tmc,dc=dev
                 cn: tmc:admin
                 objectClass: groupOfNames
-                member: cn=tmc01,ou=tmc:admin,dc=tmc,dc=dev
+                member: cn=tmc01,ou=usergroups,dc=tmc,dc=dev
   template:
     spec:
       fetch:
