@@ -21,6 +21,8 @@ connectors:
   name: LDAP
   config:
     host: openldap:389
+    insecureNoSSL: true
+    insecureSkipVerify: true
     bindDN: #@ admin_dn
     bindPW: #@ data.values.openldap.adminpassword
     userSearch:

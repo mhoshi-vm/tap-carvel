@@ -51,6 +51,8 @@ kind: PackageInstall
 metadata:
   name: dex
   namespace: dex-install
+  annotations:
+    kapp.k14s.io/change-group: "dexpkg"
 spec:
   serviceAccountName: kapp-sa
   packageRef:
@@ -75,7 +77,7 @@ metadata:
   name: dex
   annotations:
     cert-manager.io/cluster-issuer: tmc-local-issuer
-    kapp.k14s.io/change-rule: "upsert after upserting tkcrd"
+    kapp.k14s.io/change-rule: "upsert after upserting dexpkg"
   namespace: tmc-sm-dex
 spec:
   ingressClassName: tmc-local
