@@ -14,7 +14,7 @@ storage:
 enablePasswordDB: true
 #@ if data.values.openldap.enabled:
 #@ admin_dn = "cn=admin," + data.values.openldap.rootdn
-#@ user_dn = "cn=" + data.values.openldap.group + "," + data.values.openldap.rootdn
+#@ user_dn = "ou=" + data.values.openldap.group + "," + data.values.openldap.rootdn
 connectors:
 - type: ldap
   id: ldap
@@ -29,8 +29,9 @@ connectors:
       baseDN: #@ user_dn
       filter: "(objectClass=posixAccount)"
       username: uid
-      idAttr: uid
-      nameAttr: name
+      idAttr: uidNumber
+      nameAttr: uid
+      emailAttr: uid
       preferredUsernameAttr: uid
     groupSearch:
       baseDN: #@ user_dn
