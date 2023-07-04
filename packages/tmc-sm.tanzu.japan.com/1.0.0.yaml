@@ -69,6 +69,43 @@ spec:
             secret:
               type: string
               default: aaaaaa
+        tmc:
+          type: object
+          additionalProperties: false
+          properties:
+            repo:
+              type: string
+              default: internalrepo.com/tmc
+            package:
+              type: object
+              additionalProperties: false
+              properties:
+                repo:
+                  type: string
+                  default: internalrepo.com/tmc_download
+                version:
+                  type: string
+                  default: 1.0.0
+            version:
+              type: string
+              default: 1.0.0
+            postgres:
+              type: object
+              additionalProperties: false
+              properties:
+                password:
+                  type: string
+                  default: aaaaaa
+            minio:
+              type: object
+              additionalProperties: false
+              properties:
+                username:
+                  type: string
+                  default: root
+                password:
+                  type: string
+                  default: aaaaaa
   template:
     spec:
       fetch:

@@ -1,0 +1,89 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:overlay", "overlay")
+#@ load("@ytt:base64", "base64")
+#@ load("@ytt:yaml", "yaml")
+
+#@ def tmc_config():
+#@overlay/match missing_ok=True
+#@overlay/match-child-defaults missing_ok=True
+clusterIssuer: tmc-local-issuer
+
+contourEnvoy:
+  serviceType: LoadBalancer
+
+dnsZone: #@ data.values.domain
+harborProject: #@ data.values.tmc.repo
+
+oidc:
+  issuerType: pinniped
+  issuerURL: #@ "https://dex." + data.values.domain + "/dex"
+  clientID: dex-authenticator
+  clientSecret: #@ data.values.oidc.secret
+trustedCAs:
+  local-ca.crt: #@ data.values.ca.crt
+postgres:
+  userPassword: #@ data.values.tmc.postgres.password
+minio:
+  username: #@ data.values.tmc.minio.username
+  password: #@ data.values.tmc.minio.password
+#@ end
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: tmc-local
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: kapp-sa
+  namespace: tmc-local
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: tmc-kapp-role-binding
+  namespace: tmc-local
+subjects:
+- kind: ServiceAccount
+  name: kapp-sa
+  namespace: tmc-local
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+---
+apiVersion: packaging.carvel.dev/v1alpha1
+kind: PackageRepository
+metadata:
+  name: tanzu-mission-control-packages
+  namespace: tmc-local
+  annotations:
+    kapp.k14s.io/change-group: "pkgr"
+spec:
+  fetch:
+    imgpkgBundle:
+      image: #@ data.values.tmc.package.repo + ":" + data.values.tmc.package.version
+---
+apiVersion: packaging.carvel.dev/v1alpha1
+kind: PackageInstall
+metadata:
+  name: tmc
+  namespace: tmc-local
+spec:
+  serviceAccountName: kapp-sa
+  packageRef:
+    refName: tmc.tanzu.vmware.com
+    versionSelection:
+      constraints: #@ data.values.tmc.version
+  values:
+  - secretRef:
+      name: change-default-secret
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: change-default-secret
+  namespace: tmc-local
+stringData:
+  change-default-reg-secret.yml: #@ yaml.encode(overlay.apply(tmc_config()))
