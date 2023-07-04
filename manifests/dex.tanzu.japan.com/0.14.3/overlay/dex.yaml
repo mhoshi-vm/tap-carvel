@@ -35,9 +35,10 @@ connectors:
       preferredUsernameAttr: uid
     groupSearch:
       baseDN: #@ user_dn
-      filter: "&(objectClass=groupOfNames)(member={})"
+      filter: "(objectClass=groupOfNames)"
       userMatchers:
-      - userAttr: dn
+      - userAttr: DN
+        groupAttr: member
       nameAttr: cn
 #@ end
 staticClients:
