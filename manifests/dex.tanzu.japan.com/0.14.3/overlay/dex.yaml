@@ -34,7 +34,7 @@ connectors:
       emailAttr: uid
       preferredUsernameAttr: uid
     groupSearch:
-      baseDN: #@ user_dn
+      baseDN: ""
       filter: "(objectClass=groupOfNames)"
       userMatchers:
       - userAttr: DN
