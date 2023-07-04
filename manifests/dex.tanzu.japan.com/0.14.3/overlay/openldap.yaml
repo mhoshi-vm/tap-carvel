@@ -30,6 +30,8 @@ spec:
             secretName: openldap-ldif
       containers:
       - env:
+        - name: BITNAMI_DEBUG
+          value: "true"
         - name: LDAP_ROOT
           value: #@ data.values.openldap.rootdn
         - name: LDAP_ADMIN_USERNAME
