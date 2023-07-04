@@ -31,7 +31,7 @@ connectors:
       username: uid
       idAttr: uidNumber
       nameAttr: uid
-      emailAttr: uid
+      emailAttr: mail
       preferredUsernameAttr: uid
     groupSearch:
       baseDN: #@ user_dn

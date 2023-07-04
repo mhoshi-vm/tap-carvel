@@ -96,6 +96,33 @@ spec:
                 password:
                   type: string
                   default: aaaaaa
+        openldap:
+          type: object
+          additionalProperties: false
+          properties:
+            ldif:
+              type: string
+              default: |
+                dn: ou=tmc:admin,dc=tmc,dc=dev
+                objectClass: organizationalUnit
+                ou: tmc:admin
+
+                dn: cn=tmc01,ou=tmc:admin,dc=tmc,dc=dev
+                cn: tmc01
+                objectClass: inetOrgPerson
+                objectClass: posixAccount
+                objectClass: shadowAccount
+                userPassword: VMware1!
+                uid: tmc01
+                mail: tmc01@tmc.com
+                uidNumber: 1000
+                homeDirectory: /home/user01
+
+                # tmc:admin, tmc:admin, tmc.dev
+                dn: cn=tmc:admin,ou=tmc:admin,dc=tmc,dc=dev
+                cn: tmc:admin
+                objectClass: groupOfNames
+                member: cn=tmc01,ou=tmc:admin,dc=tmc,dc=dev
   template:
     spec:
       fetch:

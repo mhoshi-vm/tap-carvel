@@ -18,6 +18,7 @@ openldap:
   enabled: true
   rootdn: dc=tmc,dc=dev
   group: "tmc:admin"
+  ldif: #@ data.values.openldap.ldif
 #@ end
 
 #@ if data.values.dex.enabled:
