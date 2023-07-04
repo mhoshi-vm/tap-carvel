@@ -44,12 +44,9 @@ spec:
             adminpassword:
               type: string
               default: adminpassword
-            passwords:
+            ldif:
               type: string
-              default: bitnami1,bitnami2
-            users:
-              type: string
-              default: user01,user02
+              default: ""
   template:
     spec:
       fetch:

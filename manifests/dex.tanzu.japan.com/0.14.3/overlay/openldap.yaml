@@ -24,30 +24,20 @@ spec:
       labels:
         app.kubernetes.io/name: openldap
     spec:
+      volumes:
+        - name: openldap-ldif
+          secret:
+            secretName: openldap-ldif
       containers:
       - env:
         - name: LDAP_ROOT
           value: #@ data.values.openldap.rootdn
         - name: LDAP_ADMIN_USERNAME
           value: admin
-        - name: LDAP_GROUP
-          value: #@ data.values.openldap.group
-        - name: LDAP_USER_DC
-          value: #@ data.values.openldap.group
         - name: LDAP_ADMIN_PASSWORD
           valueFrom:
             secretKeyRef:
               key: adminpassword
-              name: openldap
-        - name: LDAP_USERS
-          valueFrom:
-            secretKeyRef:
-              key: users
-              name: openldap
-        - name: LDAP_PASSWORDS
-          valueFrom:
-            secretKeyRef:
-              key: passwords
               name: openldap
         image: index.docker.io/bitnami/openldap@sha256:fe54ae264a35f67c62d7d015bbe63e7574cd99391e0f16bd63ebb4a1b6a1230f
         imagePullPolicy: Always
@@ -59,6 +49,10 @@ spec:
           requests:
             cpu: 100m
             memory: 64Mi
+        volumeMounts:
+          - mountPath: "/ldifs"
+            name: openldap-ldif
+            readOnly: true
 ---
 apiVersion: v1
 kind: Service
@@ -78,9 +72,16 @@ spec:
 apiVersion: v1
 data:
   adminpassword: #@ base64.encode(data.values.openldap.adminpassword)
-  passwords: #@ base64.encode(data.values.openldap.passwords)
-  users: #@ base64.encode(data.values.openldap.users)
 kind: Secret
 metadata:
   name: openldap
+  namespace: openldap
+---
+apiVersion: v1
+data:
+  custom.ldif: #@ base64.encode(data.values.openldap.ldif)
+kind: Secret
+metadata:
+  creationTimestamp: null
+  name: openldap-ldif
   namespace: openldap

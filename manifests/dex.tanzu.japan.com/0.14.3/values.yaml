@@ -14,5 +14,4 @@ openldap:
   rootdn: dc=example,dc=org
   group: users
   adminpassword: adminpassword
-  passwords: bitnami1,bitnami2
-  users: user01,user02
+  ldif: ""
