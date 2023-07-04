@@ -63,7 +63,7 @@ metadata:
 spec:
   fetch:
     imgpkgBundle:
-      image: #@ data.values.tmc.package.repo + ":" + data.values.tmc.package.version
+      image: #@  data.values.tmc.repo + "package-repository:" + data.values.tmc.version
 ---
 apiVersion: packaging.carvel.dev/v1alpha1
 kind: PackageInstall

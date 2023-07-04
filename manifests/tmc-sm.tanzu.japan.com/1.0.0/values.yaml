@@ -25,9 +25,6 @@ oidc:
 
 tmc:
   repo: internalrepo.com/tmc
-  package:
-    repo: internalrepo.com/tmc_download
-    version: 1.0.0
   version: 1.0.0
   postgres:
     password: aaaaaa

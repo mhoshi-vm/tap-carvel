@@ -76,16 +76,6 @@ spec:
             repo:
               type: string
               default: internalrepo.com/tmc
-            package:
-              type: object
-              additionalProperties: false
-              properties:
-                repo:
-                  type: string
-                  default: internalrepo.com/tmc_download
-                version:
-                  type: string
-                  default: 1.0.0
             version:
               type: string
               default: 1.0.0
