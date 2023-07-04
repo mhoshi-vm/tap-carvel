@@ -40,6 +40,8 @@ connectors:
       - userAttr: DN
         groupAttr: member
       nameAttr: cn
+logger:
+  level: "debug"
 #@ end
 staticClients:
 - id: dex-authenticator
