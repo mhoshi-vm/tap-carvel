@@ -20,9 +20,14 @@ connectors:
   id: ldap
   name: LDAP
   config:
+    #@ if data.values.openldap.ssl:
+    host: openldap:636
+    rootCA: /openldap-tls/ca.crt
+    #@ else:
     host: openldap:389
     insecureNoSSL: true
     insecureSkipVerify: true
+    #@ end
     bindDN: #@ admin_dn
     bindPW: #@ data.values.openldap.adminpassword
     userSearch:
@@ -85,5 +90,22 @@ kind: Namespace
 metadata:
   name: #@ data.values.namespace
 
-
+#@ if data.values.openldap.ssl:
+#@overlay/match by=overlay.subset({"kind": "Deployment","metadata": {"name": "dex"}})
+---
+spec:
+  template:
+    spec:
+      containers:
+      #@overlay/match by="name"
+      - name: dex
+        volumeMounts:
+        - mountPath: /openldap-tls
+          name: openldap-cert 
+          readOnly: true
+      volumes:
+      - name: openldap-cert
+        secret:
+          secretName: openldap-cert
+#@ end
 

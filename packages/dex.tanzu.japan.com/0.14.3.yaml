@@ -35,6 +35,9 @@ spec:
             enabled:
               type: boolean
               default: true
+            ssl:
+              type: boolean
+              default: true
             rootdn:
               type: string
               default: dc=example,dc=org

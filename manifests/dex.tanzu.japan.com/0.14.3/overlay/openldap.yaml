@@ -1,5 +1,8 @@
 #@ load("@ytt:data", "data")
 #@ load("@ytt:base64", "base64")
+
+#@ port = 636 if data.values.openldap.ssl else 389
+#@ containerPort = port + 1000
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -28,10 +31,13 @@ spec:
         - name: openldap-ldif
           secret:
             secretName: openldap-ldif
+        #@ if data.values.openldap.ssl:
+        - name: certifcate
+          secret:
+            secretName: openldap-cert
+        #@ end
       containers:
       - env:
-        - name: BITNAMI_DEBUG
-          value: "true"
         - name: LDAP_ROOT
           value: #@ data.values.openldap.rootdn
         - name: LDAP_ADMIN_USERNAME
@@ -41,11 +47,21 @@ spec:
             secretKeyRef:
               key: adminpassword
               name: openldap
+        #@ if data.values.openldap.ssl:
+        - name: LDAP_ENABLE_TLS
+          value: "yes"
+        - name: LDAP_TLS_CERT_FILE
+          value: /tls/tls.crt
+        - name: LDAP_TLS_KEY_FILE
+          value: /tls/tls.key
+        - name: LDAP_TLS_CA_FILE
+          value: /tls/ca.crt
+        #@ end
         image: index.docker.io/bitnami/openldap@sha256:fe54ae264a35f67c62d7d015bbe63e7574cd99391e0f16bd63ebb4a1b6a1230f
         imagePullPolicy: Always
         name: openldap
         ports:
-        - containerPort: 1389
+        - containerPort: #@ containerPort
           name: tcp-ldap
         resources:
           requests:
@@ -55,6 +71,11 @@ spec:
           - mountPath: "/ldifs"
             name: openldap-ldif
             readOnly: true
+          #@ if data.values.openldap.ssl:
+          - mountPath: "/tls"
+            name: certifcate
+            readOnly: true
+          #@ end
 ---
 apiVersion: v1
 kind: Service
@@ -65,7 +86,7 @@ metadata:
 spec:
   ports:
   - name: tcp-ldap
-    port: 389
+    port: #@ port
     targetPort: tcp-ldap
   selector:
     app.kubernetes.io/name: openldap
@@ -87,3 +108,54 @@ metadata:
   creationTimestamp: null
   name: openldap-ldif
   namespace: openldap
+
+#@ if data.values.openldap.ssl:
+---
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+ name: openldap-root-issuer
+ namespace: openldap
+spec:
+ selfSigned: {}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+ name: openldap-rootca
+ namespace: openldap
+spec:
+  isCA: true
+  commonName: openldap-rootca
+  secretName: openldap-rootca
+  issuerRef:
+    name: openldap-root-issuer
+    kind: Issuer
+    group: cert-manager.io
+---
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: openldap-ca-issuer
+  namespace: openldap
+spec:
+  ca:
+    secretName: openldap-rootca
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: openldap-cert
+  namespace: openldap
+spec:
+  secretName: openldap-cert
+  isCA: false
+  usages:
+    - server auth
+    - client auth
+  dnsNames:
+  - #@ "openldap." + data.values.namespace + ".svc.cluster.local" 
+  - "openldap"
+  issuerRef:
+    name: openldap-ca-issuer
+#@ end

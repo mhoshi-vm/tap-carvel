@@ -11,6 +11,7 @@ static:
 
 openldap:
   enabled: true
+  ssl: true
   rootdn: dc=example,dc=org
   group: users
   adminpassword: adminpassword
