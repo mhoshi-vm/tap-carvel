@@ -12,16 +12,6 @@ spec:
         domain:
           type: string
           default: example.com
-        ca:
-          type: object
-          additionalProperties: false
-          properties:
-            crt:
-              type: string
-              default: dummy
-            key:
-              type: string
-              default: dummy
         certmanager:
           type: object
           additionalProperties: false
@@ -68,7 +58,7 @@ spec:
           properties:
             secret:
               type: string
-              default: aaaaaa
+              default: randomsecret
         tmc:
           type: object
           additionalProperties: false
@@ -85,7 +75,7 @@ spec:
               properties:
                 password:
                   type: string
-                  default: aaaaaa
+                  default: Passw0rd
             minio:
               type: object
               additionalProperties: false
@@ -95,7 +85,7 @@ spec:
                   default: root
                 password:
                   type: string
-                  default: aaaaaa
+                  default: Passw0rd
         openldap:
           type: object
           additionalProperties: false

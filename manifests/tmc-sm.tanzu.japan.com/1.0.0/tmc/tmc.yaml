@@ -19,8 +19,6 @@ oidc:
   issuerURL: #@ "https://dex." + data.values.domain + "/dex"
   clientID: dex-authenticator
   clientSecret: #@ data.values.oidc.secret
-trustedCAs:
-  local-ca.crt: #@ data.values.ca.crt
 postgres:
   userPassword: #@ data.values.tmc.postgres.password
 minio:
