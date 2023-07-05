@@ -1,0 +1,88 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:overlay", "overlay")
+#@ load("@ytt:base64", "base64")
+#@ load("@ytt:yaml", "yaml")
+
+---
+apiVersion: secretgen.carvel.dev/v1alpha1
+kind: SecretExport
+metadata:
+  name: tmc-rootca
+  namespace: cert-manager
+spec:
+  toNamespace: tmc-local
+---
+apiVersion: secretgen.carvel.dev/v1alpha1
+kind: SecretImport
+metadata:
+  name: tmc-rootca
+  namespace: tmc-local
+spec:
+  fromNamespace: cert-manager
+---
+apiVersion: secretgen.carvel.dev/v1alpha1
+kind: SecretTemplate
+metadata:
+  name: tls-ca-bundles
+  namespace: tmc-local
+spec:
+  inputResources:
+  - name: tmc-rootca
+    ref:
+      apiVersion: v1
+      kind: Secret
+      name: tmc-rootca
+  #! the template that follows a subset of the Secret API
+  template:
+    data:
+      letsencrypt.pem: $(.tmc-rootca.data.ca\.crt)
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ldap-overlay-secret
+  namespace: tmc-local
+stringData:
+  addscope.yaml: |
+    #@ load("@ytt:data", "data")
+    #@ load("@ytt:overlay", "overlay")
+    ---
+    #@overlay/match by=overlay.subset({"kind":"OIDCIdentityProvider", "metadata": {"name": "pinniped-upstream"}})
+    ---
+    spec:
+      authorizationConfig:
+        additionalScopes:
+        - groups
+  cmToSecret.yaml: |
+    #@ load("@ytt:data", "data")
+    #@ load("@ytt:overlay", "overlay")
+    ---
+    #@overlay/match by=overlay.subset({"kind":"Deployment" }), expects="1+"
+    ---
+    spec:
+      template:
+        spec:
+          volumes:
+          #@overlay/match by="name", missing_ok=True
+          - name: tls-ca-bundles
+            #@overlay/remove
+            configMap:
+            #@overlay/match missing_ok=True
+            secret:
+              secretName: tls-ca-bundles
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: tmc-overlay-override
+  namespace: tmc-local
+stringData:
+  patch-oidc.yaml: |
+    #@ load("@ytt:overlay", "overlay")
+    #@overlay/match by=overlay.subset({"kind":"PackageInstall", "metadata": {"name": "tmc-local-stack"}})
+    ---
+    metadata:
+      annotations:
+        #@overlay/match missing_ok=True
+        ext.packaging.carvel.dev/ytt-paths-from-secret-name.0: ldap-overlay-secret
+
