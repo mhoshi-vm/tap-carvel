@@ -12,6 +12,16 @@ spec:
         domain:
           type: string
           default: example.com
+        ca:
+          type: object
+          additionalProperties: false
+          properties:
+            crt:
+              type: string
+              default: dummy
+            key:
+              type: string
+              default: dummy
         certmanager:
           type: object
           additionalProperties: false

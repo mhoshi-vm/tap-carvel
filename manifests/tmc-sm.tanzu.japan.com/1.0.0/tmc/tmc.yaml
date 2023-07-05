@@ -24,6 +24,8 @@ postgres:
 minio:
   username: #@ data.values.tmc.minio.username
   password: #@ data.values.tmc.minio.password
+trustedCAs:
+  local-ca.crt: #@ data.values.ca.crt
 #@ end
 
 apiVersion: v1

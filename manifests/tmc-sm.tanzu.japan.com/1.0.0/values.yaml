@@ -2,6 +2,10 @@
 ---
 domain: example.com
 
+ca:
+  crt: dummy
+  key: dummy
+
 certmanager:
   enabled: true
   package_repo: 
