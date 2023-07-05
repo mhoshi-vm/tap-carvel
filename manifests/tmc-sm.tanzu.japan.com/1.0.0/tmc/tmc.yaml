@@ -57,7 +57,7 @@ metadata:
   name: tanzu-mission-control-packages
   namespace: tmc-local
   annotations:
-    kapp.k14s.io/change-group: "pkgr"
+    kapp.k14s.io/change-group: "tmcpkgr"
 spec:
   fetch:
     imgpkgBundle:
@@ -70,6 +70,7 @@ metadata:
   namespace: tmc-local
   annotations:
     ext.packaging.carvel.dev/ytt-paths-from-secret-name.0: tmc-overlay-override
+    kapp.k14s.io/change-rule: "upsert after upserting tmcpkgr"
 spec:
   serviceAccountName: kapp-sa
   packageRef:

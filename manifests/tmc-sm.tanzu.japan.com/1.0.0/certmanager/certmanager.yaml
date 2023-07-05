@@ -143,5 +143,5 @@ metadata:
     kapp.k14s.io/change-rule: "upsert after upserting tkcrd"
 spec:
   ca:
-    secretName: tmc-root-issuer
+    secretName: tmc-rootca
 #@ end
