@@ -53,11 +53,18 @@ stringData:
       authorizationConfig:
         additionalScopes:
         - groups
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: local-ca-secret
+  namespace: tmc-local
+stringData:
   cmToSecret.yaml: |
     #@ load("@ytt:data", "data")
     #@ load("@ytt:overlay", "overlay")
     ---
-    #@overlay/match by=overlay.subset({"kind":"Deployment" }), expects="1+"
+    #@overlay/match by=overlay.subset({"kind":"Deployment" }), expects="0+"
     ---
     spec:
       template:
@@ -85,4 +92,11 @@ stringData:
       annotations:
         #@overlay/match missing_ok=True
         ext.packaging.carvel.dev/ytt-paths-from-secret-name.0: ldap-overlay-secret
-
+  patch-s3.yaml: |
+    #@ load("@ytt:overlay", "overlay")
+    #@overlay/match by=overlay.subset({"kind":"PackageInstall"}), expects="1+"
+    ---
+    metadata:
+      annotations:
+        #@overlay/match missing_ok=True
+        ext.packaging.carvel.dev/ytt-paths-from-secret-name.1: local-ca-secret
