@@ -1,0 +1,6 @@
+apiVersion: aws.crossplane.io/v1beta1
+kind: ProviderConfig
+metadata:
+  name: aws-provider
+spec:
+  userServiceAccount: true

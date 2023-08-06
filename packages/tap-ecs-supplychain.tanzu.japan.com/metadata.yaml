@@ -1,0 +1,11 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: PackageMetadata
+metadata:
+  name: tap-ecs-supplychain.tanzu.japan.com
+spec:
+  displayName: "TAP Amazon ECS supplychain"
+  shortDescription: "TAP Amazon ECS supplychain"
+  supportDescription: "https://carvel.dev/"
+  providerName: "VMware"
+  maintainers:
+  - name: "Machi Hoshino"

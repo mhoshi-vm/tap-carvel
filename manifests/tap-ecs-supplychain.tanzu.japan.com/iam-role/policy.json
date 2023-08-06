@@ -1,0 +1,40 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "VisualEditor0",
+            "Effect": "Allow",
+            "Action": [
+                "ecs:ListAttributes",
+                "ecs:DescribeTaskSets",
+                "ecs:DescribeTaskDefinition",
+                "ecs:DeregisterTaskDefinition",
+                "ecs:ListServices",
+                "ecs:UpdateService",
+                "ecs:DescribeCapacityProviders",
+                "ecs:CreateService",
+                "ecs:ListTasks",
+                "ecs:DescribeServices",
+                "ecs:DescribeContainerInstances",
+                "ecs:DeleteTaskDefinitions",
+                "ecs:TagResource",
+                "ecs:DescribeTasks",
+                "ecs:UntagResource",
+                "ecs:ListTaskDefinitions",
+                "ecs:UpdateTaskSet",
+                "ecs:CreateTaskSet",
+                "ecs:ListClusters",
+                "ecs:GetTaskProtection",
+                "ecs:ListServicesByNamespace",
+                "ecs:DeleteService",
+                "ecs:DeleteTaskSet",
+                "ecs:DescribeClusters",
+                "ecs:ListAccountSettings",
+                "ecs:ListTagsForResource",
+                "ecs:ListTaskDefinitionFamilies",
+                "ecs:ListContainerInstances"
+            ],
+            "Resource": "*"
+        }
+    ]
+}
