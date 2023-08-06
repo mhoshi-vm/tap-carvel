@@ -9,128 +9,30 @@ spec:
     openAPIv3:
       title: tap-ecs.tanzu-jp values schema
       properties:
-        domain:
-          type: string
-          default: example.com
-        ca:
+        crossplane:
           type: object
           additionalProperties: false
           properties:
-            crt:
-              type: string
-              default: dummy
-            key:
-              type: string
-              default: dummy
-        certmanager:
-          type: object
-          additionalProperties: false
-          properties:
-            enabled:
-              type: boolean
-              default: true
-            package_repo:
+            aws:
               type: object
               additionalProperties: false
               properties:
-                install:
-                  type: boolean
-                  default: false
                 repo:
                   type: string
-                  default: projects.registry.vmware.com/tkg/packages/standard/repo
-                version:
+                  default: xpkg.upbound.io/upbound/provider-family-aws
+                tag:
                   type: string
-                  default: 2.2.0
-            package:
+                  default: v0.37.0
+            ecs:
               type: object
               additionalProperties: false
               properties:
-                install:
-                  type: boolean
-                  default: true
-                version:
+                repo:
                   type: string
-                  default: 1.10.2+vmware.1-tkg.1
-        dex:
-          type: object
-          additionalProperties: false
-          properties:
-            enabled:
-              type: boolean
-              default: true
-            version:
-              type: string
-              default: 0.14.3
-        oidc:
-          type: object
-          additionalProperties: false
-          properties:
-            secret:
-              type: string
-              default: randomsecret
-        tmc:
-          type: object
-          additionalProperties: false
-          properties:
-            repo:
-              type: string
-              default: internalrepo.com/tmc
-            version:
-              type: string
-              default: 1.6.1
-            postgres:
-              type: object
-              additionalProperties: false
-              properties:
-                password:
+                  default: xpkg.upbound.io/upbound/provider-aws-ecs
+                tag:
                   type: string
-                  default: Passw0rd
-            minio:
-              type: object
-              additionalProperties: false
-              properties:
-                username:
-                  type: string
-                  default: root
-                password:
-                  type: string
-                  default: Passw0rd
-        openldap:
-          type: object
-          additionalProperties: false
-          properties:
-            ldif:
-              type: string
-              default: |
-                dn: dc=tmc,dc=dev
-                objectClass: dcObject
-                objectclass: organization
-                o: tmc
-                dc: tmc
-
-                dn: ou=usergroups,dc=tmc,dc=dev
-                objectClass: organizationalUnit
-                objectClass: top
-                ou: usergroups
-
-                dn: cn=tmc01,ou=usergroups,dc=tmc,dc=dev
-                cn: tmc01
-                sn: tmc01
-                objectClass: inetOrgPerson
-                objectClass: posixAccount
-                objectClass: shadowAccount
-                userPassword: VMware1!
-                uid: tmc01
-                mail: tmc01@tmc.com
-                uidNumber: 1000
-                gidNumber: 1000
-                homeDirectory: /home/user01
-
-                dn: cn=tmc:admin,ou=usergroups,dc=tmc,dc=dev
-                cn: tmc:admin
-                objectClass: groupOfNames
-                member: cn=tmc01,ou=usergroups,dc=tmc,dc=dev
+                  default: v0.37.0
   template:
     spec:
       fetch:
