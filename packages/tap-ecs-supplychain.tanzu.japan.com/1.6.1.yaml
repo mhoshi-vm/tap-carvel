@@ -1,10 +1,10 @@
 apiVersion: data.packaging.carvel.dev/v1alpha1
 kind: Package
 metadata:
-  name: tap-ecs-supplychain.tanzu.japan.com.1.0.0
+  name: tap-ecs-supplychain.tanzu.japan.com.1.6.1
 spec:
   refName: tap-ecs-supplychain.tanzu.japan.com
-  version: 1.0.0
+  version: 1.6.1
   valuesSchema:
     openAPIv3:
       title: tap-ecs.tanzu-jp values schema
@@ -78,7 +78,7 @@ spec:
               default: internalrepo.com/tmc
             version:
               type: string
-              default: 1.0.0
+              default: 1.6.1
             postgres:
               type: object
               additionalProperties: false
@@ -137,7 +137,7 @@ spec:
       - git:
           url: https://github.com/mhoshi-vm/tap-carvel
           ref: origin/pkgr
-          subPath: manifests/tap-ecs-supplychain.tanzu.japan.com/1.0.0
+          subPath: manifests/tap-ecs-supplychain.tanzu.japan.com/1.6.1
       template:
       - ytt: {}
       deploy:
