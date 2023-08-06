@@ -14,6 +14,6 @@ kind: Provider
 metadata:
   annotations:
     kapp.k14s.io/change-group: "crd"
-  name: upbound-provider-aws-rds
+  name: upbound-provider-aws-ecs
 spec:
   package: #@ data.values.crossplane.ecs.repo + ":" + data.values.crossplane.ecs.tag 
