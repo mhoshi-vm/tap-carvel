@@ -112,6 +112,7 @@ spec:
         family: #@ data.values.workload.metadata.name
         region: #@ data.values.params.region
         cpu: "256"
+        memory: "512"
         networkMode: awsvpc
         requiresCompatibilities:
           - FARGATE
