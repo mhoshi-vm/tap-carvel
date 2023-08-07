@@ -24,4 +24,4 @@ spec:
   credentials:
     source: WebIdentity
     webIdentity:
-      roleArn: #@ 'arn:aws:iam::' + data.values.aws.accountId + ':role/' + data.values.aws.roleName
+      roleARN: #@ 'arn:aws:iam::' + data.values.aws.accountId + ':role/' + data.values.aws.roleName
