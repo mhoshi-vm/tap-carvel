@@ -1,0 +1,21 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: deliverable-with-ecs
+  labels:
+    apps.tanzu.vmware.com/aggregate-to-deliverable: "true"
+rules:
+- apiGroups:
+  - ecs.aws.upbound.io/v1beta1
+  resources:
+  - TaskDefinition
+  - Service
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - patch
+  - update
+  - delete
+  - deletecollection
