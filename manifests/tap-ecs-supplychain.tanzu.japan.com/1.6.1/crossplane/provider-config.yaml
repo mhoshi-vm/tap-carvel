@@ -22,4 +22,5 @@ metadata:
      kapp.k14s.io/change-rule: "upsert after upserting crd"
 spec:
   credentials:
+    source: WebIdentity
     webIdentity: #@ 'arn:aws:iam::' + data.values.aws.accountId + ':role/' + data.values.aws.roleName
