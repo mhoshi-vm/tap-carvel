@@ -35,7 +35,9 @@ spec:
     #@   task = {}
     #@   task["name"] = workload.name
     #@   task["image"] = workload.image
-    #@   task["portMappings"] = workload.ports
+    #@   if hasattr(workload, "ports"):
+    #@     task["portMappings"] = workload.ports
+    #@   end
     #@   task["environment"] = []
     #@   task["secrets"] = []
     #@   if hasattr(workload, "env"):
