@@ -61,19 +61,15 @@ spec:
     #@       end
     #@     end
     #@   end
-    #@   if hasattr(workload, "livenessProbe"):
-    #@     if hasattr(workload.livenessProbe, "httpGet"):
-    #@       task["http_get_liveness_probe"] = workload.livenessProbe.httpGet
-    #@     end
-    #@   end
     #@   resources = workload.resources
+    #@   task["memoryReservation"] = 256
     #@   if hasattr(resources, "requests"):
     #@     r = resources.requests
     #@     if hasattr(r, "cpu"):
     #@       task["cpu"] = r.cpu
     #@     end
     #@     if hasattr(r, "memory"):
-    #@       task["memory_reservation"] = r.memory
+    #@       task["memoryReservation"] = r.memory
     #@     end
     #@   end
     #@   if hasattr(resources, "limits"):
