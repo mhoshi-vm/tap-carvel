@@ -92,7 +92,7 @@ spec:
     
     #@ def delivery():
     ---
-    apiVersion: ecs.aws.upbound.io/v1beta1
+    apiVersion: ecs.aws.crossplane.io/v1alpha1
     kind: TaskDefinition
     metadata:
       labels: #@ merge_labels({ "app.kubernetes.io/component": "run", "carto.run/workload-name": data.values.workload.metadata.name })
@@ -106,7 +106,7 @@ spec:
         family: #@ data.values.workload.metadata.name
         region: #@ data.values.params.region
     ---
-    apiVersion: ecs.aws.upbound.io/v1beta1
+    apiVersion: ecs.aws.crossplane.io/v1alpha1
     kind: Service
     metadata:
       labels: #@ merge_labels({ "app.kubernetes.io/component": "run", "carto.run/workload-name": data.values.workload.metadata.name })

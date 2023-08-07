@@ -2,7 +2,7 @@
 ---
 crossplane:
   aws:
-   repo: crossplane/provider-aws
+   repo: xpkg.upbound.io/crossplane-contrib/provider-aws
    tag: v0.42.0
   ecs:
    repo: xpkg.upbound.io/upbound/provider-aws-ecs
