@@ -42,12 +42,8 @@ spec:
             subnet:
               type: array
               items:
-                type: object
-                additionalProperties: false
-                properties:
-                  name:
-                    type: string
-                    default: sample-subnet1
+                type: string
+                default: sample-subnet1
               default: []
   template:
     spec:

@@ -11,4 +11,4 @@ aws:
   cluster: ""
   region: us-west-2
   subnet:
-  - name: sample-subnet1
+  - sample-subnet1

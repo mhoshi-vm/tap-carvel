@@ -131,7 +131,7 @@ spec:
         networkConfiguration:
           awsvpcConfiguration:
             assignPublicIP: DISABLED
-            subnetRefs: #@ data.values.params.subnet
+            subnets: #@ data.values.params.subnet
         taskDefinitionRef:
           name: #@ data.values.workload.metadata.name
     #@ end
