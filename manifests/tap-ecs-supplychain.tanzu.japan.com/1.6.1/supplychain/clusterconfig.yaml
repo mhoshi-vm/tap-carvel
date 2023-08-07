@@ -102,7 +102,8 @@ spec:
       providerConfigRef: 
         name: aws-provider
       forProvider:
-        containerDefinitions: #@ json.encode(update_config(data.values.config), indent=3)
+        containerDefinitions: 
+        - #@ update_config(data.values.config)
         family: #@ data.values.workload.metadata.name
         region: #@ data.values.params.region
     ---
