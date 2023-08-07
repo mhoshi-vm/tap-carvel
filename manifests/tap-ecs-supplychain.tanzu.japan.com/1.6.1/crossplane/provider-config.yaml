@@ -23,3 +23,29 @@ metadata:
 spec:
   credentials:
     source: IRSA
+---
+apiVersion: pkg.crossplane.io/v1alpha1
+kind: ControllerConfig
+metadata:
+  name: upbound-provider-aws
+spec:
+  env:
+    - name: AWS_REGION
+      value: #@ data.values.aws.region
+    - name: AWS_DEFAULT_REGION
+      value: #@ data.values.aws.region
+    - name: AWS_WEB_IDENTITY_TOKEN_FILE
+      value: /run/secrets/aws/token
+    - name: AWS_ROLE_ARN
+      value: #@ 'arn:aws:iam::' + data.values.aws.accountId + ':role/' + data.values.aws.roleName
+  volumes:
+    - name: aws
+      projected:
+        sources:
+        - serviceAccountToken:
+            audience: sts.amazonaws.com
+            path: token
+  volumeMounts:
+    - name: aws
+      mountPath: /run/secrets/aws
+      readOnly: true

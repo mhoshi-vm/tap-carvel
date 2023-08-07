@@ -8,6 +8,8 @@ metadata:
   name: upbound-provider-family-aws
 spec:
   package: #@ data.values.crossplane.aws.repo + ":"  + data.values.crossplane.aws.tag
+  controllerConfigRef:
+    name: upbound-provider-aws
 ---
 apiVersion: pkg.crossplane.io/v1
 kind: Provider
@@ -17,3 +19,5 @@ metadata:
   name: upbound-provider-aws-ecs
 spec:
   package: #@ data.values.crossplane.ecs.repo + ":" + data.values.crossplane.ecs.tag 
+  controllerConfigRef:
+    name: upbound-provider-aws

@@ -11,3 +11,4 @@ crossplane:
 aws:
   accountId: ""
   roleName: "tap-ecs"
+  region: us-west-2
