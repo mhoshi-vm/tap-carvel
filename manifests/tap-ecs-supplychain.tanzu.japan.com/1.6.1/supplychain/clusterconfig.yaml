@@ -112,7 +112,6 @@ spec:
         family: #@ data.values.workload.metadata.name
         region: #@ data.values.params.region
         requiresCompatibilities:
-        - FARGATE
         - EC2
         - EXTERNAL
     ---
