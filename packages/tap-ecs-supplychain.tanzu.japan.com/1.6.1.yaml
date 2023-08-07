@@ -39,6 +39,16 @@ spec:
             region:
               type: string
               default: us-west-2
+            subnet:
+              type: array
+              items:
+                type: object
+                additionalProperties: false
+                properties:
+                  name:
+                    type: string
+                    default: sample-subnet1
+              default: []
   template:
     spec:
       fetch:
