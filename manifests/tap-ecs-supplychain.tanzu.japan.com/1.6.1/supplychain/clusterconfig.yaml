@@ -120,6 +120,7 @@ spec:
       providerConfigRef: 
         name: aws-provider
       forProvider:
+        desiredCount: 1
         cluster:  #@ data.values.params.cluster
         loadBalancer:
         - containerName: workload
