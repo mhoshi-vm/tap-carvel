@@ -1,8 +1,15 @@
+#@ load("@ytt:data", "data")
+---
 apiVersion: carto.run/v1alpha1
 kind: ClusterConfigTemplate
 metadata:
   name: ecs-template
 spec:
+  params:
+  - default: #@ data.values.aws.cluster
+    name: cluster
+  - default: #@ data.values.aws.region
+    name: region
   configPath: .data
   lifecycle: mutable
   ytt: |

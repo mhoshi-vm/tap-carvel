@@ -14,6 +14,7 @@
                 "ecs:DescribeCapacityProviders",
                 "ecs:CreateService",
                 "ecs:ListTasks",
+                "ecs:RegisterTaskDefinition",
                 "ecs:DescribeServices",
                 "ecs:DescribeContainerInstances",
                 "ecs:DeleteTaskDefinitions",

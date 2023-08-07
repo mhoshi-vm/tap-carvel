@@ -4,11 +4,9 @@ crossplane:
   aws:
    repo: xpkg.upbound.io/crossplane-contrib/provider-aws
    tag: v0.42.0
-  ecs:
-   repo: xpkg.upbound.io/upbound/provider-aws-ecs
-   tag: v0.38.0
 
 aws:
   accountId: ""
   roleName: "tap-ecs"
+  cluster: ""
   region: us-west-2

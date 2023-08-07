@@ -27,7 +27,7 @@ spec:
 apiVersion: pkg.crossplane.io/v1alpha1
 kind: ControllerConfig
 metadata:
-  name: upbound-provider-aws
+  name: provider-aws
   annotations:
     eks.amazonaws.com/role-arn: #@ 'arn:aws:iam::' + data.values.aws.accountId + ':role/' + data.values.aws.roleName
 spec:
