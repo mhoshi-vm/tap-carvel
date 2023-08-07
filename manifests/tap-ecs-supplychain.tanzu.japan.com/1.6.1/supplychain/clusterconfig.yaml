@@ -59,8 +59,8 @@ spec:
     #@       end
     #@     end
     #@   end
-    #@   if hasattr(workload, "livenessProbe")
-    #@     if hasattr(workload.livenessProbe, "httpGet")
+    #@   if hasattr(workload, "livenessProbe"):
+    #@     if hasattr(workload.livenessProbe, "httpGet"):
     #@       task["http_get_liveness_probe"] = workload.livenessProbe.httpGet
     #@     end
     #@   end
