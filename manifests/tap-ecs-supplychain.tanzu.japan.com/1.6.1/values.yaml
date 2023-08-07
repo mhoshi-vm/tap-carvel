@@ -3,10 +3,10 @@
 crossplane:
   aws:
    repo: xpkg.upbound.io/upbound/provider-family-aws
-   tag: v0.42.0
+   tag: v0.38.0
   ecs:
    repo: xpkg.upbound.io/upbound/provider-aws-ecs
-   tag: v0.42.0
+   tag: v0.38.0
 
 aws:
   accountId: ""

@@ -22,4 +22,4 @@ metadata:
      kapp.k14s.io/change-rule: "upsert after upserting crd"
 spec:
   credentials:
-    source: InjectedIdentity
+    source: IRSA
