@@ -8,8 +8,7 @@ rules:
 - apiGroups:
   - ecs.aws.crossplane.io
   resources:
-  - taskdefinitions
-  - services
+  - "*"
   verbs:
   - get
   - list
