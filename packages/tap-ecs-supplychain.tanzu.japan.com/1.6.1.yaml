@@ -22,7 +22,7 @@ spec:
                   default: xpkg.upbound.io/upbound/provider-family-aws
                 tag:
                   type: string
-                  default: v0.37.0
+                  default: v0.42.0
             ecs:
               type: object
               additionalProperties: false
@@ -32,7 +32,7 @@ spec:
                   default: xpkg.upbound.io/upbound/provider-aws-ecs
                 tag:
                   type: string
-                  default: v0.37.0
+                  default: v0.42.0
         aws:
           type: object
           additionalProperties: false
