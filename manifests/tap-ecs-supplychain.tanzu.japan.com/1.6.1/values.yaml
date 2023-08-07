@@ -8,3 +8,6 @@ crossplane:
    repo: xpkg.upbound.io/upbound/provider-aws-ecs
    tag: v0.37.0
 
+aws:
+  accountId: ""
+  roleName: "tap-ecs"

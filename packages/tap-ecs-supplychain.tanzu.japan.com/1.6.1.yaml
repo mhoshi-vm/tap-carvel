@@ -33,6 +33,16 @@ spec:
                 tag:
                   type: string
                   default: v0.37.0
+        aws:
+          type: object
+          additionalProperties: false
+          properties:
+            accountId:
+              type: string
+              default: ""
+            roleName:
+              type: string
+              default: tap-ecs
   template:
     spec:
       fetch:

@@ -97,6 +97,7 @@ spec:
       name: #@ data.values.workload.metadata.name
       annotations: #@ return_annotations(data.values.config)
     spec:
+      providerConfigRef: aws-provider
       forProvider:
         containerDefinitions: #@ json.encode(update_config(data.values.config), indent=3)
         family: #@ data.values.workload.metadata.name
@@ -109,6 +110,7 @@ spec:
       name: #@ data.values.workload.metadata.name
       annotations: #@ return_annotations(data.values.config)
     spec:
+      providerConfigRef: aws-provider
       forProvider:
         cluster:  #@ data.values.params.cluster
         loadBalancer:
