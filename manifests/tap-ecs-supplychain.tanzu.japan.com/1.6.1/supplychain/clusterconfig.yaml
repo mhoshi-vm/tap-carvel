@@ -111,6 +111,7 @@ spec:
         - #@ update_config(data.values.config)
         family: #@ data.values.workload.metadata.name
         region: #@ data.values.params.region
+        cpu: "256"
         networkMode: awsvpc
         requiresCompatibilities:
           - FARGATE
