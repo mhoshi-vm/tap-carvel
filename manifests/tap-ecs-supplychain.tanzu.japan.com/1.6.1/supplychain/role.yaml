@@ -6,7 +6,7 @@ metadata:
     apps.tanzu.vmware.com/aggregate-to-deliverable: "true"
 rules:
 - apiGroups:
-  - ecs.aws.upbound.io
+  - ecs.aws.crossplane.io
   resources:
   - taskdefinitions
   - services
