@@ -111,6 +111,10 @@ spec:
         - #@ update_config(data.values.config)
         family: #@ data.values.workload.metadata.name
         region: #@ data.values.params.region
+        requiresCompatibilities:
+        - FARGATE
+        - EC2
+        - EXTERNAL
     ---
     apiVersion: ecs.aws.crossplane.io/v1alpha1
     kind: Service
