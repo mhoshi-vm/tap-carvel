@@ -111,9 +111,9 @@ spec:
         - #@ update_config(data.values.config)
         family: #@ data.values.workload.metadata.name
         region: #@ data.values.params.region
+        networkMode: awsvpc
         requiresCompatibilities:
-        - EC2
-        - EXTERNAL
+          - FARGATE
     ---
     apiVersion: ecs.aws.crossplane.io/v1alpha1
     kind: Service
@@ -127,6 +127,7 @@ spec:
       forProvider:
         desiredCount: 1
         cluster:  #@ data.values.params.cluster
+        launchType: FARGATE
         loadBalancer:
         - containerName: workload
           containerPort: 8080
