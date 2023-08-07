@@ -6,10 +6,10 @@ metadata:
     apps.tanzu.vmware.com/aggregate-to-deliverable: "true"
 rules:
 - apiGroups:
-  - ecs.aws.upbound.io/v1beta1
+  - ecs.aws.upbound.io
   resources:
-  - TaskDefinition
-  - Service
+  - taskdefinitions
+  - services
   verbs:
   - get
   - list
