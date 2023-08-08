@@ -135,6 +135,10 @@ spec:
         cluster:  #@ data.values.params.cluster
         launchType: EC2
         region: #@ data.values.params.region
+        networkConfiguration:
+          awsvpcConfiguration:
+            assignPublicIP: DISABLED
+            subnets: #@ data.values.params.subnet
         taskDefinitionRef:
           name: #@ data.values.workload.metadata.name
     ---
