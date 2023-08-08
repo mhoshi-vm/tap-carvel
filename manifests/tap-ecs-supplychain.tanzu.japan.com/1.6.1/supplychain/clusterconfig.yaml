@@ -196,12 +196,6 @@ spec:
       - apiVersionKindMatcher:
           apiVersion: ecs.aws.crossplane.io/v1alpha1
           kind: TaskDefinition
-
-    - path: [spec, forProvider, taskDefinition]
-      resourceMatchers: 
-      - apiVersionKindMatcher:
-          apiVersion: ecs.aws.crossplane.io/v1alpha1
-          kind: Service
     #@ end
     ---
     apiVersion: v1
