@@ -149,33 +149,30 @@ spec:
     - path: [metadata, annotations, crossplane.io/external-create-pending]
       type: copy
       sources: [new, existing]
-      resourceMatchers: &ecs
+      resourceMatchers: &task
       - apiVersionKindMatcher:
           apiVersion: ecs.aws.crossplane.io/v1alpha1
           kind: TaskDefinition
-      - apiVersionKindMatcher:
-          apiVersion: ecs.aws.crossplane.io/v1alpha1
-          kind: Service
     
     - path: [metadata, annotations, crossplane.io/external-create-succeeded]
       type: copy
       sources: [new, existing]
-      resourceMatchers: *ecs
+      resourceMatchers: *task
     
     - path: [metadata, annotations, crossplane.io/external-name]
       type: copy
       sources: [new, existing]
-      resourceMatchers: *ecs
+      resourceMatchers: *task
     
     - path: [metadata, annotations, kbld.k14s.io/images]
       type: copy
       sources: [new, existing]
-      resourceMatchers: *ecs
+      resourceMatchers: *task
 
     - path: [spec, forProvider, taskDefinition]
       type: copy
       sources: [new, existing]
-      resourceMatchers:
+      resourceMatchers: &service
       - apiVersionKindMatcher:
           apiVersion: ecs.aws.crossplane.io/v1alpha1
           kind: Service
