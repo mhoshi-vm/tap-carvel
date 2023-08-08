@@ -31,5 +31,7 @@ metadata:
   annotations:
     eks.amazonaws.com/role-arn: #@ 'arn:aws:iam::' + data.values.aws.accountId + ':role/' + data.values.aws.roleName
 spec:
+  args:
+  - --sync-interval=2m
   podSecurityContext:
     fsGroup: 2000
