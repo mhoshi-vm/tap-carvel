@@ -177,14 +177,6 @@ spec:
       type: copy
       sources: [new, existing]
       resourceMatchers: *ecs
-    
-    waitRules:
-    - supportsObservedGeneration: true
-      conditionMatchers:
-      - type: Ready
-        status: "True"
-        success: true
-      resourceMatchers: *ecs
     #@ end
     ---
     apiVersion: v1
