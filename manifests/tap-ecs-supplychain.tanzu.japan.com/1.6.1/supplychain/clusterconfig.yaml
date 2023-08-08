@@ -89,7 +89,7 @@ spec:
     #@   end
     #@   if hasattr(workload, "securityContext"):
     #@     if hasattr(workload.securityContext, "runAsUser"):
-    #@        task["user"] = workload.securityContext.runAsUser
+    #@        task["user"] = str(workload.securityContext.runAsUser)
     #@     end
     #@   end
     #@   if hasattr(data.values.params, "command"):
