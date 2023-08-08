@@ -127,7 +127,7 @@ spec:
     kind: TaskDefinition
     metadata:
       labels: #@ merge_labels({ "app.kubernetes.io/component": "run", "carto.run/workload-name": data.values.workload.metadata.name })
-      name: #@ data.values.workload.metadata.name
+      name: #@ data.values.workload.metadata.name + "-" + data.values.workload.metadata.namespace
       annotations: #@ return_annotations(data.values.config)
     spec:
       deletionPolicy: Delete
@@ -148,7 +148,7 @@ spec:
     kind: Service
     metadata:
       labels: #@ merge_labels({ "app.kubernetes.io/component": "run", "carto.run/workload-name": data.values.workload.metadata.name })
-      name: #@ data.values.workload.metadata.name
+      name: #@ data.values.workload.metadata.name + "-" + data.values.workload.metadata.namespace
       annotations: #@ return_annotations(data.values.config)
     spec:
       providerConfigRef: 
@@ -160,7 +160,7 @@ spec:
         launchType: FARGATE
         region: #@ data.values.params.region
         taskDefinitionRef:
-          name: #@ data.values.workload.metadata.name
+          name: #@ data.values.workload.metadata.name + "-" + data.values.workload.metadata.namespace
         networkConfiguration:
           awsvpcConfiguration:
             assignPublicIP: DISABLED
