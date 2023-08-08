@@ -170,10 +170,7 @@ spec:
     kind: Config
     
     diffAgainstLastAppliedFieldExclusionRules:
-    - paths: 
-      - [metadata, annotations, crossplane.io/external-create-pending]
-      - [metadata, annotations, crossplane.io/external-create-succeeded]
-      - [metadata, annotations, crossplane.io/external-name]
+    - path: [metadata, annotations, crossplane.io/external-name]
       resourceMatchers: 
       - apiVersionKindMatcher: 
           apiVersion: ecs.aws.crossplane.io/v1alpha1
@@ -181,6 +178,18 @@ spec:
       - apiVersionKindMatcher: 
           apiVersion: ecs.aws.crossplane.io/v1alpha1
           kind: Service
+
+    - path: [metadata, annotations, crossplane.io/external-create-pending]
+      resourceMatchers:
+      - apiVersionKindMatcher:
+          apiVersion: ecs.aws.crossplane.io/v1alpha1
+          kind: TaskDefinition
+
+    - path: [metadata, annotations, crossplane.io/external-create-succeeded]
+      resourceMatchers:
+      - apiVersionKindMatcher:
+          apiVersion: ecs.aws.crossplane.io/v1alpha1
+          kind: TaskDefinition
 
     - path: [metadata, annotations, kbld.k14s.io/images]
       resourceMatchers:
