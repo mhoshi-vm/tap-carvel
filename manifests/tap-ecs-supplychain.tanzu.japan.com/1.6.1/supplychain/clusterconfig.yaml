@@ -119,6 +119,7 @@ spec:
         region: #@ data.values.params.region
         requiresCompatibilities:
         - EC2
+        networkMode: bridge
     ---
     apiVersion: ecs.aws.crossplane.io/v1alpha1
     kind: Service
@@ -132,13 +133,9 @@ spec:
       deletionPolicy: Delete
       forProvider:
         desiredCount: 1
-        cluster:  #@ data.values.params.cluster
+        cluster: #@ data.values.params.cluster
         launchType: EC2
         region: #@ data.values.params.region
-        networkConfiguration:
-          awsvpcConfiguration:
-            assignPublicIP: DISABLED
-            subnets: #@ data.values.params.subnet
         taskDefinitionRef:
           name: #@ data.values.workload.metadata.name
     ---
