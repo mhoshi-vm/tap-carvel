@@ -37,7 +37,35 @@ spec:
     #@   end
     #@   return annotations
     #@ end
-    
+
+    #@ def return_task_cpu(config):
+    #@   spec = config.spec
+    #@   workload = spec.containers[0]
+    #@   resources = workload.resources
+    #@   cpu = 512 
+    #@   if hasattr(resources, "limits"):
+    #@     r = resources.limits
+    #@     if hasattr(r, "cpu"):
+    #@       cpu = r.cpu
+    #@     end
+    #@   end
+    #@   return cpu
+    #@ end
+
+    #@ def return_task_memory(config):
+    #@   spec = config.spec
+    #@   workload = spec.containers[0]
+    #@   resources = workload.resources
+    #@   memory = 1024
+    #@   if hasattr(resources, "limits"):
+    #@     r = resources.limits
+    #@     if hasattr(r, "memory"):
+    #@       memory = r.memory
+    #@     end
+    #@   end
+    #@   return memory
+    #@ end    
+
     #@ def update_config(config):
     #@   spec = config.spec
     #@   workload = spec.containers[0]
@@ -71,7 +99,6 @@ spec:
     #@     end
     #@   end
     #@   resources = workload.resources
-    #@   task["memoryReservation"] = 256
     #@   if hasattr(resources, "requests"):
     #@     r = resources.requests
     #@     if hasattr(r, "cpu"):
@@ -79,12 +106,6 @@ spec:
     #@     end
     #@     if hasattr(r, "memory"):
     #@       task["memoryReservation"] = r.memory
-    #@     end
-    #@   end
-    #@   if hasattr(resources, "limits"):
-    #@     r = resources.limits
-    #@     if hasattr(r, "memory"):
-    #@       task["memory"] = r.memory
     #@     end
     #@   end
     #@   if hasattr(workload, "securityContext"):
@@ -117,9 +138,11 @@ spec:
         - #@ update_config(data.values.config)
         family: #@ data.values.workload.metadata.name
         region: #@ data.values.params.region
+        cpu: #@ str(return_task_cpu(data.values.config))
+        memory: #@ str(return_task_memory(data.values.config))
+        networkMode: awsvpc
         requiresCompatibilities:
-        - EC2
-        networkMode: bridge
+          - FARGATE
     ---
     apiVersion: ecs.aws.crossplane.io/v1alpha1
     kind: Service
@@ -134,10 +157,14 @@ spec:
       forProvider:
         desiredCount: 1
         cluster: #@ data.values.params.cluster
-        launchType: EC2
+        launchType: FARGATE
         region: #@ data.values.params.region
         taskDefinitionRef:
           name: #@ data.values.workload.metadata.name
+        networkConfiguration:
+          awsvpcConfiguration:
+            assignPublicIP: DISABLED
+            subnets: #@ data.values.params.subnet
     ---
     apiVersion: kapp.k14s.io/v1alpha1
     kind: Config
