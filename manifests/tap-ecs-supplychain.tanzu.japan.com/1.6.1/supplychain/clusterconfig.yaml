@@ -117,11 +117,8 @@ spec:
         - #@ update_config(data.values.config)
         family: #@ data.values.workload.metadata.name
         region: #@ data.values.params.region
-        cpu: "256"
-        memory: "512"
-        networkMode: awsvpc
         requiresCompatibilities:
-          - FARGATE
+        - EC2
     ---
     apiVersion: ecs.aws.crossplane.io/v1alpha1
     kind: Service
@@ -134,18 +131,10 @@ spec:
         name: aws-provider
       deletionPolicy: Delete
       forProvider:
-        deletionPolicy: Delete 
         desiredCount: 1
         cluster:  #@ data.values.params.cluster
-        launchType: FARGATE
-        loadBalancers:
-        - containerName: workload
-          containerPort: 8080
+        launchType: EC2
         region: #@ data.values.params.region
-        networkConfiguration:
-          awsvpcConfiguration:
-            assignPublicIP: DISABLED
-            subnets: #@ data.values.params.subnet
         taskDefinitionRef:
           name: #@ data.values.workload.metadata.name
     ---
