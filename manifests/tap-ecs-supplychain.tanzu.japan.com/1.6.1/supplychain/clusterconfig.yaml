@@ -47,9 +47,8 @@ spec:
     #@   if hasattr(workload, "ports"):
     #@     task["portMappings"] = workload.ports
     #@   end
-    #@   task["environment"] = []
-    #@   task["secrets"] = []
     #@   if hasattr(workload, "env"):
+    #@     task["environment"] = []
     #@     for e in workload["env"]:
     #@       if hasattr(e, "value"):
     #@         task["environment"].append(e)
@@ -66,6 +65,7 @@ spec:
     #@            key = e.valueFrom.secretKeyRef.key
     #@         end
     #@         ssm_parameter = "/"+name+"/"+key
+    #@         task["secrets"] = []
     #@         task["secrets"].append({"name":e.name,"valueFrom": ssm_parameter })
     #@       end
     #@     end
@@ -87,6 +87,11 @@ spec:
     #@       task["memory"] = r.memory
     #@     end
     #@   end
+    #@   if hasattr(workload, "securityContext"):
+    #@     if hasattr(workload.securityContext, "runAsUser"):
+    #@        task["user"] = workload.securityContext.runAsUser
+    #@     end
+    #@   end
     #@   if hasattr(data.values.params, "command"):
     #@     task["command"]= data.values.params.command
     #@   end
@@ -104,6 +109,7 @@ spec:
       name: #@ data.values.workload.metadata.name
       annotations: #@ return_annotations(data.values.config)
     spec:
+      deletionPolicy: Delete
       providerConfigRef: 
         name: aws-provider
       forProvider:
@@ -127,6 +133,7 @@ spec:
       providerConfigRef: 
         name: aws-provider
       forProvider:
+        deletionPolicy: Delete 
         desiredCount: 1
         cluster:  #@ data.values.params.cluster
         launchType: FARGATE
@@ -140,6 +147,44 @@ spec:
             subnets: #@ data.values.params.subnet
         taskDefinitionRef:
           name: #@ data.values.workload.metadata.name
+    ---
+    apiVersion: kapp.k14s.io/v1alpha1
+    kind: Config
+    
+    rebaseRules:
+    - path: [metadata, annotations, crossplane.io/external-create-pending]
+      type: copy
+      sources: [new, existing]
+      resourceMatchers: &ecs
+      - apiVersionKindMatcher:
+          apiVersion: ecs.aws.crossplane.io/v1alpha1
+          kind: TaskDefinition
+      - apiVersionKindMatcher:
+          apiVersion: ecs.aws.crossplane.io/v1alpha1
+          kind: Service
+    
+    - path: [metadata, annotations, crossplane.io/external-create-succeeded]
+      type: copy
+      sources: [new, existing]
+      resourceMatchers: *ecs
+    
+    - path: [metadata, annotations, crossplane.io/external-name]
+      type: copy
+      sources: [new, existing]
+      resourceMatchers: *ecs
+    
+    - path: [metadata, annotations, kbld.k14s.io/images]
+      type: copy
+      sources: [new, existing]
+      resourceMatchers: *ecs
+    
+    waitRules:
+    - supportsObservedGeneration: true
+      conditionMatchers:
+      - type: Ready
+        status: "True"
+        success: true
+      resourceMatchers: *ecs
     #@ end
     ---
     apiVersion: v1
