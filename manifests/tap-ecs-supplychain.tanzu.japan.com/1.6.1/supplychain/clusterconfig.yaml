@@ -136,7 +136,7 @@ spec:
       forProvider:
         containerDefinitions: 
         - #@ update_config(data.values.config)
-        family: #@ data.values.workload.metadata.name
+        family: #@ data.values.workload.metadata.name + "-" + data.values.workload.metadata.namespace
         region: #@ data.values.params.region
         cpu: #@ str(return_task_cpu(data.values.config))
         memory: #@ str(return_task_memory(data.values.config))
@@ -156,6 +156,7 @@ spec:
       deletionPolicy: Delete
       forProvider:
         desiredCount: 1
+        minimumHealthyPercent: 0
         cluster: #@ data.values.params.cluster
         launchType: FARGATE
         forceDeletion: true
