@@ -158,6 +158,7 @@ spec:
         desiredCount: 1
         cluster: #@ data.values.params.cluster
         launchType: FARGATE
+        forceDeletion: true
         region: #@ data.values.params.region
         taskDefinitionRef:
           name: #@ data.values.workload.metadata.name + "-" + data.values.workload.metadata.namespace
