@@ -12,6 +12,8 @@ spec:
     name: region
   - default: #@ data.values.aws.subnet
     name: subnet
+  - default: #@ data.values.aws.accountId
+    name: accountId
   configPath: .data
   lifecycle: mutable
   ytt: |
@@ -27,13 +29,19 @@ spec:
     #@   labels.update(fixed_values)
     #@   return labels
     #@ end
-    
-    #@ def return_annotations(config):
+   
+    #@ def return_annotations(config, alwaysreplace, disableoriginal):
     #@   annotations = {}
     #@   if hasattr(config, "metadata"):
     #@      if hasattr(config.metadata, "annotations"):
-    #@         annotations = config.metadata.annotations
+    #@         annotations.update(config.metadata.annotations)
     #@      end
+    #@   end
+    #@   if alwaysreplace:
+    #@     annotations.update({ "kapp.k14s.io/update-strategy" : "always-replace" })
+    #@   end
+    #@   if disableoriginal:
+    #@     annotations.update({ "kapp.k14s.io/disable-original" : "" })
     #@   end
     #@   return annotations
     #@ end
@@ -72,8 +80,26 @@ spec:
     #@   task = {}
     #@   task["name"] = workload.name
     #@   task["image"] = workload.image
+    #@   task["cpu"] = 0
+    #@   task["essential"] = True
+    #@   task["mountPoints"] = []
+    #@   task["volumesFrom"] = []
     #@   if hasattr(workload, "ports"):
-    #@     task["portMappings"] = workload.ports
+    #@     task["portMappings"] = []
+    #@     for port in workload.ports:
+    #@       portMapping = {}
+    #@       for key in dict(port).keys():
+    #@         if type(port[key]) == "string":
+    #@           portMapping.update({ key: str(port[key]).lower()})
+    #@         else:
+    #@           portMapping.update({ key: port[key]})
+    #@         end
+    #@         if key == "containerPort":
+    #@           portMapping.update({ "hostPort": port[key]})
+    #@         end
+    #@       end
+    #@       task["portMappings"].append(portMapping)
+    #@     end
     #@   end
     #@   if hasattr(workload, "env"):
     #@     task["environment"] = []
@@ -123,19 +149,18 @@ spec:
     
     #@ def delivery():
     ---
-    apiVersion: ecs.aws.crossplane.io/v1alpha1
+    apiVersion: ecs.aws.upbound.io/v1beta1
     kind: TaskDefinition
     metadata:
       labels: #@ merge_labels({ "app.kubernetes.io/component": "run", "carto.run/workload-name": data.values.workload.metadata.name })
       name: #@ data.values.workload.metadata.name + "-" + data.values.workload.metadata.namespace
-      annotations: #@ return_annotations(data.values.config)
+      annotations: #@ return_annotations(data.values.config, True, False)
     spec:
       deletionPolicy: Delete
       providerConfigRef: 
         name: aws-provider
       forProvider:
-        containerDefinitions: 
-        - #@ update_config(data.values.config)
+        containerDefinitions: #@ json.encode([ update_config(data.values.config) ], indent=3)
         family: #@ data.values.workload.metadata.name + "-" + data.values.workload.metadata.namespace
         region: #@ data.values.params.region
         cpu: #@ str(return_task_cpu(data.values.config))
@@ -143,29 +168,46 @@ spec:
         networkMode: awsvpc
         requiresCompatibilities:
           - FARGATE
+      initProvider: {}
+      managementPolicies:
+      - '*'
     ---
-    apiVersion: ecs.aws.crossplane.io/v1alpha1
+    apiVersion: ecs.aws.upbound.io/v1beta1
     kind: Service
     metadata:
       labels: #@ merge_labels({ "app.kubernetes.io/component": "run", "carto.run/workload-name": data.values.workload.metadata.name })
       name: #@ data.values.workload.metadata.name + "-" + data.values.workload.metadata.namespace
-      annotations: #@ return_annotations(data.values.config)
+      annotations: #@ return_annotations(data.values.config, False, True)
     spec:
       providerConfigRef: 
         name: aws-provider
       deletionPolicy: Delete
       forProvider:
+        deploymentCircuitBreaker:
+        - enable: false
+          rollback: false 
+        deploymentController:
+        - type: ECS
+        deploymentMaximumPercent: 200
+        deploymentMinimumHealthyPercent: 100
         desiredCount: 1
         cluster: #@ data.values.params.cluster
         launchType: FARGATE
-        forceDeletion: true
+        forceNewDeployment: true
+        platformVersion: LATEST
+        propagateTags: NONE
+        schedulingStrategy: REPLICA
         region: #@ data.values.params.region
         taskDefinitionRef:
           name: #@ data.values.workload.metadata.name + "-" + data.values.workload.metadata.namespace
+          policy:
+            resolution: Required
+            resolve: 'Always'
         networkConfiguration:
-          awsvpcConfiguration:
-            assignPublicIP: DISABLED
-            subnets: #@ data.values.params.subnet
+        - subnets: #@ data.values.params.subnet
+      initProvider: {}
+      managementPolicies:
+      - '*'
     ---
     apiVersion: kapp.k14s.io/v1alpha1
     kind: Config
@@ -178,72 +220,86 @@ spec:
             #@ load("@ytt:overlay", "overlay")
             #@ load("@ytt:regexp", "regexp")
             
-            #@ if hasattr(data.values.existing, "spec"):
-            #@   spec = data.values.existing.spec
-            #@   if hasattr(spec, "forProvider"):
-            #@     forProvider = spec.forProvider
-            #@     if hasattr(forProvider, "taskDefinition"):
-            #@       taskDefinition = forProvider.taskDefinition
-
+            #@ if hasattr(data.values.existing, "status"):
+            #@   status = data.values.existing.status
+            #@   if hasattr(status, "atProvider"):
+            #@     atProvider = status.atProvider
+            #@     if hasattr(atProvider, "taskDefinition"):
+            #@       taskDefinition = atProvider.taskDefinition
             #@overlay/match by=overlay.all
             ---
             spec:
               forProvider:
                 #@overlay/match missing_ok=True
-                taskDefinition: #@ regexp.replace("^(.*)(:.*)$", data.values.existing.spec.forProvider.taskDefinition, "$1")
-
+                taskDefinition: #@ data.values.existing.status.atProvider.taskDefinition
+                #@overlay/remove
+                taskDefinitionRef:
             #@     end
             #@   end
             #@ end
       resourceMatchers:
       - apiVersionKindMatcher:
-          apiVersion: ecs.aws.crossplane.io/v1alpha1
+          apiVersion: ecs.aws.upbound.io/v1beta1
           kind: Service
-
 
     diffAgainstLastAppliedFieldExclusionRules:
     - path: [metadata, annotations, crossplane.io/external-name]
       resourceMatchers: 
       - apiVersionKindMatcher: 
-          apiVersion: ecs.aws.crossplane.io/v1alpha1
+          apiVersion: ecs.aws.upbound.io/v1beta1
           kind: TaskDefinition
       - apiVersionKindMatcher: 
-          apiVersion: ecs.aws.crossplane.io/v1alpha1
+          apiVersion: ecs.aws.upbound.io/v1beta1
           kind: Service
 
-    - path: [metadata, annotations, crossplane.io/external-create-pending]
+    - path: [metadata, annotations, upjet.crossplane.io/provider-meta]
       resourceMatchers:
       - apiVersionKindMatcher:
-          apiVersion: ecs.aws.crossplane.io/v1alpha1
+          apiVersion: ecs.aws.upbound.io/v1beta1
           kind: TaskDefinition
+      - apiVersionKindMatcher:
+          apiVersion: ecs.aws.upbound.io/v1beta1
+          kind: Service
+
+    - path: [spec, forProvider, tags]
+      resourceMatchers:
+      - apiVersionKindMatcher:
+          apiVersion: ecs.aws.upbound.io/v1beta1
+          kind: TaskDefinition
+      - apiVersionKindMatcher:
+          apiVersion: ecs.aws.upbound.io/v1beta1
+          kind: Service
+
+    - path: [spec, forProvider, iamRole]
+      resourceMatchers:
+      - apiVersionKindMatcher:
+          apiVersion: ecs.aws.upbound.io/v1beta1
+          kind: Service
 
     - path: [metadata, annotations, crossplane.io/external-create-succeeded]
       resourceMatchers:
       - apiVersionKindMatcher:
-          apiVersion: ecs.aws.crossplane.io/v1alpha1
+          apiVersion: ecs.aws.upbound.io/v1beta1
           kind: TaskDefinition
-
-    - path: [metadata, annotations, kbld.k14s.io/images]
-      resourceMatchers:
       - apiVersionKindMatcher:
-          apiVersion: ecs.aws.crossplane.io/v1alpha1
-          kind: TaskDefinition
+          apiVersion: ecs.aws.upbound.io/v1beta1
+          kind: Service
 
     waitRules:
     - supportsObservedGeneration: false
       conditionMatchers:
       - type: Ready
-        status: "False"
-        failure: true
-      - type: Ready
         status: "True"
         success: true
+      - type: LastAsyncOperation
+        status: "False"
+        failure: true
       resourceMatchers:
       - apiVersionKindMatcher:
-          apiVersion: ecs.aws.crossplane.io/v1alpha1
+          apiVersion: ecs.aws.upbound.io/v1beta1
           kind: TaskDefinition
       - apiVersionKindMatcher:
-          apiVersion: ecs.aws.crossplane.io/v1alpha1
+          apiVersion: ecs.aws.upbound.io/v1beta1
           kind: Service
     #@ end
     ---
