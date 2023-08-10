@@ -156,7 +156,6 @@ spec:
       deletionPolicy: Delete
       forProvider:
         desiredCount: 1
-        minimumHealthyPercent: 0
         cluster: #@ data.values.params.cluster
         launchType: FARGATE
         forceDeletion: true
@@ -170,7 +169,38 @@ spec:
     ---
     apiVersion: kapp.k14s.io/v1alpha1
     kind: Config
-    
+
+    rebaseRules:    
+    - ytt:
+        overlayContractV1:
+          overlay.yml: |
+            #@ load("@ytt:data", "data")
+            #@ load("@ytt:overlay", "overlay")
+            #@ load("@ytt:regexp", "regexp")
+            
+            #@ if hasattr(data.values.existing, "spec"):
+            #@   spec = data.values.existing.spec
+            #@   if hasattr(spec, "forProvider"):
+            #@     forProvider = spec.forProvider
+            #@     if hasattr(forProvider, "taskDefinition"):
+            #@       taskDefinition = forProvider.taskDefinition
+
+            #@overlay/match by=overlay.all
+            ---
+            spec:
+              forProvider:
+                #@overlay/match missing_ok=True
+                taskDefinition: #@ regexp.replace("^(.*)(:.*)$", data.values.existing.spec.forProvider.taskDefinition, "$1")
+
+            #@     end
+            #@   end
+            #@ end
+      resourceMatchers:
+      - apiVersionKindMatcher:
+          apiVersion: ecs.aws.crossplane.io/v1alpha1
+          kind: Service
+
+
     diffAgainstLastAppliedFieldExclusionRules:
     - path: [metadata, annotations, crossplane.io/external-name]
       resourceMatchers: 
@@ -198,6 +228,23 @@ spec:
       - apiVersionKindMatcher:
           apiVersion: ecs.aws.crossplane.io/v1alpha1
           kind: TaskDefinition
+
+    waitRules:
+    - supportsObservedGeneration: false
+      conditionMatchers:
+      - type: Ready
+        status: "False"
+        failure: true
+      - type: Ready
+        status: "True"
+        success: true
+      resourceMatchers:
+      - apiVersionKindMatcher:
+          apiVersion: ecs.aws.crossplane.io/v1alpha1
+          kind: TaskDefinition
+      - apiVersionKindMatcher:
+          apiVersion: ecs.aws.crossplane.io/v1alpha1
+          kind: Service
     #@ end
     ---
     apiVersion: v1
