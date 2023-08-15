@@ -10,10 +10,20 @@ spec:
     name: cluster
   - default: #@ data.values.aws.region
     name: region
-  - default: #@ data.values.aws.subnet
-    name: subnet
   - default: #@ data.values.aws.accountId
     name: accountId
+  - default: #@ data.values.aws.vpc
+    name: vpc
+  - default: #@ data.values.aws.subnets
+    name: subnets
+  - default: #@ data.values.aws.securityGroups
+    name: securityGroups
+  - default: #@ data.values.aws.accountId
+    name: accountId
+  - default: #@ data.values.aws.enableAlb
+    name: enableAlb
+  - default: #@ data.values.aws.public
+    name: public
   configPath: .data
   lifecycle: mutable
   ytt: |
@@ -29,8 +39,8 @@ spec:
     #@   labels.update(fixed_values)
     #@   return labels
     #@ end
-   
-    #@ def return_annotations(config, alwaysreplace, disableoriginal):
+    
+    #@ def return_annotations(config, alwaysreplace, group, upgroup):
     #@   annotations = {}
     #@   if hasattr(config, "metadata"):
     #@      if hasattr(config.metadata, "annotations"):
@@ -40,17 +50,31 @@ spec:
     #@   if alwaysreplace:
     #@     annotations.update({ "kapp.k14s.io/update-strategy" : "always-replace" })
     #@   end
-    #@   if disableoriginal:
-    #@     annotations.update({ "kapp.k14s.io/disable-original" : "" })
+    #@   if group != "":
+    #@     annotations.update({ "kapp.k14s.io/change-group" : group })
+    #@   end
+    #@   if upgroup != "":
+    #@     annotations.update({ "kapp.k14s.io/change-rule.update" : "upsert after upserting " + upgroup })
+    #@     annotations.update({ "kapp.k14s.io/change-rule.delete" : "delete before upserting " + upgroup })
     #@   end
     #@   return annotations
     #@ end
-
+    
+    #@ def verify_lb_enabled(config):
+    #@   enabled = False
+    #@   spec = config.spec
+    #@   workload = spec.containers[0]
+    #@   if data.values.params.enableAlb and hasattr(workload, "ports") and hasattr(workload, "readinessProbe"):
+    #@     enabled = True
+    #@   end
+    #@   return enabled
+    #@ end
+    
     #@ def return_task_cpu(config):
     #@   spec = config.spec
     #@   workload = spec.containers[0]
     #@   resources = workload.resources
-    #@   cpu = 512 
+    #@   cpu = 512
     #@   if hasattr(resources, "limits"):
     #@     r = resources.limits
     #@     if hasattr(r, "cpu"):
@@ -59,7 +83,7 @@ spec:
     #@   end
     #@   return cpu
     #@ end
-
+    
     #@ def return_task_memory(config):
     #@   spec = config.spec
     #@   workload = spec.containers[0]
@@ -72,8 +96,8 @@ spec:
     #@     end
     #@   end
     #@   return memory
-    #@ end    
-
+    #@ end
+    
     #@ def update_config(config):
     #@   spec = config.spec
     #@   workload = spec.containers[0]
@@ -147,6 +171,36 @@ spec:
     #@   return task
     #@ end
     
+    #@ def targetgroup_config(config):
+    #@   spec = config.spec
+    #@   workload = spec.containers[0]
+    #@   forProvider ={}
+    #@   forProvider["deregistrationDelay"] = "300"
+    #@   forProvider["ipAddressType"] = "ipv4"
+    #@   forProvider["loadBalancingAlgorithmType"] = "round_robin"
+    #@   forProvider["loadBalancingCrossZoneEnabled"] = "use_load_balancer_configuration"
+    #@   forProvider["stickiness"] = [ { "cookieDuration": 86400, "type": "lb_cookie"} ]
+    #@   forProvider["name"] = data.values.workload.metadata.name + "-" + data.values.workload.metadata.namespace
+    #@   forProvider["region"] = data.values.params.region
+    #@   forProvider["targetType"] = "ip"
+    #@   forProvider["vpcId"] = data.values.params.vpc
+    #@   if hasattr(workload, "readinessProbe"):
+    #@     healthCheck = {}
+    #@     healthCheck["enabled"] = True
+    #@     if hasattr(workload["readinessProbe"], "httpGet"):
+    #@       forProvider["port"] = workload["ports"][0]["containerPort"]
+    #@       forProvider["protocol"] = "HTTP"
+    #@       healthCheck["port"] = str(workload["readinessProbe"]["httpGet"]["port"])
+    #@       healthCheck["path"] = workload["readinessProbe"]["httpGet"]["path"]
+    #@       healthCheck["protocol"] = workload["readinessProbe"]["httpGet"]["scheme"]
+    #@     end
+    #@     forProvider["healthCheck"] = []
+    #@     forProvider["healthCheck"].append(healthCheck)
+    #@   end
+    #@   return forProvider
+    #@ end
+    
+    
     #@ def delivery():
     ---
     apiVersion: ecs.aws.upbound.io/v1beta1
@@ -154,10 +208,10 @@ spec:
     metadata:
       labels: #@ merge_labels({ "app.kubernetes.io/component": "run", "carto.run/workload-name": data.values.workload.metadata.name })
       name: #@ data.values.workload.metadata.name + "-" + data.values.workload.metadata.namespace
-      annotations: #@ return_annotations(data.values.config, True, False)
+      annotations: #@ return_annotations(data.values.config, True, "base", "")
     spec:
       deletionPolicy: Delete
-      providerConfigRef: 
+      providerConfigRef:
         name: aws-provider
       forProvider:
         containerDefinitions: #@ json.encode([ update_config(data.values.config) ], indent=3)
@@ -177,15 +231,19 @@ spec:
     metadata:
       labels: #@ merge_labels({ "app.kubernetes.io/component": "run", "carto.run/workload-name": data.values.workload.metadata.name })
       name: #@ data.values.workload.metadata.name + "-" + data.values.workload.metadata.namespace
-      annotations: #@ return_annotations(data.values.config, False, True)
+      #@ if verify_lb_enabled(data.values.config):
+      annotations: #@ return_annotations(data.values.config, False, "", "lb")
+      #@ else:
+      annotations: #@ return_annotations(data.values.config, False, "", "base")
+      #@ end
     spec:
-      providerConfigRef: 
+      providerConfigRef:
         name: aws-provider
       deletionPolicy: Delete
       forProvider:
         deploymentCircuitBreaker:
         - enable: false
-          rollback: false 
+          rollback: false
         deploymentController:
         - type: ECS
         deploymentMaximumPercent: 200
@@ -204,71 +262,122 @@ spec:
             resolution: Required
             resolve: 'Always'
         networkConfiguration:
-        - subnets: #@ data.values.params.subnet
+        - subnets: #@ data.values.params.subnets
+          securityGroups: #@ data.values.params.securityGroups
+          #@ if data.values.params.public:
+          assignPublicIp: true
+          #@ end
+        #@ if verify_lb_enabled(data.values.config):
+        loadBalancer:
+        - containerName: #@ data.values.config.spec.containers[0].name
+          containerPort: #@ data.values.config.spec.containers[0].ports[0].containerPort 
+          targetGroupArnRef: 
+            name: #@ data.values.workload.metadata.name + "-" + data.values.workload.metadata.namespace
+        #@ end
+      initProvider: {}
+      managementPolicies:
+      - '*'
+    #@ if verify_lb_enabled(data.values.config):
+    ---
+    apiVersion: elbv2.aws.upbound.io/v1beta1
+    kind: LBTargetGroup
+    metadata:
+      annotations: #@ return_annotations(data.values.config, False, "base", "")
+      name: #@ data.values.workload.metadata.name + "-" + data.values.workload.metadata.namespace
+    spec:
+      providerConfigRef:
+        name: aws-provider
+      deletionPolicy: Delete
+      forProvider: #@ targetgroup_config(data.values.config)
       initProvider: {}
       managementPolicies:
       - '*'
     ---
+    apiVersion: elbv2.aws.upbound.io/v1beta1
+    kind: LB
+    metadata:
+      annotations: #@ return_annotations(data.values.config, False, "base", "")
+      name: #@ data.values.workload.metadata.name + "-" + data.values.workload.metadata.namespace
+    spec:
+      providerConfigRef:
+        name: aws-provider
+      deletionPolicy: Delete
+      forProvider:
+        desyncMitigationMode: defensive
+        enableCrossZoneLoadBalancing: true
+        enableDeletionProtection: false
+        enableHttp2: true
+        idleTimeout: 60
+        #@ if data.values.params.public:
+        internal: false
+        #@ else:
+        internal: true
+        #@ end
+        ipAddressType: ipv4
+        loadBalancerType: application
+        name: #@ data.values.workload.metadata.name + "-" + data.values.workload.metadata.namespace
+        region: #@ data.values.params.region
+        securityGroups: #@ data.values.params.securityGroups
+        subnets: #@ data.values.params.subnets
+        xffHeaderProcessingMode: append
+      initProvider: {}
+      managementPolicies:
+      - '*'
+    ---
+    apiVersion: elbv2.aws.upbound.io/v1beta1
+    kind: LBListener
+    metadata:
+      annotations: #@ return_annotations(data.values.config, False, "lb", "base")
+      name: #@ data.values.workload.metadata.name + "-" + data.values.workload.metadata.namespace
+    spec:
+      providerConfigRef:
+        name: aws-provider
+      deletionPolicy: Delete
+      forProvider:
+        defaultAction:
+          - targetGroupArnRef:
+              name: #@ data.values.workload.metadata.name + "-" + data.values.workload.metadata.namespace
+            type: forward
+        loadBalancerArnRef:
+          name: #@ data.values.workload.metadata.name + "-" + data.values.workload.metadata.namespace
+        port: 80
+        protocol: HTTP
+        region: #@ data.values.params.region
+      initProvider: {}
+      managementPolicies:
+      - '*'
+    #@ end
+    ---
     apiVersion: kapp.k14s.io/v1alpha1
     kind: Config
-
-    rebaseRules:    
-    - ytt:
-        overlayContractV1:
-          overlay.yml: |
-            #@ load("@ytt:data", "data")
-            #@ load("@ytt:overlay", "overlay")
-            #@ load("@ytt:regexp", "regexp")
-            
-            #@ if hasattr(data.values.existing, "status"):
-            #@   status = data.values.existing.status
-            #@   if hasattr(status, "atProvider"):
-            #@     atProvider = status.atProvider
-            #@     if hasattr(atProvider, "taskDefinition"):
-            #@       taskDefinition = atProvider.taskDefinition
-            #@overlay/match by=overlay.all
-            ---
-            spec:
-              forProvider:
-                #@overlay/match missing_ok=True
-                taskDefinition: #@ data.values.existing.status.atProvider.taskDefinition
-                #@overlay/remove
-                taskDefinitionRef:
-            #@     end
-            #@   end
-            #@ end
-      resourceMatchers:
-      - apiVersionKindMatcher:
-          apiVersion: ecs.aws.upbound.io/v1beta1
-          kind: Service
-
+    
     diffAgainstLastAppliedFieldExclusionRules:
     - path: [metadata, annotations, crossplane.io/external-name]
-      resourceMatchers: 
-      - apiVersionKindMatcher: 
+      resourceMatchers: &All
+      - apiVersionKindMatcher:
           apiVersion: ecs.aws.upbound.io/v1beta1
           kind: TaskDefinition
-      - apiVersionKindMatcher: 
+      - apiVersionKindMatcher:
           apiVersion: ecs.aws.upbound.io/v1beta1
           kind: Service
+      - apiVersionKindMatcher:
+          apiVersion: elbv2.aws.upbound.io/v1beta1
+          kind: LBTargetGroup
+      - apiVersionKindMatcher:
+          apiVersion: elbv2.aws.upbound.io/v1beta1
+          kind: LB
+      - apiVersionKindMatcher:
+          apiVersion: elbv2.aws.upbound.io/v1beta1
+          kind: LBListener
 
     - path: [metadata, annotations, upjet.crossplane.io/provider-meta]
-      resourceMatchers:
-      - apiVersionKindMatcher:
-          apiVersion: ecs.aws.upbound.io/v1beta1
-          kind: TaskDefinition
-      - apiVersionKindMatcher:
-          apiVersion: ecs.aws.upbound.io/v1beta1
-          kind: Service
+      resourceMatchers: *All
+    
+    - path: [metadata, annotations, crossplane.io/external-create-succeeded]
+      resourceMatchers: *All
 
     - path: [spec, forProvider, tags]
-      resourceMatchers:
-      - apiVersionKindMatcher:
-          apiVersion: ecs.aws.upbound.io/v1beta1
-          kind: TaskDefinition
-      - apiVersionKindMatcher:
-          apiVersion: ecs.aws.upbound.io/v1beta1
-          kind: Service
+      resourceMatchers: *All
 
     - path: [spec, forProvider, iamRole]
       resourceMatchers:
@@ -276,15 +385,48 @@ spec:
           apiVersion: ecs.aws.upbound.io/v1beta1
           kind: Service
 
-    - path: [metadata, annotations, crossplane.io/external-create-succeeded]
+    - path: [spec, forProvider, taskDefinition]
       resourceMatchers:
-      - apiVersionKindMatcher:
-          apiVersion: ecs.aws.upbound.io/v1beta1
-          kind: TaskDefinition
       - apiVersionKindMatcher:
           apiVersion: ecs.aws.upbound.io/v1beta1
           kind: Service
 
+    - path: [spec, forProvider, loadBalancer, {allIndexes: true}, targetGroupArn]
+      resourceMatchers:
+      - apiVersionKindMatcher:
+          apiVersion: ecs.aws.upbound.io/v1beta1
+          kind: Service
+
+    - path: [spec, forProvider, protocolVersion]
+      resourceMatchers:
+      - apiVersionKindMatcher:
+          apiVersion: elbv2.aws.upbound.io/v1beta1
+          kind: LBTargetGroup
+
+    - path: [spec, forProvider, subnetMapping]
+      resourceMatchers:
+      - apiVersionKindMatcher:
+          apiVersion: elbv2.aws.upbound.io/v1beta1
+          kind: LB
+
+    - path: [spec, forProvider, defaultAction, {allIndexes: true}, targetGroupArn]
+      resourceMatchers:
+      - apiVersionKindMatcher:
+          apiVersion: elbv2.aws.upbound.io/v1beta1
+          kind: LBListener
+
+    - path: [spec, forProvider, loadBalancerArn]
+      resourceMatchers:
+      - apiVersionKindMatcher:
+          apiVersion: elbv2.aws.upbound.io/v1beta1
+          kind: LBListener
+
+    - path: [spec, forProvider, protocol]
+      resourceMatchers:
+      - apiVersionKindMatcher:
+          apiVersion: elbv2.aws.upbound.io/v1beta1
+          kind: LBListener
+    
     waitRules:
     - supportsObservedGeneration: false
       conditionMatchers:
@@ -294,13 +436,7 @@ spec:
       - type: LastAsyncOperation
         status: "False"
         failure: true
-      resourceMatchers:
-      - apiVersionKindMatcher:
-          apiVersion: ecs.aws.upbound.io/v1beta1
-          kind: TaskDefinition
-      - apiVersionKindMatcher:
-          apiVersion: ecs.aws.upbound.io/v1beta1
-          kind: Service
+      resourceMatchers: *All
     #@ end
     ---
     apiVersion: v1
