@@ -6,7 +6,6 @@ metadata:
     apps.tanzu.vmware.com/aggregate-to-deliverable: "true"
 rules:
 - apiGroups:
-  - ec2.aws.upbound.io
   - ecs.aws.upbound.io
   - elbv2.aws.upbound.io
   resources:

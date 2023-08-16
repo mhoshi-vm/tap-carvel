@@ -12,12 +12,18 @@ spec:
     name: region
   - default: #@ data.values.aws.accountId
     name: accountId
-  - default: #@ data.values.aws.alb
-    name: alb
-  - default: #@ data.values.aws.ecs
-    name: ecs
-  - default: #@ data.values.aws.vpcId
-    name: vpcId
+  - default: #@ data.values.aws.vpc
+    name: vpc
+  - default: #@ data.values.aws.subnets
+    name: subnets
+  - default: #@ data.values.aws.securityGroups
+    name: securityGroups
+  - default: #@ data.values.aws.accountId
+    name: accountId
+  - default: #@ data.values.aws.enableAlb
+    name: enableAlb
+  - default: #@ data.values.aws.public
+    name: public
   configPath: .data
   lifecycle: mutable
   ytt: |
@@ -58,7 +64,7 @@ spec:
     #@   enabled = False
     #@   spec = config.spec
     #@   workload = spec.containers[0]
-    #@   if data.values.params.alb.enabled and hasattr(workload, "ports") and hasattr(workload, "livenessProbe"):
+    #@   if data.values.params.enableAlb and hasattr(workload, "ports") and hasattr(workload, "readinessProbe"):
     #@     enabled = True
     #@   end
     #@   return enabled
@@ -177,16 +183,16 @@ spec:
     #@   forProvider["name"] = data.values.workload.metadata.name + "-" + data.values.workload.metadata.namespace
     #@   forProvider["region"] = data.values.params.region
     #@   forProvider["targetType"] = "ip"
-    #@   forProvider["vpcId"] = data.values.params.vpcId
-    #@   if hasattr(workload, "livenessProbe"):
+    #@   forProvider["vpcId"] = data.values.params.vpc
+    #@   if hasattr(workload, "readinessProbe"):
     #@     healthCheck = {}
     #@     healthCheck["enabled"] = True
-    #@     if hasattr(workload["livenessProbe"], "httpGet"):
+    #@     if hasattr(workload["readinessProbe"], "httpGet"):
     #@       forProvider["port"] = workload["ports"][0]["containerPort"]
     #@       forProvider["protocol"] = "HTTP"
-    #@       healthCheck["port"] = str(workload["livenessProbe"]["httpGet"]["port"])
-    #@       healthCheck["path"] = workload["livenessProbe"]["httpGet"]["path"]
-    #@       healthCheck["protocol"] = workload["livenessProbe"]["httpGet"]["scheme"]
+    #@       healthCheck["port"] = str(workload["readinessProbe"]["httpGet"]["port"])
+    #@       healthCheck["path"] = workload["readinessProbe"]["httpGet"]["path"]
+    #@       healthCheck["protocol"] = workload["readinessProbe"]["httpGet"]["scheme"]
     #@     end
     #@     forProvider["healthCheck"] = []
     #@     forProvider["healthCheck"].append(healthCheck)
@@ -256,10 +262,9 @@ spec:
             resolution: Required
             resolve: 'Always'
         networkConfiguration:
-        - subnets: #@ data.values.params.ecs.subnets
-          securityGroupRefs:
-          - name: #@ "ecs-" + data.values.workload.metadata.name + "-" + data.values.workload.metadata.namespace
-          #@ if data.values.params.ecs.public:
+        - subnets: #@ data.values.params.subnets
+          securityGroups: #@ data.values.params.securityGroups
+          #@ if data.values.params.public:
           assignPublicIp: true
           #@ end
         #@ if verify_lb_enabled(data.values.config):
@@ -272,48 +277,6 @@ spec:
       initProvider: {}
       managementPolicies:
       - '*'
-    #@ if hasattr(data.values.config.spec.containers[0], "ports"):
-    ---
-    apiVersion: ec2.aws.upbound.io/v1beta1
-    kind: SecurityGroup
-    metadata:
-      annotations: #@ return_annotations(data.values.config, False, "base", "")
-      name: #@ "ecs-" + data.values.workload.metadata.name + "-" + data.values.workload.metadata.namespace
-    spec:
-      providerConfigRef:
-        name: aws-provider
-      deletionPolicy: Delete
-      initProvider: {}
-      managementPolicies:
-      - '*'
-      forProvider:
-        name: #@ "ecs-" + data.values.workload.metadata.name + "-" + data.values.workload.metadata.namespace
-        region: #@ data.values.params.region
-        vpcId: #@ data.values.params.vpcId
-    ---
-    apiVersion: ec2.aws.upbound.io/v1beta1
-    kind: SecurityGroupRule
-    metadata:
-      annotations: #@ return_annotations(data.values.config, False, "base", "")
-      name: #@ "ecs-" + data.values.workload.metadata.name + "-" + data.values.workload.metadata.namespace
-    spec:
-      providerConfigRef:
-        name: aws-provider
-      deletionPolicy: Delete
-      initProvider: {}
-      managementPolicies:
-      - '*'
-      forProvider:
-        cidrBlocks:
-          - 0.0.0.0/0
-        fromPort: #@ data.values.config.spec.containers[0].ports[0].containerPort
-        protocol: #@ data.values.config.spec.containers[0].ports[0].protocol
-        region: #@ data.values.params.region
-        securityGroupIdRef:
-          name: #@ "ecs-" + data.values.workload.metadata.name + "-" + data.values.workload.metadata.namespace
-        toPort: #@ data.values.config.spec.containers[0].ports[0].containerPort
-        type: ingress
-    #@ end
     #@ if verify_lb_enabled(data.values.config):
     ---
     apiVersion: elbv2.aws.upbound.io/v1beta1
@@ -345,7 +308,7 @@ spec:
         enableDeletionProtection: false
         enableHttp2: true
         idleTimeout: 60
-        #@ if data.values.params.alb.public:
+        #@ if data.values.params.public:
         internal: false
         #@ else:
         internal: true
@@ -354,9 +317,8 @@ spec:
         loadBalancerType: application
         name: #@ data.values.workload.metadata.name + "-" + data.values.workload.metadata.namespace
         region: #@ data.values.params.region
-        securityGroupRefs: 
-        - name: #@ "lb-" + data.values.workload.metadata.name + "-" + data.values.workload.metadata.namespace
-        subnets: #@ data.values.params.alb.subnets
+        securityGroups: #@ data.values.params.securityGroups
+        subnets: #@ data.values.params.subnets
         xffHeaderProcessingMode: append
       initProvider: {}
       managementPolicies:
@@ -384,46 +346,6 @@ spec:
       initProvider: {}
       managementPolicies:
       - '*'
-    ---
-    apiVersion: ec2.aws.upbound.io/v1beta1
-    kind: SecurityGroup
-    metadata:
-      annotations: #@ return_annotations(data.values.config, False, "base", "")
-      name: #@ "lb-" + data.values.workload.metadata.name + "-" + data.values.workload.metadata.namespace
-    spec:
-      providerConfigRef:
-        name: aws-provider
-      deletionPolicy: Delete
-      initProvider: {}
-      managementPolicies:
-      - '*'
-      forProvider:
-        name: #@ "lb-" + data.values.workload.metadata.name + "-" + data.values.workload.metadata.namespace
-        region: #@ data.values.params.region
-        vpcId: #@ data.values.params.vpcId
-    ---
-    apiVersion: ec2.aws.upbound.io/v1beta1
-    kind: SecurityGroupRule
-    metadata:
-      annotations: #@ return_annotations(data.values.config, False, "base", "")
-      name: #@ "lb-" + data.values.workload.metadata.name + "-" + data.values.workload.metadata.namespace
-    spec:
-      providerConfigRef:
-        name: aws-provider
-      deletionPolicy: Delete
-      initProvider: {}
-      managementPolicies:
-      - '*'
-      forProvider:
-        cidrBlocks:
-          - 0.0.0.0/0
-        fromPort: 80
-        protocol: tcp
-        region: #@ data.values.params.region
-        securityGroupIdRef:
-          name: #@ "lb-" + data.values.workload.metadata.name + "-" + data.values.workload.metadata.namespace
-        toPort: 80
-        type: ingress
     #@ end
     ---
     apiVersion: kapp.k14s.io/v1alpha1
@@ -447,12 +369,6 @@ spec:
       - apiVersionKindMatcher:
           apiVersion: elbv2.aws.upbound.io/v1beta1
           kind: LBListener
-      - apiVersionKindMatcher:
-          apiVersion: ec2.aws.upbound.io/v1beta1
-          kind: SecurityGroup
-      - apiVersionKindMatcher:
-          apiVersion: ec2.aws.upbound.io/v1beta1
-          kind: SecurityGroupRule
 
     - path: [metadata, annotations, upjet.crossplane.io/provider-meta]
       resourceMatchers: *All
@@ -476,12 +392,6 @@ spec:
           kind: Service
 
     - path: [spec, forProvider, loadBalancer, {allIndexes: true}, targetGroupArn]
-      resourceMatchers:
-      - apiVersionKindMatcher:
-          apiVersion: ecs.aws.upbound.io/v1beta1
-          kind: Service
-
-    - path: [spec, forProvider, , {allIndexes: true}, targetGroupArn]
       resourceMatchers:
       - apiVersionKindMatcher:
           apiVersion: ecs.aws.upbound.io/v1beta1
@@ -516,18 +426,6 @@ spec:
       - apiVersionKindMatcher:
           apiVersion: elbv2.aws.upbound.io/v1beta1
           kind: LBListener
-
-    - path: [spec, forProvider, description]
-      resourceMatchers:
-      - apiVersionKindMatcher:
-          apiVersion: ec2.aws.upbound.io/v1beta1
-          kind: SecurityGroup
-
-    - path: [spec, forProvider, securityGroupId]
-      resourceMatchers:
-      - apiVersionKindMatcher:
-          apiVersion: ec2.aws.upbound.io/v1beta1
-          kind: SecurityGroupRule
     
     waitRules:
     - supportsObservedGeneration: false
