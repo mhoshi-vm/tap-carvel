@@ -33,6 +33,16 @@ spec:
                 tag:
                   type: string
                   default: v0.38.0
+            ec2:
+              type: object
+              additionalProperties: false
+              properties:
+                repo:
+                  type: string
+                  default: xpkg.upbound.io/upbound/provider-aws-ec2
+                tag:
+                  type: string
+                  default: v0.38.0
             elbv2:
               type: object
               additionalProperties: false
@@ -59,27 +69,38 @@ spec:
             region:
               type: string
               default: us-west-2
-            vpc:
+            vpcId:
               type: string
-              default: us-west2-VPC
-            subnets:
-              type: array
-              items:
-                type: string
-                default: sample-subnet1
-              default: []
-            securityGroups:
-              type: array
-              items:
-                type: string
-                default: default
-              default: []
-            enableAlb:
-              type: boolean
-              default: true
-            public:
-              type: boolean
-              default: false
+              default: vpc-xxxxx
+            alb:
+              type: object
+              additionalProperties: false
+              properties:
+                enabled:
+                  type: boolean
+                  default: true
+                public:
+                  type: boolean
+                  default: true
+                subnets:
+                  type: array
+                  items:
+                    type: string
+                    default: subnet1
+                  default: []
+            ecs:
+              type: object
+              additionalProperties: false
+              properties:
+                public:
+                  type: boolean
+                  default: false
+                subnets:
+                  type: array
+                  items:
+                    type: string
+                    default: private-subnet1
+                  default: []
   template:
     spec:
       fetch:
