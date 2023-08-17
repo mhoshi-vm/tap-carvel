@@ -226,9 +226,9 @@ spec:
       labels: #@ merge_labels({ "app.kubernetes.io/component": "run", "carto.run/workload-name": data.values.workload.metadata.name })
       name: #@ data.values.workload.metadata.name + "-" + data.values.workload.metadata.namespace
       #@ if verify_lb_enabled(data.values.config):
-      annotations: #@ return_annotations(data.values.config, False, "", "lb")
+      annotations: #@ return_annotations(data.values.config, True, "", "lb")
       #@ else:
-      annotations: #@ return_annotations(data.values.config, False, "", "base")
+      annotations: #@ return_annotations(data.values.config, True, "", "base")
       #@ end
     spec:
       providerConfigRef:
@@ -272,7 +272,6 @@ spec:
       initProvider: {}
       managementPolicies:
       - '*'
-    #@ if hasattr(data.values.config.spec.containers[0], "ports"):
     ---
     apiVersion: ec2.aws.upbound.io/v1beta1
     kind: SecurityGroup
@@ -295,6 +294,30 @@ spec:
     kind: SecurityGroupRule
     metadata:
       annotations: #@ return_annotations(data.values.config, False, "base", "")
+      name: #@ "ecs-outbound-" + data.values.workload.metadata.name + "-" + data.values.workload.metadata.namespace
+    spec:
+      providerConfigRef:
+        name: aws-provider
+      deletionPolicy: Delete
+      initProvider: {}
+      managementPolicies:
+      - '*'
+      forProvider:
+        cidrBlocks:
+          - 0.0.0.0/0
+        fromPort: 0
+        protocol: "-1"
+        region: #@ data.values.params.region
+        securityGroupIdRef:
+          name: #@ "ecs-" + data.values.workload.metadata.name + "-" + data.values.workload.metadata.namespace
+        toPort: 0
+        type: egress
+    #@ if hasattr(data.values.config.spec.containers[0], "ports"):
+    ---
+    apiVersion: ec2.aws.upbound.io/v1beta1
+    kind: SecurityGroupRule
+    metadata:
+      annotations: #@ return_annotations(data.values.config, False, "base", "")
       name: #@ "ecs-" + data.values.workload.metadata.name + "-" + data.values.workload.metadata.namespace
     spec:
       providerConfigRef:
@@ -307,7 +330,7 @@ spec:
         cidrBlocks:
           - 0.0.0.0/0
         fromPort: #@ data.values.config.spec.containers[0].ports[0].containerPort
-        protocol: #@ data.values.config.spec.containers[0].ports[0].protocol
+        protocol: #@ str(data.values.config.spec.containers[0].ports[0].protocol).lower()
         region: #@ data.values.params.region
         securityGroupIdRef:
           name: #@ "ecs-" + data.values.workload.metadata.name + "-" + data.values.workload.metadata.namespace
@@ -424,6 +447,29 @@ spec:
           name: #@ "lb-" + data.values.workload.metadata.name + "-" + data.values.workload.metadata.namespace
         toPort: 80
         type: ingress
+    ---
+    apiVersion: ec2.aws.upbound.io/v1beta1
+    kind: SecurityGroupRule
+    metadata:
+      annotations: #@ return_annotations(data.values.config, False, "base", "")
+      name: #@ "lb-outbound" + data.values.workload.metadata.name + "-" + data.values.workload.metadata.namespace
+    spec:
+      providerConfigRef:
+        name: aws-provider
+      deletionPolicy: Delete
+      initProvider: {}
+      managementPolicies:
+      - '*'
+      forProvider:
+        cidrBlocks:
+          - 0.0.0.0/0
+        fromPort: 0
+        protocol: "-1"
+        region: #@ data.values.params.region
+        securityGroupIdRef:
+          name: #@ "lb-" + data.values.workload.metadata.name + "-" + data.values.workload.metadata.namespace
+        toPort: 0
+        type: egress
     #@ end
     ---
     apiVersion: kapp.k14s.io/v1alpha1
@@ -475,13 +521,13 @@ spec:
           apiVersion: ecs.aws.upbound.io/v1beta1
           kind: Service
 
-    - path: [spec, forProvider, loadBalancer, {allIndexes: true}, targetGroupArn]
+    - path: [spec, forProvider, networkConfiguration, {allIndexes: true}, securityGroups]
       resourceMatchers:
       - apiVersionKindMatcher:
           apiVersion: ecs.aws.upbound.io/v1beta1
           kind: Service
 
-    - path: [spec, forProvider, , {allIndexes: true}, targetGroupArn]
+    - path: [spec, forProvider, loadBalancer, {allIndexes: true}, targetGroupArn]
       resourceMatchers:
       - apiVersionKindMatcher:
           apiVersion: ecs.aws.upbound.io/v1beta1
@@ -492,6 +538,12 @@ spec:
       - apiVersionKindMatcher:
           apiVersion: elbv2.aws.upbound.io/v1beta1
           kind: LBTargetGroup
+
+    - path: [spec, forProvider, securityGroups]
+      resourceMatchers:
+      - apiVersionKindMatcher:
+          apiVersion: elbv2.aws.upbound.io/v1beta1
+          kind: LB
 
     - path: [spec, forProvider, subnetMapping]
       resourceMatchers:
