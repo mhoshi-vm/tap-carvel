@@ -79,3 +79,33 @@ spec:
     }
 #@ end
 #@ end
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: app-editor
+  annotations:
+    kapp.k14s.io/change-group: "sa"
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: app-editor-bindings
+  annotations:
+    kapp.k14s.io/change-group: "sa"
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: app-editor
+subjects:
+  - kind: ServiceAccount
+    name: app-editor
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: app-editor-token
+  annotations:
+    kubernetes.io/service-account.name: app-editor
+    kapp.k14s.io/change-rule: "upsert after upserting sa"
+type: kubernetes.io/service-account-token
