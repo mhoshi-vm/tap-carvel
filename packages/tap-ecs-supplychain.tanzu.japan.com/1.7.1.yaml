@@ -1,0 +1,121 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: Package
+metadata:
+  name: tap-ecs-supplychain.tanzu.japan.com.1.7.1
+spec:
+  refName: tap-ecs-supplychain.tanzu.japan.com
+  version: 1.7.1
+  valuesSchema:
+    openAPIv3:
+      title: tap-ecs.tanzu-jp values schema
+      properties:
+        backstage:
+          type: object
+          additionalProperties: false
+          properties:
+            enabled:
+              type: boolean
+              default: true
+            namespace:
+              type: string
+              default: demo
+            image:
+              type: string
+              default: registry.tanzu.vmware.com/tanzu-application-platform/tap-packages@sha256:29f978561d7d931c9a118c167eae905ce41990131013339aaff10c291ac6c42b
+            plugin:
+              type: object
+              additionalProperties: false
+              properties:
+                name:
+                  type: string
+                  default: '@mhoshi-vm/plugin-crossplane-aws'
+                version:
+                  type: string
+                  default: 0.1.1
+        crossplane:
+          type: object
+          additionalProperties: false
+          properties:
+            tag:
+              type: string
+              default: v0.45.0
+            ecs:
+              type: object
+              additionalProperties: false
+              properties:
+                repo:
+                  type: string
+                  default: xpkg.upbound.io/upbound/provider-aws-ecs
+            ec2:
+              type: object
+              additionalProperties: false
+              properties:
+                repo:
+                  type: string
+                  default: xpkg.upbound.io/upbound/provider-aws-ec2
+            elbv2:
+              type: object
+              additionalProperties: false
+              properties:
+                repo:
+                  type: string
+                  default: xpkg.upbound.io/upbound/provider-aws-elbv2
+        aws:
+          type: object
+          additionalProperties: false
+          properties:
+            accountId:
+              type: string
+              default: ""
+            roleName:
+              type: string
+              default: tap-ecs
+            cluster:
+              type: string
+              default: ""
+            region:
+              type: string
+              default: us-west-2
+            vpcId:
+              type: string
+              default: vpc-xxxxx
+            alb:
+              type: object
+              additionalProperties: false
+              properties:
+                enabled:
+                  type: boolean
+                  default: true
+                public:
+                  type: boolean
+                  default: true
+                subnets:
+                  type: array
+                  items:
+                    type: string
+                    default: subnet1
+                  default: []
+            ecs:
+              type: object
+              additionalProperties: false
+              properties:
+                public:
+                  type: boolean
+                  default: false
+                subnets:
+                  type: array
+                  items:
+                    type: string
+                    default: private-subnet1
+                  default: []
+  template:
+    spec:
+      fetch:
+      - git:
+          url: https://github.com/mhoshi-vm/tap-carvel
+          ref: origin/pkgr
+          subPath: manifests/tap-ecs-supplychain.tanzu.japan.com/1.7.1
+      template:
+      - ytt: {}
+      deploy:
+      - kapp: {}

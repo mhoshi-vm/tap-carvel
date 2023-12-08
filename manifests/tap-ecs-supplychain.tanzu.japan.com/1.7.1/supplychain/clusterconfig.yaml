@@ -1,0 +1,611 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: carto.run/v1alpha1
+kind: ClusterConfigTemplate
+metadata:
+  name: ecs-template
+spec:
+  params:
+  - default: #@ data.values.aws.cluster
+    name: cluster
+  - default: #@ data.values.aws.region
+    name: region
+  - default: #@ data.values.aws.accountId
+    name: accountId
+  - default: #@ data.values.aws.alb
+    name: alb
+  - default: #@ data.values.aws.ecs
+    name: ecs
+  - default: #@ data.values.aws.vpcId
+    name: vpcId
+  configPath: .data
+  lifecycle: mutable
+  ytt: |
+    #@ load("@ytt:data", "data")
+    #@ load("@ytt:yaml", "yaml")
+    #@ load("@ytt:json", "json")
+    
+    #@ def merge_labels(fixed_values):
+    #@   labels = {}
+    #@   if hasattr(data.values.workload.metadata, "labels"):
+    #@     labels.update(data.values.workload.metadata.labels)
+    #@   end
+    #@   labels.update(fixed_values)
+    #@   return labels
+    #@ end
+    
+    #@ def return_annotations(config, alwaysreplace, group, upgroup):
+    #@   annotations = {}
+    #@   if hasattr(config, "metadata"):
+    #@      if hasattr(config.metadata, "annotations"):
+    #@         annotations.update(config.metadata.annotations)
+    #@      end
+    #@   end
+    #@   if alwaysreplace:
+    #@     annotations.update({ "kapp.k14s.io/update-strategy" : "always-replace" })
+    #@   end
+    #@   if group != "":
+    #@     annotations.update({ "kapp.k14s.io/change-group" : group })
+    #@   end
+    #@   if upgroup != "":
+    #@     annotations.update({ "kapp.k14s.io/change-rule.update" : "upsert after upserting " + upgroup })
+    #@     annotations.update({ "kapp.k14s.io/change-rule.delete" : "delete before upserting " + upgroup })
+    #@   end
+    #@   return annotations
+    #@ end
+    
+    #@ def verify_lb_enabled(config):
+    #@   enabled = False
+    #@   spec = config.spec
+    #@   workload = spec.containers[0]
+    #@   if data.values.params.alb.enabled and hasattr(workload, "ports") and hasattr(workload, "livenessProbe"):
+    #@     enabled = True
+    #@   end
+    #@   return enabled
+    #@ end
+    
+    #@ def return_task_cpu(config):
+    #@   spec = config.spec
+    #@   workload = spec.containers[0]
+    #@   resources = workload.resources
+    #@   cpu = 512
+    #@   if hasattr(resources, "limits"):
+    #@     r = resources.limits
+    #@     if hasattr(r, "cpu"):
+    #@       cpu = r.cpu
+    #@     end
+    #@   end
+    #@   return cpu
+    #@ end
+    
+    #@ def return_task_memory(config):
+    #@   spec = config.spec
+    #@   workload = spec.containers[0]
+    #@   resources = workload.resources
+    #@   memory = 1024
+    #@   if hasattr(resources, "limits"):
+    #@     r = resources.limits
+    #@     if hasattr(r, "memory"):
+    #@       memory = r.memory
+    #@     end
+    #@   end
+    #@   return memory
+    #@ end
+    
+    #@ def update_config(config):
+    #@   spec = config.spec
+    #@   workload = spec.containers[0]
+    #@   task = {}
+    #@   task["name"] = workload.name
+    #@   task["image"] = workload.image
+    #@   task["cpu"] = 0
+    #@   task["essential"] = True
+    #@   task["mountPoints"] = []
+    #@   task["volumesFrom"] = []
+    #@   if hasattr(workload, "ports"):
+    #@     task["portMappings"] = []
+    #@     for port in workload.ports:
+    #@       portMapping = {}
+    #@       for key in dict(port).keys():
+    #@         if type(port[key]) == "string":
+    #@           portMapping.update({ key: str(port[key]).lower()})
+    #@         else:
+    #@           portMapping.update({ key: port[key]})
+    #@         end
+    #@         if key == "containerPort":
+    #@           portMapping.update({ "hostPort": port[key]})
+    #@         end
+    #@       end
+    #@       task["portMappings"].append(portMapping)
+    #@     end
+    #@   end
+    #@   if hasattr(workload, "env"):
+    #@     task["environment"] = []
+    #@     for e in workload["env"]:
+    #@       if hasattr(e, "value"):
+    #@         task["environment"].append(e)
+    #@       end
+    #@       if hasattr(e, "valueFrom"):
+    #@         name=""
+    #@         key=""
+    #@         if hasattr(e.valueFrom, "configMapKeyRef"):
+    #@            name = e.valueFrom.configMapKeyRef.name
+    #@            key = e.valueFrom.configMapKeyRef.key
+    #@         end
+    #@         if hasattr(e.valueFrom, "secretKeyRef"):
+    #@            name = e.valueFrom.secretKeyRef.name
+    #@            key = e.valueFrom.secretKeyRef.key
+    #@         end
+    #@         ssm_parameter = "/"+name+"/"+key
+    #@         task["secrets"] = []
+    #@         task["secrets"].append({"name":e.name,"valueFrom": ssm_parameter })
+    #@       end
+    #@     end
+    #@   end
+    #@   resources = workload.resources
+    #@   if hasattr(resources, "requests"):
+    #@     r = resources.requests
+    #@     if hasattr(r, "cpu"):
+    #@       task["cpu"] = r.cpu
+    #@     end
+    #@     if hasattr(r, "memory"):
+    #@       task["memoryReservation"] = r.memory
+    #@     end
+    #@   end
+    #@   if hasattr(workload, "securityContext"):
+    #@     if hasattr(workload.securityContext, "runAsUser"):
+    #@        task["user"] = str(workload.securityContext.runAsUser)
+    #@     end
+    #@   end
+    #@   if hasattr(data.values.params, "command"):
+    #@     task["command"]= data.values.params.command
+    #@   end
+    #@   tasks = []
+    #@   tasks.append(task)
+    #@   return task
+    #@ end
+    
+    #@ def targetgroup_config(config):
+    #@   spec = config.spec
+    #@   workload = spec.containers[0]
+    #@   forProvider ={}
+    #@   forProvider["deregistrationDelay"] = "300"
+    #@   forProvider["ipAddressType"] = "ipv4"
+    #@   forProvider["loadBalancingAlgorithmType"] = "round_robin"
+    #@   forProvider["loadBalancingCrossZoneEnabled"] = "use_load_balancer_configuration"
+    #@   forProvider["stickiness"] = [ { "cookieDuration": 86400, "type": "lb_cookie"} ]
+    #@   forProvider["name"] = data.values.workload.metadata.name + "-" + data.values.workload.metadata.namespace
+    #@   forProvider["region"] = data.values.params.region
+    #@   forProvider["targetType"] = "ip"
+    #@   forProvider["vpcId"] = data.values.params.vpcId
+    #@   if hasattr(workload, "livenessProbe"):
+    #@     healthCheck = {}
+    #@     healthCheck["enabled"] = True
+    #@     if hasattr(workload["livenessProbe"], "httpGet"):
+    #@       forProvider["port"] = workload["ports"][0]["containerPort"]
+    #@       forProvider["protocol"] = "HTTP"
+    #@       healthCheck["port"] = str(workload["livenessProbe"]["httpGet"]["port"])
+    #@       healthCheck["path"] = workload["livenessProbe"]["httpGet"]["path"]
+    #@       healthCheck["protocol"] = workload["livenessProbe"]["httpGet"]["scheme"]
+    #@     end
+    #@     forProvider["healthCheck"] = []
+    #@     forProvider["healthCheck"].append(healthCheck)
+    #@   end
+    #@   return forProvider
+    #@ end
+    
+    
+    #@ def delivery():
+    ---
+    apiVersion: ecs.aws.upbound.io/v1beta1
+    kind: TaskDefinition
+    metadata:
+      labels: #@ merge_labels({ "app.kubernetes.io/component": "run", "carto.run/workload-name": data.values.workload.metadata.name })
+      name: #@ data.values.workload.metadata.name + "-" + data.values.workload.metadata.namespace
+      annotations: #@ return_annotations(data.values.config, True, "base", "")
+    spec:
+      deletionPolicy: Delete
+      providerConfigRef:
+        name: aws-provider
+      forProvider:
+        containerDefinitions: #@ json.encode([ update_config(data.values.config) ], indent=3)
+        family: #@ data.values.workload.metadata.name + "-" + data.values.workload.metadata.namespace
+        region: #@ data.values.params.region
+        cpu: #@ str(return_task_cpu(data.values.config))
+        memory: #@ str(return_task_memory(data.values.config))
+        networkMode: awsvpc
+        requiresCompatibilities:
+          - FARGATE
+      initProvider: {}
+      managementPolicies:
+      - '*'
+    ---
+    apiVersion: ecs.aws.upbound.io/v1beta1
+    kind: Service
+    metadata:
+      labels: #@ merge_labels({ "app.kubernetes.io/component": "run", "carto.run/workload-name": data.values.workload.metadata.name })
+      name: #@ data.values.workload.metadata.name + "-" + data.values.workload.metadata.namespace
+      #@ if verify_lb_enabled(data.values.config):
+      annotations: #@ return_annotations(data.values.config, True, "", "lb")
+      #@ else:
+      annotations: #@ return_annotations(data.values.config, True, "", "base")
+      #@ end
+    spec:
+      providerConfigRef:
+        name: aws-provider
+      deletionPolicy: Delete
+      forProvider:
+        deploymentCircuitBreaker:
+        - enable: false
+          rollback: false
+        deploymentController:
+        - type: ECS
+        deploymentMaximumPercent: 200
+        deploymentMinimumHealthyPercent: 100
+        desiredCount: 1
+        cluster: #@ data.values.params.cluster
+        launchType: FARGATE
+        forceNewDeployment: true
+        platformVersion: LATEST
+        propagateTags: NONE
+        schedulingStrategy: REPLICA
+        region: #@ data.values.params.region
+        taskDefinitionRef:
+          name: #@ data.values.workload.metadata.name + "-" + data.values.workload.metadata.namespace
+          policy:
+            resolution: Required
+            resolve: 'Always'
+        networkConfiguration:
+        - subnets: #@ data.values.params.ecs.subnets
+          securityGroupRefs:
+          - name: #@ "ecs-" + data.values.workload.metadata.name + "-" + data.values.workload.metadata.namespace
+          #@ if data.values.params.ecs.public:
+          assignPublicIp: true
+          #@ end
+        #@ if verify_lb_enabled(data.values.config):
+        loadBalancer:
+        - containerName: #@ data.values.config.spec.containers[0].name
+          containerPort: #@ data.values.config.spec.containers[0].ports[0].containerPort 
+          targetGroupArnRef: 
+            name: #@ data.values.workload.metadata.name + "-" + data.values.workload.metadata.namespace
+        #@ end
+      initProvider: {}
+      managementPolicies:
+      - '*'
+    ---
+    apiVersion: ec2.aws.upbound.io/v1beta1
+    kind: SecurityGroup
+    metadata:
+      labels: #@ merge_labels({ "app.kubernetes.io/component": "run", "carto.run/workload-name": data.values.workload.metadata.name })
+      annotations: #@ return_annotations(data.values.config, False, "base", "")
+      name: #@ "ecs-" + data.values.workload.metadata.name + "-" + data.values.workload.metadata.namespace
+    spec:
+      providerConfigRef:
+        name: aws-provider
+      deletionPolicy: Delete
+      initProvider: {}
+      managementPolicies:
+      - '*'
+      forProvider:
+        name: #@ "ecs-" + data.values.workload.metadata.name + "-" + data.values.workload.metadata.namespace
+        region: #@ data.values.params.region
+        vpcId: #@ data.values.params.vpcId
+    ---
+    apiVersion: ec2.aws.upbound.io/v1beta1
+    kind: SecurityGroupRule
+    metadata:
+      labels: #@ merge_labels({ "app.kubernetes.io/component": "run", "carto.run/workload-name": data.values.workload.metadata.name })
+      annotations: #@ return_annotations(data.values.config, False, "base", "")
+      name: #@ "ecs-outbound-" + data.values.workload.metadata.name + "-" + data.values.workload.metadata.namespace
+    spec:
+      providerConfigRef:
+        name: aws-provider
+      deletionPolicy: Delete
+      initProvider: {}
+      managementPolicies:
+      - '*'
+      forProvider:
+        cidrBlocks:
+          - 0.0.0.0/0
+        fromPort: 0
+        protocol: "-1"
+        region: #@ data.values.params.region
+        securityGroupIdRef:
+          name: #@ "ecs-" + data.values.workload.metadata.name + "-" + data.values.workload.metadata.namespace
+        toPort: 0
+        type: egress
+    #@ if hasattr(data.values.config.spec.containers[0], "ports"):
+    ---
+    apiVersion: ec2.aws.upbound.io/v1beta1
+    kind: SecurityGroupRule
+    metadata:
+      labels: #@ merge_labels({ "app.kubernetes.io/component": "run", "carto.run/workload-name": data.values.workload.metadata.name })
+      annotations: #@ return_annotations(data.values.config, False, "base", "")
+      name: #@ "ecs-" + data.values.workload.metadata.name + "-" + data.values.workload.metadata.namespace
+    spec:
+      providerConfigRef:
+        name: aws-provider
+      deletionPolicy: Delete
+      initProvider: {}
+      managementPolicies:
+      - '*'
+      forProvider:
+        cidrBlocks:
+          - 0.0.0.0/0
+        fromPort: #@ data.values.config.spec.containers[0].ports[0].containerPort
+        protocol: #@ str(data.values.config.spec.containers[0].ports[0].protocol).lower()
+        region: #@ data.values.params.region
+        securityGroupIdRef:
+          name: #@ "ecs-" + data.values.workload.metadata.name + "-" + data.values.workload.metadata.namespace
+        toPort: #@ data.values.config.spec.containers[0].ports[0].containerPort
+        type: ingress
+    #@ end
+    #@ if verify_lb_enabled(data.values.config):
+    ---
+    apiVersion: elbv2.aws.upbound.io/v1beta1
+    kind: LBTargetGroup
+    metadata:
+      labels: #@ merge_labels({ "app.kubernetes.io/component": "run", "carto.run/workload-name": data.values.workload.metadata.name })
+      annotations: #@ return_annotations(data.values.config, False, "base", "")
+      name: #@ data.values.workload.metadata.name + "-" + data.values.workload.metadata.namespace
+    spec:
+      providerConfigRef:
+        name: aws-provider
+      deletionPolicy: Delete
+      forProvider: #@ targetgroup_config(data.values.config)
+      initProvider: {}
+      managementPolicies:
+      - '*'
+    ---
+    apiVersion: elbv2.aws.upbound.io/v1beta1
+    kind: LB
+    metadata:
+      labels: #@ merge_labels({ "app.kubernetes.io/component": "run", "carto.run/workload-name": data.values.workload.metadata.name })
+      annotations: #@ return_annotations(data.values.config, False, "base", "")
+      name: #@ data.values.workload.metadata.name + "-" + data.values.workload.metadata.namespace
+    spec:
+      providerConfigRef:
+        name: aws-provider
+      deletionPolicy: Delete
+      forProvider:
+        desyncMitigationMode: defensive
+        enableCrossZoneLoadBalancing: true
+        enableDeletionProtection: false
+        enableHttp2: true
+        idleTimeout: 60
+        #@ if data.values.params.alb.public:
+        internal: false
+        #@ else:
+        internal: true
+        #@ end
+        ipAddressType: ipv4
+        loadBalancerType: application
+        name: #@ data.values.workload.metadata.name + "-" + data.values.workload.metadata.namespace
+        region: #@ data.values.params.region
+        securityGroupRefs: 
+        - name: #@ "lb-" + data.values.workload.metadata.name + "-" + data.values.workload.metadata.namespace
+        subnets: #@ data.values.params.alb.subnets
+        xffHeaderProcessingMode: append
+      initProvider: {}
+      managementPolicies:
+      - '*'
+    ---
+    apiVersion: elbv2.aws.upbound.io/v1beta1
+    kind: LBListener
+    metadata:
+      labels: #@ merge_labels({ "app.kubernetes.io/component": "run", "carto.run/workload-name": data.values.workload.metadata.name })
+      annotations: #@ return_annotations(data.values.config, False, "lb", "base")
+      name: #@ data.values.workload.metadata.name + "-" + data.values.workload.metadata.namespace
+    spec:
+      providerConfigRef:
+        name: aws-provider
+      deletionPolicy: Delete
+      forProvider:
+        defaultAction:
+          - targetGroupArnRef:
+              name: #@ data.values.workload.metadata.name + "-" + data.values.workload.metadata.namespace
+            type: forward
+        loadBalancerArnRef:
+          name: #@ data.values.workload.metadata.name + "-" + data.values.workload.metadata.namespace
+        port: 80
+        protocol: HTTP
+        region: #@ data.values.params.region
+      initProvider: {}
+      managementPolicies:
+      - '*'
+    ---
+    apiVersion: ec2.aws.upbound.io/v1beta1
+    kind: SecurityGroup
+    metadata:
+      labels: #@ merge_labels({ "app.kubernetes.io/component": "run", "carto.run/workload-name": data.values.workload.metadata.name })
+      annotations: #@ return_annotations(data.values.config, False, "base", "")
+      name: #@ "lb-" + data.values.workload.metadata.name + "-" + data.values.workload.metadata.namespace
+    spec:
+      providerConfigRef:
+        name: aws-provider
+      deletionPolicy: Delete
+      initProvider: {}
+      managementPolicies:
+      - '*'
+      forProvider:
+        name: #@ "lb-" + data.values.workload.metadata.name + "-" + data.values.workload.metadata.namespace
+        region: #@ data.values.params.region
+        vpcId: #@ data.values.params.vpcId
+    ---
+    apiVersion: ec2.aws.upbound.io/v1beta1
+    kind: SecurityGroupRule
+    metadata:
+      labels: #@ merge_labels({ "app.kubernetes.io/component": "run", "carto.run/workload-name": data.values.workload.metadata.name })
+      annotations: #@ return_annotations(data.values.config, False, "base", "")
+      name: #@ "lb-" + data.values.workload.metadata.name + "-" + data.values.workload.metadata.namespace
+    spec:
+      providerConfigRef:
+        name: aws-provider
+      deletionPolicy: Delete
+      initProvider: {}
+      managementPolicies:
+      - '*'
+      forProvider:
+        cidrBlocks:
+          - 0.0.0.0/0
+        fromPort: 80
+        protocol: tcp
+        region: #@ data.values.params.region
+        securityGroupIdRef:
+          name: #@ "lb-" + data.values.workload.metadata.name + "-" + data.values.workload.metadata.namespace
+        toPort: 80
+        type: ingress
+    ---
+    apiVersion: ec2.aws.upbound.io/v1beta1
+    kind: SecurityGroupRule
+    metadata:
+      labels: #@ merge_labels({ "app.kubernetes.io/component": "run", "carto.run/workload-name": data.values.workload.metadata.name })
+      annotations: #@ return_annotations(data.values.config, False, "base", "")
+      name: #@ "lb-outbound" + data.values.workload.metadata.name + "-" + data.values.workload.metadata.namespace
+    spec:
+      providerConfigRef:
+        name: aws-provider
+      deletionPolicy: Delete
+      initProvider: {}
+      managementPolicies:
+      - '*'
+      forProvider:
+        cidrBlocks:
+          - 0.0.0.0/0
+        fromPort: 0
+        protocol: "-1"
+        region: #@ data.values.params.region
+        securityGroupIdRef:
+          name: #@ "lb-" + data.values.workload.metadata.name + "-" + data.values.workload.metadata.namespace
+        toPort: 0
+        type: egress
+    #@ end
+    ---
+    apiVersion: kapp.k14s.io/v1alpha1
+    kind: Config
+    
+    diffAgainstLastAppliedFieldExclusionRules:
+    - path: [metadata, annotations, crossplane.io/external-name]
+      resourceMatchers: &All
+      - apiVersionKindMatcher:
+          apiVersion: ecs.aws.upbound.io/v1beta1
+          kind: TaskDefinition
+      - apiVersionKindMatcher:
+          apiVersion: ecs.aws.upbound.io/v1beta1
+          kind: Service
+      - apiVersionKindMatcher:
+          apiVersion: elbv2.aws.upbound.io/v1beta1
+          kind: LBTargetGroup
+      - apiVersionKindMatcher:
+          apiVersion: elbv2.aws.upbound.io/v1beta1
+          kind: LB
+      - apiVersionKindMatcher:
+          apiVersion: elbv2.aws.upbound.io/v1beta1
+          kind: LBListener
+      - apiVersionKindMatcher:
+          apiVersion: ec2.aws.upbound.io/v1beta1
+          kind: SecurityGroup
+      - apiVersionKindMatcher:
+          apiVersion: ec2.aws.upbound.io/v1beta1
+          kind: SecurityGroupRule
+
+    - path: [metadata, annotations, upjet.crossplane.io/provider-meta]
+      resourceMatchers: *All
+    
+    - path: [metadata, annotations, crossplane.io/external-create-succeeded]
+      resourceMatchers: *All
+
+    - path: [spec, forProvider, tags]
+      resourceMatchers: *All
+
+    - path: [spec, forProvider, iamRole]
+      resourceMatchers:
+      - apiVersionKindMatcher:
+          apiVersion: ecs.aws.upbound.io/v1beta1
+          kind: Service
+
+    - path: [spec, forProvider, taskDefinition]
+      resourceMatchers:
+      - apiVersionKindMatcher:
+          apiVersion: ecs.aws.upbound.io/v1beta1
+          kind: Service
+
+    - path: [spec, forProvider, networkConfiguration, {allIndexes: true}, securityGroups]
+      resourceMatchers:
+      - apiVersionKindMatcher:
+          apiVersion: ecs.aws.upbound.io/v1beta1
+          kind: Service
+
+    - path: [spec, forProvider, loadBalancer, {allIndexes: true}, targetGroupArn]
+      resourceMatchers:
+      - apiVersionKindMatcher:
+          apiVersion: ecs.aws.upbound.io/v1beta1
+          kind: Service
+
+    - path: [spec, forProvider, protocolVersion]
+      resourceMatchers:
+      - apiVersionKindMatcher:
+          apiVersion: elbv2.aws.upbound.io/v1beta1
+          kind: LBTargetGroup
+
+    - path: [spec, forProvider, securityGroups]
+      resourceMatchers:
+      - apiVersionKindMatcher:
+          apiVersion: elbv2.aws.upbound.io/v1beta1
+          kind: LB
+
+    - path: [spec, forProvider, subnetMapping]
+      resourceMatchers:
+      - apiVersionKindMatcher:
+          apiVersion: elbv2.aws.upbound.io/v1beta1
+          kind: LB
+
+    - path: [spec, forProvider, defaultAction, {allIndexes: true}, targetGroupArn]
+      resourceMatchers:
+      - apiVersionKindMatcher:
+          apiVersion: elbv2.aws.upbound.io/v1beta1
+          kind: LBListener
+
+    - path: [spec, forProvider, loadBalancerArn]
+      resourceMatchers:
+      - apiVersionKindMatcher:
+          apiVersion: elbv2.aws.upbound.io/v1beta1
+          kind: LBListener
+
+    - path: [spec, forProvider, protocol]
+      resourceMatchers:
+      - apiVersionKindMatcher:
+          apiVersion: elbv2.aws.upbound.io/v1beta1
+          kind: LBListener
+
+    - path: [spec, forProvider, description]
+      resourceMatchers:
+      - apiVersionKindMatcher:
+          apiVersion: ec2.aws.upbound.io/v1beta1
+          kind: SecurityGroup
+
+    - path: [spec, forProvider, securityGroupId]
+      resourceMatchers:
+      - apiVersionKindMatcher:
+          apiVersion: ec2.aws.upbound.io/v1beta1
+          kind: SecurityGroupRule
+    
+    waitRules:
+    - supportsObservedGeneration: false
+      conditionMatchers:
+      - type: Ready
+        status: "True"
+        success: true
+      - type: LastAsyncOperation
+        status: "False"
+        failure: true
+      resourceMatchers: *All
+    #@ end
+    ---
+    apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: #@ data.values.workload.metadata.name + "-ecs"
+      labels: #@ merge_labels({ "app.kubernetes.io/component": "config" })
+    data:
+      delivery.yml: #@ yaml.encode(delivery())

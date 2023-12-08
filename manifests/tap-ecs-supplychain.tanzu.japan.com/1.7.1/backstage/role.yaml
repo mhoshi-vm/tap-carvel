@@ -1,0 +1,33 @@
+#@ load("@ytt:data", "data")
+
+#@ if data.values.backstage.enabled:
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: ecs-reader
+rules:
+  - apiGroups:
+      - ec2.aws.upbound.io
+      - ecs.aws.upbound.io
+      - elbv2.aws.upbound.io
+    resources:
+      - "*"
+    verbs:
+      - get
+      - list
+      - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: ecs-backstage-reader
+subjects:
+  - kind: ServiceAccount
+    name: tap-gui-viewer
+    namespace: tap-gui
+roleRef:
+  kind: ClusterRole
+  name: ecs-reader
+  apiGroup: rbac.authorization.k8s.io
+#@ end

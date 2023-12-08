@@ -1,0 +1,39 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:base64", "base64")
+#@ load("@ytt:yaml", "yaml")
+
+#@ def tdp_config():
+app:
+  plugins:
+    - name: "@vmware-tanzu/tdp-plugin-techinsights"
+      version: "0.0.2"
+
+backend:
+  plugins:
+    - name: #@ data.values.backstage.plugin.name
+      version: #@ data.values.backstage.plugin.version
+#@ end
+
+#@ if data.values.backstage.enabled:
+---
+apiVersion: carto.run/v1alpha1
+kind: Workload
+metadata:
+  name: tdp-configurator
+  namespace: #@ data.values.backstage.namespace
+  labels:
+    apps.tanzu.vmware.com/workload-type: web
+    app.kubernetes.io/part-of: tdp-configurator
+spec:
+  build:
+    env:
+      - name: BP_NODE_RUN_SCRIPTS
+        value: "set-tdp-config,portal:pack"
+      - name: TPB_CONFIG
+        value: /tmp/tdp-config.yaml
+      - name: TPB_CONFIG_STRING
+        value: #@ base64.encode(yaml.encode(tdp_config()))
+  source:
+    image: #@ data.values.backstage.image
+    subPath: builder
+#@ end

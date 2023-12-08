@@ -1,0 +1,34 @@
+#@data/values-schema
+---
+backstage:
+  enabled: true
+  namespace: demo
+  image: registry.tanzu.vmware.com/tanzu-application-platform/tap-packages@sha256:29f978561d7d931c9a118c167eae905ce41990131013339aaff10c291ac6c42b
+  plugin:
+    name: "@mhoshi-vm/plugin-crossplane-aws"
+    version: 0.1.1
+
+crossplane:
+  tag: v0.45.0
+  ecs:
+   repo: xpkg.upbound.io/upbound/provider-aws-ecs
+  ec2:
+   repo: xpkg.upbound.io/upbound/provider-aws-ec2
+  elbv2:
+   repo: xpkg.upbound.io/upbound/provider-aws-elbv2
+
+aws:
+  accountId: ""
+  roleName: "tap-ecs"
+  cluster: ""
+  region: us-west-2
+  vpcId: vpc-xxxxx
+  alb:
+    enabled: true
+    public: true
+    subnets:
+    - subnet1
+  ecs:
+    public: false
+    subnets:
+    - private-subnet1
