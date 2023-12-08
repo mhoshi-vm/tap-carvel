@@ -1,6 +1,8 @@
 #@data/values-schema
 ---
 backstage:
+  publish:
+    repo: myrepo/lib
   enabled: true
   namespace: demo
   image: registry.tanzu.vmware.com/tanzu-application-platform/tap-packages@sha256:29f978561d7d931c9a118c167eae905ce41990131013339aaff10c291ac6c42b

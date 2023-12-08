@@ -13,6 +13,13 @@ spec:
           type: object
           additionalProperties: false
           properties:
+            publish:
+              type: object
+              additionalProperties: false
+              properties:
+                repo:
+                  type: string
+                  default: myrepo/lib
             enabled:
               type: boolean
               default: true
