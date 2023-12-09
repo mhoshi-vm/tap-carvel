@@ -38,7 +38,7 @@ spec:
                 operator_version:
                   type: string
                   description: operator version
-                  default: 1.5.2
+                  default: 1.5.0
             count:
               type: integer
               description: instance count
