@@ -68,7 +68,7 @@ spec:
                 version:
                   type: string
                   description: install version
-                  default: 1.9.1
+                  default: 1.9.0
                 operator_version:
                   type: string
                   description: operator version
