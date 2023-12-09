@@ -7,7 +7,7 @@ metadata:
     kapp.k14s.io/change-group: "crd"
   name: upbound-provider-aws-ecs
 spec:
-  package: #@ data.values.crossplane.ecs.repo + ":" + data.values.crossplane.tag 
+  package: #@ data.values.crossplane.repo + "/provider-aws-ecs:" + data.values.crossplane.tag
   controllerConfigRef:
     name: upbound-provider-aws
 ---
@@ -18,7 +18,7 @@ metadata:
     kapp.k14s.io/change-group: "crd"
   name: upbound-provider-aws-ec2
 spec:
-  package: #@ data.values.crossplane.ec2.repo + ":" + data.values.crossplane.tag
+  package: #@ data.values.crossplane.repo + "/provider-aws-ec2:" + data.values.crossplane.tag
   controllerConfigRef:
     name: upbound-provider-aws
 ---
@@ -29,6 +29,6 @@ metadata:
     kapp.k14s.io/change-group: "crd"
   name: upbound-provider-aws-elbv2
 spec:
-  package: #@ data.values.crossplane.elbv2.repo + ":" + data.values.crossplane.tag
+  package: #@ data.values.crossplane.repo + "/provider-aws-elbv2:" + data.values.crossplane.tag
   controllerConfigRef:
     name: upbound-provider-aws
