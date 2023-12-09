@@ -19,13 +19,19 @@ yaml: |
             - -c
             - |
               export KUBERNETES_SERVICE_ACCOUNT_TOKEN="$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)"
-              exec /layers/tanzu-buildpacks_node-engine-lite/node/bin/node portal/dist/packages/backend  \
+              exec /layers/NODEENGINETOREPLACE/node/bin/node portal/dist/packages/backend  \
               --config=portal/app-config.yaml \
               --config=portal/runtime-config.yaml \
               --config=/etc/app-config/app-config.yaml
 #@ end
 
-#@ final_image = data.values.backstage.publish.repo + '/tdp-configurator-' + data.values.backstage.namespace + ':latest'
+#@ final_image = data.values.backstage.workload.publish.repo + '/tdp-configurator-' + data.values.backstage.workload.namespace + ':latest'
+#@ overlay_file = imageoverlay()['yaml'].replace("IMAGETOREPLACE", final_image)
+#@ if data.values.backstage.workload.lite:
+#@   overlay_file = overlay_file.replace("NODEENGINETOREPLACE", "tanzu-buildpacks_node-engine-lite")
+#@ else:
+#@   overlay_file = overlay_file.replace("NODEENGINETOREPLACE", "tanzu-buildpacks_node-engine")
+#@ end
 
 #@ if data.values.backstage.enabled:
 ---
@@ -35,5 +41,5 @@ metadata:
   name: tdp-app-image-overlay-secret
   namespace: tap-install
 stringData:
-  tdp-app-image-overlay.yaml: #@ imageoverlay()['yaml'].replace("IMAGETOREPLACE", final_image)
+  tdp-app-image-overlay.yaml: #@ overlay_file
 #@ end

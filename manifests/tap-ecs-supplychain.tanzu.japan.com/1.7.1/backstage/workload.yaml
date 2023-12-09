@@ -20,10 +20,13 @@ apiVersion: carto.run/v1alpha1
 kind: Workload
 metadata:
   name: tdp-configurator
-  namespace: #@ data.values.backstage.namespace
+  namespace: #@ data.values.backstage.workload.namespace
   labels:
     apps.tanzu.vmware.com/workload-type: web
     app.kubernetes.io/part-of: tdp-configurator
+    #@ if data.values.backstage.workload.hastests:
+    apps.tanzu.vmware.com/has-tests: "true"
+    #@ end
 spec:
   build:
     env:
@@ -34,6 +37,6 @@ spec:
       - name: TPB_CONFIG_STRING
         value: #@ base64.encode(yaml.encode(tdp_config()))
   source:
-    image: #@ data.values.backstage.image
+    image: #@ data.values.backstage.workload.image
     subPath: builder
 #@ end
