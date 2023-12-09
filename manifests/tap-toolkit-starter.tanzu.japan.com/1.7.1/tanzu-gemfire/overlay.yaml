@@ -1,0 +1,191 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:overlay", "overlay")
+
+#@ if data.values.gemfire.enabled:
+#@ if data.values.gemfire.package.install:
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: gemfire-install
+  labels:
+    pod-security.kubernetes.io/audit: privileged
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: tap-registry
+  namespace: gemfire-install
+  annotations:
+    secretgen.carvel.dev/image-pull-secret: ""
+type: kubernetes.io/dockerconfigjson
+data:
+  .dockerconfigjson: e30K
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: kapp-sa
+  namespace: gemfire-install
+secrets:
+  - name: tap-registry
+imagePullSecrets:
+  - name: tap-registry
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: gemfire-kapp-role-binding
+  namespace: gemfire-install
+subjects:
+- kind: ServiceAccount
+  name: kapp-sa
+  namespace: gemfire-install
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+---
+apiVersion: kappctrl.k14s.io/v1alpha1
+kind: App
+metadata:
+  name: gemfire
+  namespace: gemfire-install
+spec:
+  serviceAccountName: kapp-sa
+  fetch:
+  - imgpkgBundle:
+      image:  #@ data.values.gemfire.package.repo + ":" + data.values.gemfire.package.version
+      secretRef:
+        name: tap-registry
+    path: gemfire/
+  template:
+  - ytt:
+      ignoreUnknownComments: true
+      paths:
+      - gemfire/operator.yaml
+      - gemfire/certificates.yaml
+      - gemfire/functions.lib.yml
+      inline:
+        paths:
+          base.yaml: |
+            ---
+            apiVersion: v1
+            kind: Namespace
+            metadata:
+              name: gemfire-system
+            ---
+            apiVersion: v1
+            kind: Secret
+            metadata:
+              name: reg-secret
+              namespace: gemfire-system
+              annotations:
+                secretgen.carvel.dev/image-pull-secret: ""
+            type: kubernetes.io/dockerconfigjson
+            data:
+              .dockerconfigjson: e30K
+          values-update.yaml: |
+            #@data/values
+            ---
+            namespace: gemfire-system
+            name: gemfire-operator
+            certManagerNamespace: ""
+            cpu: ""
+            memory: ""
+            imagePullSecretName: "reg-secret"
+            tlsSecretName: ""
+            registry:
+              server: ""
+              username: ""
+              password: ""
+  deploy:
+    - kapp: {}
+#@ end
+---
+apiVersion: services.apps.tanzu.vmware.com/v1alpha1
+kind: ClusterInstanceClass
+metadata:
+  name: gemfire
+spec:
+  description:
+    short: It's a Gemfire cluster !
+  pool:
+    kind: Secret
+    labelSelector:
+      matchLabels:
+        gemfire: "true"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: image-pull-secret
+  namespace: service-instances
+  annotations:
+    secretgen.carvel.dev/image-pull-secret: ""
+type: kubernetes.io/dockerconfigjson
+data:
+  .dockerconfigjson: e30K
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: gemfireclusters.gemfire.vmware.com
+  annotations:
+    kapp.k14s.io/exists: ""
+    kapp.k14s.io/change-group: "tkcrd"
+spec:
+  group: gemfire.vmware.com
+  versions:
+    - name: v1
+  names:
+    kind: GemFireCluster
+  scope: Namespaced
+#@ count = data.values.gemfire.count + 1
+#@ for j in range(1,count):
+---
+apiVersion: gemfire.vmware.com/v1
+kind: GemFireCluster
+metadata:
+  name: #@ "gemfire-redis" + str(j)
+  namespace: service-instances
+  annotations:
+    kapp.k14s.io/change-rule: "upsert after upserting tkcrd"
+spec:
+  image: #@ data.values.gemfire.image.repo + ":" + data.values.gemfire.image.version 
+  antiAffinityPolicy: None
+  security:
+    tls: {}
+  metrics:
+    emission: Default
+  locators:
+    replicas: 1
+    resources:
+      requests:
+        memory: 1Gi
+  servers:
+    replicas: 1
+    resources:
+        memory: 1Gi
+    libraries:
+      - name: gemfire-for-redis-apps
+        container:
+          image: #@ data.values.gemfire.redis_adapter.repo + ":" + data.values.gemfire.redis_adapter.version
+          path: "/gemfire-for-redis-apps/*"
+          imagePullSecretRef:
+            name: image-pull-secret
+    overrides:
+      jvmOptions: ["-Dgemfire-for-redis-enabled=true"]
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: #@ "gemfire-redis" + str(j)
+  namespace: service-instances
+  labels:
+    gemfire: "true"
+type: servicebinding.io/redis
+stringData:
+  type: redis
+  cluster.nodes: #@ "gemfire-redis" + str(j) + "-server-0.gemfire-redis" + str(j) + "-server.service-instances:6379"
+#@ end
+#@ end

@@ -1,10 +1,10 @@
 apiVersion: data.packaging.carvel.dev/v1alpha1
 kind: Package
 metadata:
-  name: tap-toolkit-starter.tanzu.japan.com.1.6.1
+  name: tap-toolkit-starter.tanzu.japan.com.1.7.1
 spec:
   refName: tap-toolkit-starter.tanzu.japan.com
-  version: 1.6.1
+  version: 1.7.1
   valuesSchema:
     openAPIv3:
       title: tap-toolkit-starter.tanzu-jp values schema
@@ -34,11 +34,11 @@ spec:
                 version:
                   type: string
                   description: install version
-                  default: 1.5.0
+                  default: 1.5.2
                 operator_version:
                   type: string
                   description: operator version
-                  default: 1.5.0
+                  default: 1.5.2
             count:
               type: integer
               description: instance count
@@ -68,11 +68,11 @@ spec:
                 version:
                   type: string
                   description: install version
-                  default: 1.8.0
+                  default: 1.9.1
                 operator_version:
                   type: string
                   description: operator version
-                  default: 2.1.0
+                  default: 2.2.1
             count:
               type: integer
               description: instance count
@@ -110,7 +110,7 @@ spec:
                 version:
                   type: string
                   description: install version
-                  default: 2.2.0
+                  default: 2.3.0
             count:
               type: integer
               description: instance count
@@ -125,7 +125,7 @@ spec:
                   default: registry.tanzu.vmware.com/pivotal-gemfire/vmware-gemfire
                 version:
                   type: string
-                  default: 9.15.4
+                  default: 9.15.9
             redis_adapter:
               type: object
               additionalProperties: false
@@ -180,7 +180,7 @@ spec:
       - git:
           url: https://github.com/mhoshi-vm/tap-carvel
           ref: origin/pkgr
-          subPath: manifests/tap-toolkit-starter.tanzu.japan.com/1.6.1
+          subPath: manifests/tap-toolkit-starter.tanzu.japan.com/1.7.1
       template:
       - ytt: {}
       deploy:
