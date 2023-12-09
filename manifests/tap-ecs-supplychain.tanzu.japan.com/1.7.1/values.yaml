@@ -11,7 +11,7 @@ backstage:
     image: registry.tanzu.vmware.com/tanzu-application-platform/tap-packages@sha256:29f978561d7d931c9a118c167eae905ce41990131013339aaff10c291ac6c42b
   plugin:
     name: "@mhoshi-vm/plugin-crossplane-aws"
-    version: 0.1.2
+    version: 0.1.3
 
 crossplane:
   tag: v0.45.0

@@ -30,7 +30,7 @@ postgres:
     #@schema/desc "install version"
     version: 1.9.0
     #@schema/desc "operator version"
-    operator_version: 2.2.1
+    operator_version: 2.1.0
   #@schema/desc "instance count"
   count: 1
   #@schema/desc "storage class"

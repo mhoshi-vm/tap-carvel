@@ -2,16 +2,13 @@
 #@ load("@ytt:base64", "base64")
 #@ load("@ytt:yaml", "yaml")
 
-#@ def tdp_config():
+#@ def tpb_config():
 app:
-  plugins:
-    - name: "@vmware-tanzu/tdp-plugin-techinsights"
-      version: "0.0.2"
-
-backend:
   plugins:
     - name: #@ data.values.backstage.plugin.name
       version: #@ data.values.backstage.plugin.version
+backend:
+  plugins: []
 #@ end
 
 #@ if data.values.backstage.enabled:
@@ -30,12 +27,14 @@ metadata:
 spec:
   build:
     env:
+      - name: BP_OCI_REVISION
+        value: #@ data.values.backstage.workload.image
       - name: BP_NODE_RUN_SCRIPTS
-        value: "set-tdp-config,portal:pack"
+        value: 'set-tpb-config,portal:pack'
       - name: TPB_CONFIG
-        value: /tmp/tdp-config.yaml
+        value: /tmp/tpb-config.yaml
       - name: TPB_CONFIG_STRING
-        value: #@ base64.encode(yaml.encode(tdp_config()))
+        value: #@ base64.encode(yaml.encode(tpb_config()))
   source:
     image: #@ data.values.backstage.workload.image
     subPath: builder
