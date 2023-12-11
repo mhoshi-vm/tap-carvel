@@ -13,22 +13,32 @@ spec:
           type: object
           additionalProperties: false
           properties:
-            publish:
-              type: object
-              additionalProperties: false
-              properties:
-                repo:
-                  type: string
-                  default: myrepo/lib
             enabled:
               type: boolean
               default: true
-            namespace:
-              type: string
-              default: demo
-            image:
-              type: string
-              default: registry.tanzu.vmware.com/tanzu-application-platform/tap-packages@sha256:29f978561d7d931c9a118c167eae905ce41990131013339aaff10c291ac6c42b
+            workload:
+              type: object
+              additionalProperties: false
+              properties:
+                publish:
+                  type: object
+                  additionalProperties: false
+                  properties:
+                    repo:
+                      type: string
+                      default: myrepo/lib
+                lite:
+                  type: boolean
+                  default: true
+                hastests:
+                  type: boolean
+                  default: true
+                namespace:
+                  type: string
+                  default: demo
+                image:
+                  type: string
+                  default: registry.tanzu.vmware.com/tanzu-application-platform/tap-packages@sha256:29f978561d7d931c9a118c167eae905ce41990131013339aaff10c291ac6c42b
             plugin:
               type: object
               additionalProperties: false
