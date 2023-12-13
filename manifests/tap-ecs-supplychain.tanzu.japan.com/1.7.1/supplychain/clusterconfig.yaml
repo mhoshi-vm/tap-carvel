@@ -104,6 +104,7 @@ spec:
     #@   task["volumesFrom"] = []
     #@   if hasattr(workload, "ports"):
     #@     task["portMappings"] = []
+    #@     check_template = "perl -mIO::Socket::INET -le 'exit(IO::Socket::INET->new(PeerAddr=>shift,PeerPort=>shift,Proto=>shift,Timeout=>1)?0:1)' 127.0.0.1 PORT"
     #@     for port in workload.ports:
     #@       portMapping = {}
     #@       for key in dict(port).keys():
@@ -114,6 +115,9 @@ spec:
     #@         end
     #@         if key == "containerPort":
     #@           portMapping.update({ "hostPort": port[key]})
+    #@           check_cmd = check_template.replace('PORT', str(port[key]))
+    #@           task["healthcheck"] = {}
+    #@           task["healthcheck"]["command"] = [ "CMD-SHELL", check_cmd ]
     #@         end
     #@       end
     #@       task["portMappings"].append(portMapping)
