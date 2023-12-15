@@ -1,4 +1,6 @@
 #@ load("@ytt:data", "data")
+
+#@ if data.values.crossplane.enabled.ecs:
 ---
 apiVersion: pkg.crossplane.io/v1
 kind: Provider
@@ -10,6 +12,8 @@ spec:
   package: #@ data.values.crossplane.repo + "/provider-aws-ecs:" + data.values.crossplane.tag
   controllerConfigRef:
     name: upbound-provider-aws
+#@ end
+#@ if data.values.crossplane.enabled.ec2:
 ---
 apiVersion: pkg.crossplane.io/v1
 kind: Provider
@@ -21,6 +25,8 @@ spec:
   package: #@ data.values.crossplane.repo + "/provider-aws-ec2:" + data.values.crossplane.tag
   controllerConfigRef:
     name: upbound-provider-aws
+#@ end
+#@ if data.values.crossplane.enabled.elbv2:
 ---
 apiVersion: pkg.crossplane.io/v1
 kind: Provider
@@ -32,3 +38,4 @@ spec:
   package: #@ data.values.crossplane.repo + "/provider-aws-elbv2:" + data.values.crossplane.tag
   controllerConfigRef:
     name: upbound-provider-aws
+#@ end

@@ -62,6 +62,19 @@ spec:
             repo:
               type: string
               default: xpkg.upbound.io/upbound
+            enabled:
+              type: object
+              additionalProperties: false
+              properties:
+                ecs:
+                  type: boolean
+                  default: true
+                ec2:
+                  type: boolean
+                  default: true
+                elbv2:
+                  type: boolean
+                  default: true
         aws:
           type: object
           additionalProperties: false
