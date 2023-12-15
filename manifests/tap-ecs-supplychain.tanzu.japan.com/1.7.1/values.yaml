@@ -18,7 +18,7 @@ crossplane:
   tag: v0.45.0
   repo: xpkg.upbound.io/upbound
   enabled:
-    ecs: false
+    ecs: true
     ec2: true
     elbv2: true
 
