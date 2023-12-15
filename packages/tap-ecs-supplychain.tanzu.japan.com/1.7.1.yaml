@@ -20,6 +20,9 @@ spec:
               type: object
               additionalProperties: false
               properties:
+                deploy:
+                  type: boolean
+                  default: true
                 publish:
                   type: object
                   additionalProperties: false

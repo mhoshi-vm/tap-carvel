@@ -3,6 +3,7 @@
 backstage:
   enabled: true
   workload:
+    deploy: true
     publish:
       repo: myrepo/lib
     lite: true
