@@ -12,7 +12,7 @@ backend:
 #@ end
 
 #@ if data.values.backstage.enabled:
-#@   if data.values.backstage.deploy:
+#@   if data.values.backstage.workload.deploy:
 ---
 apiVersion: carto.run/v1alpha1
 kind: Workload
