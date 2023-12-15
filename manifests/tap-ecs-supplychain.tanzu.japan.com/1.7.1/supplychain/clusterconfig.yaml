@@ -118,6 +118,9 @@ spec:
     #@           check_cmd = check_template.replace('PORT', str(port[key]))
     #@           task["healthcheck"] = {}
     #@           task["healthcheck"]["command"] = [ "CMD-SHELL", check_cmd ]
+    #@           task["healthcheck"]["interval"] = 30
+    #@           task["healthcheck"]["retries"] = 3
+    #@           task["healthcheck"]["timeout"] = 5
     #@         end
     #@       end
     #@       task["portMappings"].append(portMapping)
