@@ -216,6 +216,7 @@ spec:
         name: aws-provider
       forProvider:
         containerDefinitions: #@ json.encode([ update_config(data.values.config) ], indent=3)
+        executionRoleArn: #@ "arn:aws:iam::" + data.values.params.accountId + ":role/ecsTaskExecutionRole"
         family: #@ data.values.workload.metadata.name + "-" + data.values.workload.metadata.namespace
         region: #@ data.values.params.region
         cpu: #@ str(return_task_cpu(data.values.config))
