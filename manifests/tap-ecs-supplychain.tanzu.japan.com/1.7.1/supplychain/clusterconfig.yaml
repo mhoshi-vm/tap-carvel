@@ -491,123 +491,153 @@ spec:
     ---
     apiVersion: kapp.k14s.io/v1alpha1
     kind: Config
-    
+    rebaseRules:
+      - path:
+          - metadata
+          - annotations
+          - crossplane.io/external-name
+        type: copy
+        sources: [existing]
+        resourceMatchers:
+          - allMatcher: {}
+      - path:
+          - metadata
+          - annotations
+          - crossplane.io/external-create-succeeded
+        type: copy
+        sources: [existing]
+        resourceMatchers:
+          - allMatcher: {}
+      - path:
+          - metadata
+          - annotations
+          - crossplane.io/external-create-pending
+        type: copy
+        sources: [existing]
+        resourceMatchers:
+          - allMatcher: {}
+      - path:
+          - spec
+          - forProvider
+          - tags
+        type: copy
+        sources: [existing]
+        resourceMatchers:
+          - allMatcher: {}
     diffAgainstLastAppliedFieldExclusionRules:
-    - path: [metadata, annotations, crossplane.io/external-name]
-      resourceMatchers: &All
-      - apiVersionKindMatcher:
-          apiVersion: ecs.aws.upbound.io/v1beta1
-          kind: TaskDefinition
-      - apiVersionKindMatcher:
-          apiVersion: ecs.aws.upbound.io/v1beta1
-          kind: Service
-      - apiVersionKindMatcher:
-          apiVersion: elbv2.aws.upbound.io/v1beta1
-          kind: LBTargetGroup
-      - apiVersionKindMatcher:
-          apiVersion: elbv2.aws.upbound.io/v1beta1
-          kind: LB
-      - apiVersionKindMatcher:
-          apiVersion: elbv2.aws.upbound.io/v1beta1
-          kind: LBListener
-      - apiVersionKindMatcher:
-          apiVersion: ec2.aws.upbound.io/v1beta1
-          kind: SecurityGroup
-      - apiVersionKindMatcher:
-          apiVersion: ec2.aws.upbound.io/v1beta1
-          kind: SecurityGroupRule
-
-    - path: [metadata, annotations, upjet.crossplane.io/provider-meta]
-      resourceMatchers: *All
-    
-    - path: [metadata, annotations, crossplane.io/external-create-succeeded]
-      resourceMatchers: *All
-
-    - path: [spec, forProvider, tags]
-      resourceMatchers: *All
-
-    - path: [spec, forProvider, iamRole]
-      resourceMatchers:
-      - apiVersionKindMatcher:
-          apiVersion: ecs.aws.upbound.io/v1beta1
-          kind: Service
-
-    - path: [spec, forProvider, taskDefinition]
-      resourceMatchers:
-      - apiVersionKindMatcher:
-          apiVersion: ecs.aws.upbound.io/v1beta1
-          kind: Service
-
-    - path: [spec, forProvider, networkConfiguration, {allIndexes: true}, securityGroups]
-      resourceMatchers:
-      - apiVersionKindMatcher:
-          apiVersion: ecs.aws.upbound.io/v1beta1
-          kind: Service
-
-    - path: [spec, forProvider, loadBalancer, {allIndexes: true}, targetGroupArn]
-      resourceMatchers:
-      - apiVersionKindMatcher:
-          apiVersion: ecs.aws.upbound.io/v1beta1
-          kind: Service
-
-    - path: [spec, forProvider, protocolVersion]
-      resourceMatchers:
-      - apiVersionKindMatcher:
-          apiVersion: elbv2.aws.upbound.io/v1beta1
-          kind: LBTargetGroup
-
-    - path: [spec, forProvider, securityGroups]
-      resourceMatchers:
-      - apiVersionKindMatcher:
-          apiVersion: elbv2.aws.upbound.io/v1beta1
-          kind: LB
-
-    - path: [spec, forProvider, subnetMapping]
-      resourceMatchers:
-      - apiVersionKindMatcher:
-          apiVersion: elbv2.aws.upbound.io/v1beta1
-          kind: LB
-
-    - path: [spec, forProvider, defaultAction, {allIndexes: true}, targetGroupArn]
-      resourceMatchers:
-      - apiVersionKindMatcher:
-          apiVersion: elbv2.aws.upbound.io/v1beta1
-          kind: LBListener
-
-    - path: [spec, forProvider, loadBalancerArn]
-      resourceMatchers:
-      - apiVersionKindMatcher:
-          apiVersion: elbv2.aws.upbound.io/v1beta1
-          kind: LBListener
-
-    - path: [spec, forProvider, protocol]
-      resourceMatchers:
-      - apiVersionKindMatcher:
-          apiVersion: elbv2.aws.upbound.io/v1beta1
-          kind: LBListener
-
-    - path: [spec, forProvider, description]
-      resourceMatchers:
-      - apiVersionKindMatcher:
-          apiVersion: ec2.aws.upbound.io/v1beta1
-          kind: SecurityGroup
-
-    - path: [spec, forProvider, securityGroupId]
-      resourceMatchers:
-      - apiVersionKindMatcher:
-          apiVersion: ec2.aws.upbound.io/v1beta1
-          kind: SecurityGroupRule
-    
+      - path:
+          - spec
+          - forProvider
+          - iamRole
+        resourceMatchers:
+          - apiVersionKindMatcher:
+              apiVersion: ecs.aws.upbound.io/v1beta1
+              kind: Service
+      - path:
+          - spec
+          - forProvider
+          - taskDefinition
+        resourceMatchers:
+          - apiVersionKindMatcher:
+              apiVersion: ecs.aws.upbound.io/v1beta1
+              kind: Service
+      - path:
+          - spec
+          - forProvider
+          - networkConfiguration
+          - allIndexes: true
+          - securityGroups
+        resourceMatchers:
+          - apiVersionKindMatcher:
+              apiVersion: ecs.aws.upbound.io/v1beta1
+              kind: Service
+      - path:
+          - spec
+          - forProvider
+          - loadBalancer
+          - allIndexes: true
+          - targetGroupArn
+        resourceMatchers:
+          - apiVersionKindMatcher:
+              apiVersion: ecs.aws.upbound.io/v1beta1
+              kind: Service
+      - path:
+          - spec
+          - forProvider
+          - protocolVersion
+        resourceMatchers:
+          - apiVersionKindMatcher:
+              apiVersion: elbv2.aws.upbound.io/v1beta1
+              kind: LBTargetGroup
+      - path:
+          - spec
+          - forProvider
+          - securityGroups
+        resourceMatchers:
+          - apiVersionKindMatcher:
+              apiVersion: elbv2.aws.upbound.io/v1beta1
+              kind: LB
+      - path:
+          - spec
+          - forProvider
+          - subnetMapping
+        resourceMatchers:
+          - apiVersionKindMatcher:
+              apiVersion: elbv2.aws.upbound.io/v1beta1
+              kind: LB
+      - path:
+          - spec
+          - forProvider
+          - defaultAction
+          - allIndexes: true
+          - targetGroupArn
+        resourceMatchers:
+          - apiVersionKindMatcher:
+              apiVersion: elbv2.aws.upbound.io/v1beta1
+              kind: LBListener
+      - path:
+          - spec
+          - forProvider
+          - loadBalancerArn
+        resourceMatchers:
+          - apiVersionKindMatcher:
+              apiVersion: elbv2.aws.upbound.io/v1beta1
+              kind: LBListener
+      - path:
+          - spec
+          - forProvider
+          - protocol
+        resourceMatchers:
+          - apiVersionKindMatcher:
+              apiVersion: elbv2.aws.upbound.io/v1beta1
+              kind: LBListener
+      - path:
+          - spec
+          - forProvider
+          - description
+        resourceMatchers:
+          - apiVersionKindMatcher:
+              apiVersion: ec2.aws.upbound.io/v1beta1
+              kind: SecurityGroup
+      - path:
+          - spec
+          - forProvider
+          - securityGroupId
+        resourceMatchers:
+          - apiVersionKindMatcher:
+              apiVersion: ec2.aws.upbound.io/v1beta1
+              kind: SecurityGroupRule
     waitRules:
-    - supportsObservedGeneration: false
-      conditionMatchers:
-      - type: Ready
-        status: "True"
-        success: true
-      - type: LastAsyncOperation
-        status: "False"
-        failure: true
-      resourceMatchers: *All
+      - supportsObservedGeneration: false
+        conditionMatchers:
+          - type: Ready
+            status: "True"
+            success: true
+          - type: LastAsyncOperation
+            status: "False"
+            failure: true
+        resourceMatchers:
+          - allMatcher: {}
     #@ end
     ---
     apiVersion: v1
