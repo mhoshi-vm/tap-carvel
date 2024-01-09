@@ -1,4 +1,4 @@
-#@ load("values-template/aws-services-values.lib.yaml", "aws_services_values")
+#@ load("/values-template/aws-services-values.lib.yaml", "aws_services_values")
 #@ load("@ytt:yaml", "yaml")
 ---
 apiVersion: v1
