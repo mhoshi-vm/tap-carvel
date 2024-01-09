@@ -1,7 +1,7 @@
 #@ load("@ytt:data", "data")
 
 #@ domain = data.values.tap_install.ingress_domain
-#@ ecr = data.values.aws_services.account_id + "dkr.ecr." + data.values.aws_services.region + "amazonaws.com"
+#@ ecr = data.values.aws_services.account_id + ".dkr.ecr." + data.values.aws_services.region + "amazonaws.com"
 #@ role = "arn:aws:iam::" + data.values.aws_services.account_id + ":role"
 
 #@ def tap_values():
@@ -26,9 +26,6 @@ package_overlays:
     secrets:
       - name: ootb-supply-chain-add-ecr-repo-template
   #@ end
-
-
-
 
 supply_chain: testing_scanning
 
