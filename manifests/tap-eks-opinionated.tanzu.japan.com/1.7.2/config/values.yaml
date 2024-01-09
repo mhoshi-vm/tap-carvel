@@ -1,0 +1,38 @@
+#@data/values-schema
+---
+aws_services:
+  account_id: XXXXXX
+  region: us-west-1
+  rds:
+    version:
+      package_version: 0.1.0
+    enabled: true
+    security_group: sg-xxxx
+  #@schema/default [ "0.0.0.0/0" ]
+  source_ranges:
+    - ""
+
+full_deps:
+  version:
+    package_version: 1.7.2
+    package_repo_bundle_tag: 1.7.2
+  package_repository:
+    oci_repository: registry.tanzu.vmware.com/tanzu-application-platform/full-deps-package-repo
+
+tap_install:
+  version:
+    package_version: 1.7.2
+    package_repo_bundle_tag: 1.7.2
+  package_repository:
+    oci_repository: registry.tanzu.vmware.com/tanzu-application-platform/tap-packages
+  gitops:
+    enabled: false
+    username: aaaa
+    password: bbbb
+  dev_namespaces:
+    - name: demo
+      blank_pipeline_and_scan: "true"
+      gitops: "false"
+  ingress_domain: example.com
+  ecr_repo_template:
+    enabled: true

@@ -1,0 +1,131 @@
+#@ load("@ytt:data", "data")
+
+#@ domain = data.values.tap_install.ingress_domain
+#@ ecr = data.values.aws_services.account_id + "dkr.ecr." + data.values.aws_services.region + "amazonaws.com"
+#@ role = "arn:aws:iam::" + data.values.aws_services.account_id + ":role"
+
+#@ def tap_values():
+shared:
+  ingress_domain: #@ domain
+
+ceip_policy_disclosed: true
+
+profile: full
+
+package_overlays:
+  #@ if hasattr(data.values.aws_services, "source_ranges"):
+  - name: contour
+    secrets:
+      - name: contour-envoy-lb-source-ranges
+  #@ end
+  #@ if data.values.tap_install.ecr_repo_template.enabled:
+  - name: ootb-templates
+    secrets:
+      - name: ootb-templates-ecr-repo-template
+  - name: ootb-supply-chain-testing-scanning
+    secrets:
+      - name: ootb-supply-chain-add-ecr-repo-template
+  #@ end
+
+
+
+
+supply_chain: testing_scanning
+
+ootb_supply_chain_testing_scanning:
+  registry:
+    server: #@ ecr
+    # The prefix of the ECR repository.  Workloads will need
+    # two repositories created:
+    #
+    # tanzu-application-platform/<workloadname>-<namespace>
+    # tanzu-application-platform/<workloadname>-<namespace>-bundle
+    repository: tanzu-application-platform
+
+contour:
+  infrastructure_provider: aws
+  envoy:
+    workload:
+      type: Deployment
+      replicas: 3
+    service:
+      type: LoadBalancer
+      aws:
+        LBType: nlb
+  contour:
+    replicas: 1
+    configFileContents:
+      accesslog-format: json
+
+buildservice:
+  kp_default_repository: #@ ecr + "/tap-build-service"
+  kp_default_repository_aws_iam_role_arn: #@ role + "/tap-build-service"
+  exclude_dependencies: true
+
+local_source_proxy:
+  repository: #@ ecr + "/tap-lsp"
+  push_secret:
+    aws_iam_role_arn: #@ role + "/tap-local-source-proxy"
+
+ootb_templates:
+  iaas_auth: true
+
+springboot_conventions:
+  autoConfigureActuators: true
+
+tap_gui:
+  app_config:
+    auth:
+      allowGuestAccess: true
+    customize:
+      features:
+        supplyChain:
+          enableTriageUI: true
+
+metadata_store:
+  ns_for_export_app_cert: "*"
+  app_service_type: ClusterIP
+  pg_req_cpu: "200m"
+  pg_req_memory: "200Mi"
+
+namespace_provisioner:
+  aws_iam_role_arn: #@ role + "/tap-workload"
+  additional_sources:
+    - git:
+        ref: origin/pkgr
+        subPath: #@ "manifests/tap-eks-opinionated.tanzu.japan.com/" + data.values.tap_install.version.package_version + "/namespace"
+        url: https://github.com/mhoshi-vm/tap-carvel
+      path: _ytt_lib/gitops
+  default_parameters:
+    supply_chain_service_account:
+      secrets:
+        - git-ssh
+  parameter_prefixes:
+    - tap-setup.tanzu.japan.com
+
+cnrs:
+  lite:
+    enable: true
+  pdb:
+    enable: false
+cartographer:
+  cartographer:
+    resources:
+      requests:
+        cpu: 100m
+        memory: 200Mi
+crossplane:
+  resourcesCrossplane:
+    requests:
+      cpu: 100m
+      memory: 200Mi
+  resourcesRBACManager:
+    requests:
+      cpu: 100m
+      memory: 200Mi
+
+excluded_packages:
+  - policy.apps.tanzu.vmware.com
+  - sso.apps.tanzu.vmware.com
+  - api-portal.tanzu.vmware.com
+#@ end

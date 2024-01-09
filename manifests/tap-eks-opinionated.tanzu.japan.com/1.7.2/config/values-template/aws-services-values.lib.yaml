@@ -1,0 +1,20 @@
+#@ load("@ytt:data", "data")
+
+#@ def aws_services_values():
+postgresql:
+  enabled: true
+  region: #@ data.values.aws_services.region
+  provider_config_ref:
+    name: aws-provider
+  infrastructure:
+    subnet_group:
+      name: tap-aws-services
+    security_groups:
+      - id:  #@ data.values.aws_services.rds.security_group
+  instance_configuration:
+    instance_class: db.t4g.micro
+    engine_version: "15.5"
+    skip_final_snapshot: true
+    publicly_accessible: false
+    maintenance_window: Mon:00:00-Mon:03:00
+#@ end
