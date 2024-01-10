@@ -37,7 +37,7 @@ yaml: |
 #@ end
 
 #@ eks_role  = "arn:aws:iam::" + data.values.aws_services.account_id + ":role/tap-aws-services"
-#@ overlay_file = overlay()['yaml'].replace("EKSREPO", eks_role)
+#@ overlay_file = overlay()['yaml'].replace("EKSROLE", eks_role)
 ---
 apiVersion: v1
 kind: Secret
