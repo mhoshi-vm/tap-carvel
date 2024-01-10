@@ -1,8 +1,10 @@
 #@ load("@ytt:data", "data")
-#@ load("@ytt:overlay", "overlay")
+
 
 #@ def overlay():
 yaml: |
+  #@ load("@ytt:overlay", "overlay")
+  
   #@overlay/match by=overlay.subset({"kind": "ControllerConfig"}), expects="1+"
   ---
   metadata:
