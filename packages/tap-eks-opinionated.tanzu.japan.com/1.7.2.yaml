@@ -13,22 +13,29 @@ spec:
           type: object
           additionalProperties: false
           properties:
-            version:
-              type: object
-              additionalProperties: false
-              properties:
-                package_version:
-                  type: string
-                  default: 0.1.0
             account_id:
               type: string
               default: XXXXXX
             region:
               type: string
               default: us-west-1
-            security_group:
-              type: string
-              default: sg-xxxx
+            rds:
+              type: object
+              additionalProperties: false
+              properties:
+                version:
+                  type: object
+                  additionalProperties: false
+                  properties:
+                    package_version:
+                      type: string
+                      default: 0.1.0
+                enabled:
+                  type: boolean
+                  default: true
+                security_group:
+                  type: string
+                  default: sg-xxxx
             source_ranges:
               type: array
               items:
