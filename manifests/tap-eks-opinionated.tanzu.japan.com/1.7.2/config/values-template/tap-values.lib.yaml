@@ -32,11 +32,6 @@ supply_chain: testing_scanning
 ootb_supply_chain_testing_scanning:
   registry:
     server: #@ ecr
-    # The prefix of the ECR repository.  Workloads will need
-    # two repositories created:
-    #
-    # tanzu-application-platform/<workloadname>-<namespace>
-    # tanzu-application-platform/<workloadname>-<namespace>-bundle
     repository: tanzu-application-platform
 
 contour:
