@@ -88,7 +88,7 @@ namespace_provisioner:
         subPath: #@ "manifests/tap-eks-opinionated.tanzu.japan.com/" + data.values.tap_install.version.package_version + "/namespace"
         url: https://github.com/mhoshi-vm/tap-carvel
       path: _ytt_lib/gitops
-  #@ if data.values.tap_install.ecr_repo_template.enabled:
+  #@ if data.values.tap_install.gitops.enabled:
   default_parameters:
     supply_chain_service_account:
       secrets:
