@@ -21,7 +21,7 @@ full_deps:
 
 tap_install:
   version:
-    package_version: 1.7.2
+    package_version: 1.7.45
     package_repo_bundle_tag: 1.7.2
   package_repository:
     oci_repository: registry.tanzu.vmware.com/tanzu-application-platform/tap-packages

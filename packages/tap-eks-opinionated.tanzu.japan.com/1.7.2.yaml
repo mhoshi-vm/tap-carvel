@@ -53,7 +53,7 @@ spec:
               properties:
                 package_version:
                   type: string
-                  default: 1.7.2
+                  default: 1.7.45
                 package_repo_bundle_tag:
                   type: string
                   default: 1.7.2
