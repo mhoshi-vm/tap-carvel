@@ -8,7 +8,8 @@ yaml: |
   ---
   spec:
     #@overlay/match missing_ok=True
-    loadBalancerSourceRanges: [ SOURCERANGES ]
+    loadBalancerSourceRanges:
+    - 0.0.0.0/0
 #@ end
 
 #@ if hasattr(data.values.aws_services, "source_ranges"):
