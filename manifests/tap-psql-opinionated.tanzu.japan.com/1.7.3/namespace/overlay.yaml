@@ -1,0 +1,142 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:overlay", "overlay")
+
+#@ if hasattr(data.values, "gitops"):
+#@ if data.values.gitops == "true":
+#@overlay/append
+---
+apiVersion: secretgen.carvel.dev/v1alpha1
+kind: SecretImport
+metadata:
+  name: git-ssh-import
+spec:
+  fromNamespace: default
+---
+apiVersion: secretgen.carvel.dev/v1alpha1
+kind: SecretTemplate
+metadata:
+  name: git-ssh
+spec:
+  inputResources:
+  - name: secret
+    ref:
+      apiVersion: v1
+      kind: Secret
+      name: git-ssh-import
+  #! the template that follows a subset of the Secret API
+  template:
+    metadata:
+      annotations:
+        tekton.dev/git-0: https://github.com
+    type: kubernetes.io/basic-auth
+    data:
+      username: $(.secret.data.username)
+      password: $(.secret.data.password)
+#@ end
+#@ end
+
+#@ if hasattr(data.values, "blank_pipeline_and_scan"):
+#@ if data.values.blank_pipeline_and_scan == "true":
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: skip-test-pipeline
+  labels:
+    apps.tanzu.vmware.com/pipeline: test
+    apps.tanzu.vmware.com/language: skip
+spec:
+  params:
+    - name: source-url
+    - name: source-revision
+  tasks:
+    - name: test
+      params:
+        - name: source-url
+          value: $(params.source-url)
+        - name: source-revision
+          value: $(params.source-revision)
+      taskSpec:
+        params:
+          - name: source-url
+          - name: source-revision
+        steps:
+          - name: test
+            image: alpine
+            script: |-
+              echo 'skip'
+---
+apiVersion: scanning.apps.tanzu.vmware.com/v1beta1
+kind: ScanPolicy
+metadata:
+  labels:
+    app.kubernetes.io/part-of: enable-in-gui
+  name: scan-policy
+spec:
+  regoFile: |
+    package main
+    
+    # Accepted Values: "Critical", "High", "Medium", "Low", "Negligible", "UnknownSeverity"
+    notAllowedSeverities := ["UnknownSeverity"]
+    
+    ignoreCves := []
+    
+    contains(array, elem) = true {
+      array[_] = elem
+    } else = false { true }
+    
+    isSafe(match) {
+      severities := { e | e := match.ratings.rating.severity } | { e | e := match.ratings.rating[_].severity }
+      some i
+      fails := contains(notAllowedSeverities, severities[i])
+      not fails
+    }
+    
+    isSafe(match) {
+      ignore := contains(ignoreCves, match.id)
+      ignore
+    }
+    
+    deny[msg] {
+      comps := { e | e := input.bom.components.component } | { e | e := input.bom.components.component[_] }
+      some i
+      comp := comps[i]
+      vulns := { e | e := comp.vulnerabilities.vulnerability } | { e | e := comp.vulnerabilities.vulnerability[_] }
+      some j
+      vuln := vulns[j]
+      ratings := { e | e := vuln.ratings.rating.severity } | { e | e := vuln.ratings.rating[_].severity }
+      not isSafe(vuln)
+      msg = sprintf("CVE %s %s %s", [comp.name, vuln.id, ratings])
+    }
+#@ end
+#@ end
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: app-editor
+  annotations:
+    kapp.k14s.io/change-group: "sa"
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: app-editor-bindings
+  annotations:
+    kapp.k14s.io/change-group: "sa"
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: app-editor
+subjects:
+  - kind: ServiceAccount
+    name: app-editor
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: app-editor-token
+  annotations:
+    kubernetes.io/service-account.name: app-editor
+    kapp.k14s.io/change-rule: "upsert after upserting sa"
+type: kubernetes.io/service-account-token

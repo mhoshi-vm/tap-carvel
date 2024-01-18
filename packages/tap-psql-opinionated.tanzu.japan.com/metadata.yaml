@@ -1,0 +1,11 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: PackageMetadata
+metadata:
+  name: tap-psql-opinionated.tanzu.japan.com
+spec:
+  displayName: "Opinionated TAP PSQL deploy"
+  shortDescription: "Opinionated TAP PSQL deploy"
+  supportDescription: "https://carvel.dev/"
+  providerName: "VMware"
+  maintainers:
+  - name: "Machi Hoshino"

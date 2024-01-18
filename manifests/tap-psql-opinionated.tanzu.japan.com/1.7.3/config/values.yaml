@@ -1,0 +1,29 @@
+#@data/values-schema
+---
+postgres:
+  package:
+    install: true
+    repo: registry.tanzu.vmware.com/packages-for-vmware-tanzu-data-services/tds-packages
+    version: 1.13.0
+    operator_version: 2.3.0
+
+tap_install:
+  version:
+    package_version: 1.7.3
+    package_repo_bundle_tag: 1.7.3
+  package_repository:
+    oci_repository: registry.tanzu.vmware.com/tanzu-application-platform/tap-packages
+  source_ranges:
+    - 0.0.0.0/0
+  profile: full
+  gitops:
+    enabled: true
+    repository_name: tap-psql
+    repository_owner: mhoshi-vm
+    server_address: https://github.com
+  dev_namespaces:
+    - name: demo
+      blank_pipeline_and_scan: "true"
+      gitops: "true"
+  ingress_domain: example.com
+  image_registry: ghcr.io/mhoshi-vm/tap

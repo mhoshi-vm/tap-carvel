@@ -1,0 +1,138 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: Package
+metadata:
+  name: tap-psql-opinonated.tanzu.japan.com.1.7.3
+spec:
+  refName: tap-psql-opinonated.tanzu.japan.com
+  version: 1.7.3
+  valuesSchema:
+    openAPIv3:
+      title: tap-psql-opinonated.tanzu-jp values schema
+      properties:
+        aws_services:
+          type: object
+          additionalProperties: false
+          properties:
+            account_id:
+              type: string
+              default: XXXXXX
+            region:
+              type: string
+              default: us-west-1
+            rds:
+              type: object
+              additionalProperties: false
+              properties:
+                version:
+                  type: object
+                  additionalProperties: false
+                  properties:
+                    package_version:
+                      type: string
+                      default: 0.1.0
+                enabled:
+                  type: boolean
+                  default: true
+                security_group:
+                  type: string
+                  default: sg-xxxx
+            source_ranges:
+              type: array
+              items:
+                type: string
+                default: ""
+              default:
+                - 0.0.0.0/0
+        full_deps:
+          type: object
+          additionalProperties: false
+          properties:
+            version:
+              type: object
+              additionalProperties: false
+              properties:
+                package_version:
+                  type: string
+                  default: 1.7.45
+                package_repo_bundle_tag:
+                  type: string
+                  default: 1.7.3
+            package_repository:
+              type: object
+              additionalProperties: false
+              properties:
+                oci_repository:
+                  type: string
+                  default: registry.tanzu.vmware.com/tanzu-application-platform/full-deps-package-repo
+        tap_install:
+          type: object
+          additionalProperties: false
+          properties:
+            version:
+              type: object
+              additionalProperties: false
+              properties:
+                package_version:
+                  type: string
+                  default: 1.7.3
+                package_repo_bundle_tag:
+                  type: string
+                  default: 1.7.3
+            package_repository:
+              type: object
+              additionalProperties: false
+              properties:
+                oci_repository:
+                  type: string
+                  default: registry.tanzu.vmware.com/tanzu-application-platform/tap-packages
+            gitops:
+              type: object
+              additionalProperties: false
+              properties:
+                enabled:
+                  type: boolean
+                  default: false
+                username:
+                  type: string
+                  default: aaaa
+                password:
+                  type: string
+                  default: bbbb
+            dev_namespaces:
+              type: array
+              items:
+                type: object
+                additionalProperties: false
+                properties:
+                  name:
+                    type: string
+                    default: demo
+                  blank_pipeline_and_scan:
+                    type: string
+                    default: "true"
+                  gitops:
+                    type: string
+                    default: "false"
+              default: []
+            ingress_domain:
+              type: string
+              default: example.com
+            ecr_repo_template:
+              type: object
+              additionalProperties: false
+              properties:
+                enabled:
+                  type: boolean
+                  default: true
+  template:
+    spec:
+      fetch:
+      - git:
+          url: https://github.com/mhoshi-vm/tap-carvel
+          ref: origin/pkgr
+          subPath: manifests/tap-psql-opinonated.tanzu.japan.com/1.7.3/config
+      template:
+      - ytt:
+          ignoreUnknownComments: true
+      deploy:
+      - kapp: {}

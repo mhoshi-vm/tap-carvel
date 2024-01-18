@@ -1,0 +1,83 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:overlay", "overlay")
+
+#@ if data.values.postgres.package.install:
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: postgres-install
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: tap-registry
+  namespace: postgres-install
+  annotations:
+    secretgen.carvel.dev/image-pull-secret: ""
+type: kubernetes.io/dockerconfigjson
+data:
+  .dockerconfigjson: e30K
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: kapp-sa
+  namespace: postgres-install
+secrets:
+  - name: tap-registry
+imagePullSecrets:
+  - name: tap-registry
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: postgres-kapp-role-binding
+  namespace: postgres-install
+subjects:
+- kind: ServiceAccount
+  name: kapp-sa
+  namespace: postgres-install
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+---
+apiVersion: packaging.carvel.dev/v1alpha1
+kind: PackageRepository
+metadata:
+  name: tds-pack
+  namespace: postgres-install
+  annotations:
+    kapp.k14s.io/change-group: "pkgr"
+spec:
+  fetch:
+    imgpkgBundle:
+      image: #@ data.values.postgres.package.repo + ":" + data.values.postgres.package.version
+---
+apiVersion: packaging.carvel.dev/v1alpha1
+kind: PackageInstall
+metadata:
+  name: postgres
+  namespace: postgres-install
+spec:
+  serviceAccountName: kapp-sa
+  packageRef:
+    refName: postgres-operator.sql.tanzu.vmware.com
+    versionSelection:
+      constraints: #@ data.values.postgres.package.operator_version
+  values:
+  - secretRef:
+      name: change-default-reg-secret
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: change-default-reg-secret
+  namespace: postgres-install
+stringData:
+  change-default-reg-secret.yml: |
+    #@data/values-schema
+    ---    
+    dockerRegistrySecretName: tap-registry
+#@ end
+

@@ -1,0 +1,106 @@
+#@ load("@ytt:data", "data")
+
+#@ def tap_values():
+shared:
+  ingress_domain: #@ data.values.tap_install.ingress_domain
+  image_registry:
+    project_path: #@ data.values.tap_install.image_registry
+    secret:
+      name: private-registry
+      namespace: default
+
+profile: #@ data.values.tap_install.profile
+
+package_overlays:
+  #@ if hasattr(data.values.tap_install, "source_ranges"):
+  - name: contour
+    secrets:
+      - name: contour-envoy-lb-source-ranges
+  #@ end
+
+supply_chain: testing_scanning
+
+#@ if data.values.tap_install.gitops.enabled:
+ootb_supply_chain_testing_scanning:
+  gitops:
+    repository_name: #@ data.values.tap_install.gitops.repository_name
+    repository_owner: #@ data.values.tap_install.gitops.repository_owner
+    server_address: #@ data.values.tap_install.gitops.server_address
+    ssh_secret: git-ssh
+#@ end
+
+contour:
+  contour:
+    replicas: 1
+
+local_source_proxy:
+  pull_secret:
+    create_export: true
+    name: local_source_proxy
+    namespace: default
+  push_secret:
+    create_export: true
+    name: local_source_proxy
+    namespace: default
+
+springboot_conventions:
+  autoConfigureActuators: true
+
+tap_gui:
+  app_config:
+    auth:
+      allowGuestAccess: true
+    customize:
+      features:
+        supplyChain:
+          enableTriageUI: true
+
+metadata_store:
+  ns_for_export_app_cert: "*"
+  app_service_type: ClusterIP
+  pg_req_cpu: "200m"
+  pg_req_memory: "200Mi"
+
+namespace_provisioner:
+  additional_sources:
+    - git:
+        ref: origin/pkgr
+        subPath: #@ "manifests/tap-psql-opinionated.tanzu.japan.com/" + data.values.tap_install.version.package_version + "/namespace"
+        url: https://github.com/mhoshi-vm/tap-carvel
+      path: _ytt_lib/gitops
+  #@ if data.values.tap_install.gitops.enabled:
+  default_parameters:
+    supply_chain_service_account:
+      secrets:
+        - git-ssh
+  #@ end
+  parameter_prefixes:
+    - tap-setup.tanzu.japan.com
+
+cnrs:
+  lite:
+    enable: true
+  pdb:
+    enable: false
+cartographer:
+  cartographer:
+    resources:
+      requests:
+        cpu: 100m
+        memory: 200Mi
+crossplane:
+  resourcesCrossplane:
+    requests:
+      cpu: 100m
+      memory: 200Mi
+  resourcesRBACManager:
+    requests:
+      cpu: 100m
+      memory: 200Mi
+
+excluded_packages:
+  - policy.apps.tanzu.vmware.com
+  - sso.apps.tanzu.vmware.com
+  - api-portal.tanzu.vmware.com
+  - fluxcd.source.controller.tanzu.vmware.com
+#@ end
