@@ -1,13 +1,13 @@
 apiVersion: data.packaging.carvel.dev/v1alpha1
 kind: Package
 metadata:
-  name: tap-psql-opinonated.tanzu.japan.com.1.7.3
+  name: tap-psql-opinionated.tanzu.japan.com.1.7.3
 spec:
-  refName: tap-psql-opinonated.tanzu.japan.com
+  refName: tap-psql-opinionated.tanzu.japan.com
   version: 1.7.3
   valuesSchema:
     openAPIv3:
-      title: tap-psql-opinonated.tanzu-jp values schema
+      title: tap-psql-opinionated.tanzu-jp values schema
       properties:
         postgres:
           type: object
@@ -103,7 +103,7 @@ spec:
       - git:
           url: https://github.com/mhoshi-vm/tap-carvel
           ref: origin/pkgr
-          subPath: manifests/tap-psql-opinonated.tanzu.japan.com/1.7.3/config
+          subPath: manifests/tap-psql-opinionated.tanzu.japan.com/1.7.3/config
       template:
       - ytt:
           ignoreUnknownComments: true
