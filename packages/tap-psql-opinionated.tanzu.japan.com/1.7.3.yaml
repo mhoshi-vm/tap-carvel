@@ -9,61 +9,26 @@ spec:
     openAPIv3:
       title: tap-psql-opinonated.tanzu-jp values schema
       properties:
-        aws_services:
+        postgres:
           type: object
           additionalProperties: false
           properties:
-            account_id:
-              type: string
-              default: XXXXXX
-            region:
-              type: string
-              default: us-west-1
-            rds:
+            package:
               type: object
               additionalProperties: false
               properties:
-                version:
-                  type: object
-                  additionalProperties: false
-                  properties:
-                    package_version:
-                      type: string
-                      default: 0.1.0
-                enabled:
+                install:
                   type: boolean
                   default: true
-                security_group:
+                repo:
                   type: string
-                  default: sg-xxxx
-            source_ranges:
-              type: array
-              items:
-                type: string
-                default: ""
-              default:
-                - 0.0.0.0/0
-        full_deps:
-          type: object
-          additionalProperties: false
-          properties:
-            version:
-              type: object
-              additionalProperties: false
-              properties:
-                package_version:
+                  default: registry.tanzu.vmware.com/packages-for-vmware-tanzu-data-services/tds-packages
+                version:
                   type: string
-                  default: 1.7.45
-                package_repo_bundle_tag:
+                  default: 1.13.0
+                operator_version:
                   type: string
-                  default: 1.7.3
-            package_repository:
-              type: object
-              additionalProperties: false
-              properties:
-                oci_repository:
-                  type: string
-                  default: registry.tanzu.vmware.com/tanzu-application-platform/full-deps-package-repo
+                  default: 2.3.0
         tap_install:
           type: object
           additionalProperties: false
@@ -85,19 +50,31 @@ spec:
                 oci_repository:
                   type: string
                   default: registry.tanzu.vmware.com/tanzu-application-platform/tap-packages
+            source_ranges:
+              type: array
+              items:
+                type: string
+                default: 0.0.0.0/0
+              default: []
+            profile:
+              type: string
+              default: full
             gitops:
               type: object
               additionalProperties: false
               properties:
                 enabled:
                   type: boolean
-                  default: false
-                username:
+                  default: true
+                repository_name:
                   type: string
-                  default: aaaa
-                password:
+                  default: tap-psql
+                repository_owner:
                   type: string
-                  default: bbbb
+                  default: mhoshi-vm
+                server_address:
+                  type: string
+                  default: https://github.com
             dev_namespaces:
               type: array
               items:
@@ -112,18 +89,14 @@ spec:
                     default: "true"
                   gitops:
                     type: string
-                    default: "false"
+                    default: "true"
               default: []
             ingress_domain:
               type: string
               default: example.com
-            ecr_repo_template:
-              type: object
-              additionalProperties: false
-              properties:
-                enabled:
-                  type: boolean
-                  default: true
+            image_registry:
+              type: string
+              default: ghcr.io/mhoshi-vm/tap
   template:
     spec:
       fetch:
