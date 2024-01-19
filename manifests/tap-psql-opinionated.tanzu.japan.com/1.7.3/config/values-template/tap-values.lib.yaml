@@ -36,11 +36,11 @@ contour:
 local_source_proxy:
   pull_secret:
     create_export: true
-    name: local_source_proxy
+    name: local-source-proxy
     namespace: default
   push_secret:
     create_export: true
-    name: local_source_proxy
+    name: local-source-proxy
     namespace: default
 
 springboot_conventions:
