@@ -1,6 +1,8 @@
 #@ load("@ytt:data", "data")
 
 #@ def tap_values():
+ceip_policy_disclosed: true
+
 shared:
   ingress_domain: #@ data.values.tap_install.ingress_domain
   image_registry:
