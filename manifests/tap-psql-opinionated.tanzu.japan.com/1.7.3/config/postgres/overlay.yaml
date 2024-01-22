@@ -81,6 +81,6 @@ stringData:
   change-default-reg-secret.yml: |
     #@data/values-schema
     ---    
-    dockerRegistrySecretName: tap-registry
+    dockerRegistrySecretName: registries-credentials
 #@ end
 
