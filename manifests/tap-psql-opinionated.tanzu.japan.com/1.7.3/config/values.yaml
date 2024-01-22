@@ -24,6 +24,7 @@ tap_install:
   dev_namespaces:
     - name: demo
       blank_pipeline_and_scan: "true"
+      psql_backup: "true"
       gitops: "true"
   ingress_domain: example.com
   image_registry: ghcr.io/mhoshi-vm/tap

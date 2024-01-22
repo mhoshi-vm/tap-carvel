@@ -87,6 +87,9 @@ spec:
                   blank_pipeline_and_scan:
                     type: string
                     default: "true"
+                  psql_backup:
+                    type: string
+                    default: "true"
                   gitops:
                     type: string
                     default: "true"
