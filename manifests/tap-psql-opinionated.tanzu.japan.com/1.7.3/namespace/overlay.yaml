@@ -110,6 +110,20 @@ spec:
     }
 #@ end
 #@ end
+
+#@ if hasattr(data.values, "psql_backup"):
+#@ if data.values.psql_backup == "true":
+#@overlay/append
+---
+apiVersion: secretgen.carvel.dev/v1alpha1
+kind: SecretImport
+metadata:
+  name: backuplocation-creds-default
+spec:
+  fromNamespace: default
+#@ end
+#@ end
+
 ---
 apiVersion: v1
 kind: ServiceAccount
