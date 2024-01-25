@@ -90,6 +90,9 @@ spec:
                   psql_backup:
                     type: string
                     default: "true"
+                  okta:
+                    type: string
+                    default: "true"
                   gitops:
                     type: string
                     default: "true"
