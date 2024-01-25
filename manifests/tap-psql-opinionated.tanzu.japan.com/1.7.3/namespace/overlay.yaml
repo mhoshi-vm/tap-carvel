@@ -124,6 +124,19 @@ spec:
 #@ end
 #@ end
 
+#@ if hasattr(data.values, "okta"):
+#@ if data.values.okta == "true":
+#@overlay/append
+---
+apiVersion: secretgen.carvel.dev/v1alpha1
+kind: SecretImport
+metadata:
+  name: okta-secret
+spec:
+  fromNamespace: default
+#@ end
+#@ end
+
 ---
 apiVersion: v1
 kind: ServiceAccount
