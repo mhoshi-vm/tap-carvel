@@ -19,10 +19,11 @@ stringData:
           set -o errexit
           set -o xtrace
 
-          if [ -f "/tekton/creds/.docker/config.json" ]; then
+          if [[ -f /tekton/creds/.docker/config.json ]]; then
             cp /tekton/creds/.docker/config.json /docker-config/
+          else
+            echo "docker config not found. continuing" > /dev/null
           fi
-
 
           cp /etc/ssl/certs/ca-certificates.crt /certs/ca-certificates.crt
           if [[ ! -z "$(params.ca_cert_data)" ]]; then
