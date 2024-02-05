@@ -126,7 +126,7 @@ spec:
                   gitops:
                     type: string
                     default: "false"
-              default: []
+              default: [ ]
             ingress_domain:
               type: string
               default: example.com
@@ -137,6 +137,19 @@ spec:
                 enabled:
                   type: boolean
                   default: true
+            supported_workloads:
+              type: array
+              items:
+                type: object
+                additionalProperties: false
+                properties:
+                  cluster_config_template_name:
+                    type: string
+                    default: hoge-template
+                  type:
+                    type: string
+                    default: hoge
+              default: [ ]
   template:
     spec:
       fetch:

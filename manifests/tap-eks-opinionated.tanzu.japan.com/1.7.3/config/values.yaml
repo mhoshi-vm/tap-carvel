@@ -40,3 +40,6 @@ tap_install:
   ingress_domain: example.com
   ecr_repo_template:
     enabled: true
+  supported_workloads:
+    - cluster_config_template_name: hoge-template
+      type: hoge
