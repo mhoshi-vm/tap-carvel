@@ -65,7 +65,7 @@ spec:
     #@       healthCheckConfiguration["protocol"] = workload["livenessProbe"]["httpGet"]["scheme"]
     #@     end
     #@   end
-    #@   return healthCheckConfiguration
+    #@   return healthCheckConfigurations
     #@ end
     
     #@ def return_cpu(config):
@@ -175,9 +175,7 @@ spec:
           ingressConfiguration:
           - isPubliclyAccessible: true
         autoDeploymentsEnabled: false
-        #@ if/end healthCheckConfiguration(data.values.config) != {}:
         healthCheckConfiguration: #@ healthCheckConfiguration(data.values.config)
-        #@ if/end instanceConfiguration(data.values.config) != {}:
         instanceConfiguration: #@ instanceConfiguration(data.values.config)
         sourceConfiguration:
         - imageRepository: #@ imageRepository(data.values.config)
