@@ -138,8 +138,8 @@ spec:
     #@   end
     #@   if imageConfiguration != {}:
     #@     imageConfigurations.append(imageConfiguration)
-    #@     imageRepository["imageConfiguration"] = imageConfigurations
     #@   end
+    #@   imageRepository["imageConfiguration"] = imageConfigurations
     #@   imageRepositories.append(imageRepository)
     #@   return imageRepositories
     #@ end
