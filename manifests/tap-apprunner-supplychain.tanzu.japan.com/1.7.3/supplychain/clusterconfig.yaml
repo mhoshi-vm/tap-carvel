@@ -8,6 +8,8 @@ spec:
   params:
   - default: #@ data.values.aws.region
     name: region
+  - default: #@ data.values.aws.accountId
+    name: accountId
   configPath: .data
   lifecycle: mutable
   ytt: |
@@ -160,6 +162,8 @@ spec:
         instanceConfiguration: #@ instanceConfiguration(data.values.config)
         sourceConfiguration:
         - imageRepository: #@ imageRepository(data.values.config)
+          authenticationConfiguration:
+          - accessRoleArn: #@ 'arn:aws:iam::' + data.values.params.accountId + ':role/tap-build-service'
     ---
     apiVersion: kapp.k14s.io/v1alpha1
     kind: Config
