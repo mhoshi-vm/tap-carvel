@@ -84,12 +84,14 @@ spec:
     #@   end
     #@   return memory
     #@ end
-    
+         
     #@ def instanceConfiguration(config):
-    #@   instanceConfiguration ={}
+    #@   instanceConfigurations = []
+    #@   instanceConfiguration = {}
     #@   instanceConfiguration["cpu"] = return_cpu(config)
     #@   instanceConfiguration["memory"] = return_memory(config)
-    #@   return instanceConfiguration
+    #@   instanceConfigurations.append(instanceConfiguration)
+    #@   return instanceConfigurations
     #@ end
     
     
