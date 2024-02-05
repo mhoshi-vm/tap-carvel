@@ -6,6 +6,8 @@
 
 #@ def tap_values():
 shared:
+  #@ if/end data.values.aws_services.acm.enabled:
+  ingress_issuer: ""
   ingress_domain: #@ domain
 
 ceip_policy_disclosed: true
@@ -17,6 +19,8 @@ package_overlays:
   - name: contour
     secrets:
       - name: contour-envoy-lb-source-ranges
+      #@ if/end data.values.aws_services.acm.enabled:
+      - name: overlay-contour-acm
   #@ end
   #@ if data.values.tap_install.ecr_repo_template.enabled:
   - name: ootb-templates
@@ -42,6 +46,11 @@ contour:
       type: Deployment
       replicas: 3
     service:
+      #@ if data.values.aws_services.acm.enabled:
+      annotations:
+        service.beta.kubernetes.io/aws-load-balancer-ssl-cert: #@ data.values.aws_services.acm.arn
+        service.beta.kubernetes.io/aws-load-balancer-backend-protocol: http
+      #@ end
       type: LoadBalancer
       aws:
         LBType: nlb
@@ -53,7 +62,7 @@ contour:
 buildservice:
   kp_default_repository: #@ ecr + "/tap-build-service"
   kp_default_repository_aws_iam_role_arn: #@ role + "/tap-build-service"
-  exclude_dependencies: true
+  exclude_dependencies: #@ data.values.full_deps.enabled
 
 local_source_proxy:
   repository: #@ ecr + "/tap-lsp"
@@ -67,6 +76,15 @@ springboot_conventions:
   autoConfigureActuators: true
 
 tap_gui:
+  #@ if data.values.aws_services.acm.enabled:
+  app:
+    baseUrl: #@ "https://tap-gui." + domain
+  backend:
+    baseUrl: #@ "https://tap-gui." + domain
+    reading:
+      allow:
+        - host: #@ "*." + domain
+  #@ end
   app_config:
     auth:
       allowGuestAccess: true
@@ -99,6 +117,10 @@ namespace_provisioner:
     - tap-setup.tanzu.japan.com
 
 cnrs:
+  #@ if data.values.aws_services.acm.enabled:
+  default_external_scheme: "https"
+  domain_template: "{{.Name}}-{{.Namespace}}.{{.Domain}}"
+  #@ end
   lite:
     enable: true
   pdb:

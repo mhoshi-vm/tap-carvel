@@ -11,18 +11,22 @@ aws_services:
   #@schema/default [ "0.0.0.0/0" ]
   source_ranges:
     - ""
+  acm:
+    enabled: true
+    arn: xxxxx
 
 full_deps:
+  enabled: true
   version:
     package_version: 1.7.45
-    package_repo_bundle_tag: 1.7.2
+    package_repo_bundle_tag: 1.7.3
   package_repository:
     oci_repository: registry.tanzu.vmware.com/tanzu-application-platform/full-deps-package-repo
 
 tap_install:
   version:
-    package_version: 1.7.2
-    package_repo_bundle_tag: 1.7.2
+    package_version: 1.7.3
+    package_repo_bundle_tag: 1.7.3
   package_repository:
     oci_repository: registry.tanzu.vmware.com/tanzu-application-platform/tap-packages
   gitops:

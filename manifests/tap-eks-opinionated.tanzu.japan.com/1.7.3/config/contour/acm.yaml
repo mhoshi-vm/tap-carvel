@@ -1,0 +1,21 @@
+#@ load("@ytt:data", "data")
+
+#@ if data.values.aws_services.acm.enabled:
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: overlay-contour-acm
+  namespace: tap-install
+stringData:
+  overlay-contour-acm.yml: |
+    #@ load("@ytt:overlay", "overlay")
+    
+    #@overlay/match by=overlay.subset({"kind": "Service", "metadata": {"name": "envoy"}})
+    ---
+    spec:
+      ports:
+      #@overlay/match by=overlay.subset({"name":"https"})
+      -
+        targetPort: 8080
+#@ end

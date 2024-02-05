@@ -1,4 +1,6 @@
 #@ load("@ytt:data", "data")
+
+#@ if data.values.full_deps.enabled:
 ---
 apiVersion: packaging.carvel.dev/v1alpha1
 kind: PackageInstall
@@ -18,3 +20,4 @@ spec:
   values:
     - secretRef:
         name: tap-values
+#@ end

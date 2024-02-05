@@ -1,10 +1,10 @@
 apiVersion: data.packaging.carvel.dev/v1alpha1
 kind: Package
 metadata:
-  name: tap-eks-opinionated.tanzu.japan.com.1.7.2
+  name: tap-eks-opinionated.tanzu.japan.com.1.7.3
 spec:
   refName: tap-eks-opinionated.tanzu.japan.com
-  version: 1.7.2
+  version: 1.7.3
   valuesSchema:
     openAPIv3:
       title: tap-eks-opinionated.tanzu-jp values schema
@@ -43,10 +43,23 @@ spec:
                 default: ""
               default:
                 - 0.0.0.0/0
+            acm:
+              type: object
+              additionalProperties: false
+              properties:
+                enabled:
+                  type: boolean
+                  default: true
+                arn:
+                  type: string
+                  default: xxxxx
         full_deps:
           type: object
           additionalProperties: false
           properties:
+            enabled:
+              type: boolean
+              default: true
             version:
               type: object
               additionalProperties: false
@@ -56,7 +69,7 @@ spec:
                   default: 1.7.45
                 package_repo_bundle_tag:
                   type: string
-                  default: 1.7.2
+                  default: 1.7.3
             package_repository:
               type: object
               additionalProperties: false
@@ -74,10 +87,10 @@ spec:
               properties:
                 package_version:
                   type: string
-                  default: 1.7.2
+                  default: 1.7.3
                 package_repo_bundle_tag:
                   type: string
-                  default: 1.7.2
+                  default: 1.7.3
             package_repository:
               type: object
               additionalProperties: false
@@ -130,7 +143,7 @@ spec:
       - git:
           url: https://github.com/mhoshi-vm/tap-carvel
           ref: origin/pkgr
-          subPath: manifests/tap-eks-opinionated.tanzu.japan.com/1.7.2/config
+          subPath: manifests/tap-eks-opinionated.tanzu.japan.com/1.7.3/config
       template:
       - ytt:
           ignoreUnknownComments: true
