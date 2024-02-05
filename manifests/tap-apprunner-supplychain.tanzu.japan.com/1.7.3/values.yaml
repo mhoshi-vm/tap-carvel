@@ -10,5 +10,5 @@ crossplane:
 aws:
   accountId: ""
   roleName: "tap-apprunner"
-  region: us-west-1
+  region: us-west-2
 

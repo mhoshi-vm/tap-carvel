@@ -1,13 +1,13 @@
 apiVersion: data.packaging.carvel.dev/v1alpha1
 kind: Package
 metadata:
-  name: tap-ecs-supplychain.tanzu.japan.com.1.7.3
+  name: tap-apprunner-supplychain.tanzu.japan.com.1.7.3
 spec:
-  refName: tap-ecs-supplychain.tanzu.japan.com
+  refName: tap-apprunner-supplychain.tanzu.japan.com
   version: 1.7.3
   valuesSchema:
     openAPIv3:
-      title: tap-ecs.tanzu-jp values schema
+      title: tap-apprunner.tanzu-jp values schema
       properties:
         crossplane:
           type: object
