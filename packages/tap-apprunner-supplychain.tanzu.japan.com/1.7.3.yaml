@@ -41,7 +41,7 @@ spec:
               default: tap-apprunner
             region:
               type: string
-              default: us-west-1
+              default: us-west-2
   template:
     spec:
       fetch:
