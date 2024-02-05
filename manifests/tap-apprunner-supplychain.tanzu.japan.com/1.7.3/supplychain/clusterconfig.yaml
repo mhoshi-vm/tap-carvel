@@ -51,7 +51,14 @@ spec:
     #@ def healthCheckConfiguration(config):
     #@   spec = config.spec
     #@   workload = spec.containers[0]
+    #@   healthCheckConfigurations =[]
     #@   healthCheckConfiguration ={}
+    #@   healthCheckConfiguration["healthyThreshold"] =1
+    #@   healthCheckConfiguration["interval"] = 5
+    #@   healthCheckConfiguration["path"] = "/"
+    #@   healthCheckConfiguration["protocol"] = "TCP"
+    #@   healthCheckConfiguration["timeout"] = 2
+    #@   healthCheckConfiguration["unhealthyThreshold"] = 5
     #@   if hasattr(workload, "livenessProbe"):
     #@     if hasattr(workload["livenessProbe"], "httpGet"):
     #@       healthCheckConfiguration["path"] = workload["livenessProbe"]["httpGet"]["path"]
@@ -109,6 +116,8 @@ spec:
     #@   imageRepository["imageRepositoryType"] = "ECR"
     #@   imageConfigurations = []
     #@   imageConfiguration = {}
+    #@   imageConfiguration["port"] = "8080"
+    #@   imageConfiguration["startCommand"] = ""
     #@   if hasattr(workload, "env"):
     #@     imageConfiguration["runtimeEnvironmentVariables"] = []
     #@     imageConfiguration["runtimeEnvironmentSecrets"] = []
@@ -159,6 +168,13 @@ spec:
       forProvider:
         serviceName: #@ data.values.workload.metadata.name + "-" + data.values.workload.metadata.namespace
         region: #@ data.values.params.region
+        networkConfiguration:
+        - egressConfiguration:
+          - egressType: DEFAULT
+            vpcConnectorArn: ""
+          ingressConfiguration:
+          - isPubliclyAccessible: true
+        autoDeploymentsEnabled: false
         #@ if/end healthCheckConfiguration(data.values.config) != {}:
         healthCheckConfiguration: #@ healthCheckConfiguration(data.values.config)
         #@ if/end instanceConfiguration(data.values.config) != {}:
@@ -167,6 +183,7 @@ spec:
         - imageRepository: #@ imageRepository(data.values.config)
           authenticationConfiguration:
           - accessRoleArn: #@ 'arn:aws:iam::' + data.values.params.accountId + ':role/' + data.values.params.roleName
+            connectionArn: ""
     ---
     apiVersion: kapp.k14s.io/v1alpha1
     kind: Config
@@ -203,6 +220,15 @@ spec:
         sources: [existing]
         resourceMatchers:
           - allMatcher: {}
+    diffAgainstLastAppliedFieldExclusionRules:
+      - path:
+          - spec
+          - forProvider
+          - autoScalingConfigurationArn
+        resourceMatchers:
+          - apiVersionKindMatcher:
+              apiVersion: apprunner.aws.upbound.io/v1beta1
+              kind: Service
     waitRules:
       - supportsObservedGeneration: false
         conditionMatchers:
