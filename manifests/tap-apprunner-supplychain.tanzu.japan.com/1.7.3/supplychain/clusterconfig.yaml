@@ -127,7 +127,9 @@ spec:
     #@   if hasattr(data.values.params, "command"):
     #@     imageConfiguration["startCommand"]= data.values.params.command
     #@   end
-    #@   imageRepository["imageConfiguration"] = imageConfiguration
+    #@   if imageConfiguration != {}:
+    #@     imageRepository["imageConfiguration"] = imageConfiguration
+    #@   end
     #@   return imageRepository
     #@ end
     
@@ -146,7 +148,9 @@ spec:
       forProvider:
         serviceName: #@ data.values.workload.metadata.name + "-" + data.values.workload.metadata.namespace
         region: #@ data.values.params.region
+        #@ if/end healthCheckConfiguration(data.values.config) != {}:
         healthCheckConfiguration: #@ healthCheckConfiguration(data.values.config)
+        #@ if/end instanceConfiguration(data.values.config) != {}:
         instanceConfiguration: #@ instanceConfiguration(data.values.config)
         sourceConfiguration:
           imageRepository: #@ imageRepository(data.values.config)
