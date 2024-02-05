@@ -98,9 +98,11 @@ spec:
     #@ def imageRepository(config):
     #@   spec = config.spec
     #@   workload = spec.containers[0]
+    #@   imageRepositories = []
     #@   imageRepository = {}
     #@   imageRepository["imageIdentifier"] = workload.image
     #@   imageRepository["imageRepositoryType"] = "ECR"
+    #@   imageConfigurations = []
     #@   imageConfiguration = {}
     #@   if hasattr(workload, "env"):
     #@     imageConfiguration["runtimeEnvironmentVariables"] = []
@@ -130,9 +132,11 @@ spec:
     #@     imageConfiguration["startCommand"]= data.values.params.command
     #@   end
     #@   if imageConfiguration != {}:
-    #@     imageRepository["imageConfiguration"] = imageConfiguration
+    #@     imageConfigurations.append(imageConfiguration)
+    #@     imageRepository["imageConfiguration"] = imageConfigurations
     #@   end
-    #@   return imageRepository
+    #@   imageRepositories.append(imageRepository)
+    #@   return imageRepositories
     #@ end
     
     #@ def delivery():
