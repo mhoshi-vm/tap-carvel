@@ -55,7 +55,7 @@
 #@       cpu = r.cpu
 #@     end
 #@   end
-#@   return cpu
+#@   return str(cpu)
 #@ end
 
 #@ def return_memory(config):
@@ -69,7 +69,7 @@
 #@       memory = r.memory
 #@     end
 #@   end
-#@   return memory
+#@   return str(memory)
 #@ end
 
 #@ def instanceConfiguration(config):
