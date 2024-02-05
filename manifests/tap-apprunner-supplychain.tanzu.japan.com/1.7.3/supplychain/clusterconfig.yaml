@@ -155,7 +155,7 @@ spec:
         #@ if/end instanceConfiguration(data.values.config) != {}:
         instanceConfiguration: #@ instanceConfiguration(data.values.config)
         sourceConfiguration:
-          imageRepository: #@ imageRepository(data.values.config)
+        - imageRepository: #@ imageRepository(data.values.config)
     ---
     apiVersion: kapp.k14s.io/v1alpha1
     kind: Config
