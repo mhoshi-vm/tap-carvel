@@ -94,6 +94,7 @@ spec:
     #@   instanceConfiguration = {}
     #@   instanceConfiguration["cpu"] = str(return_cpu(config))
     #@   instanceConfiguration["memory"] = str(return_memory(config))
+    #@   instanceConfiguration["instanceRoleArn"] = 'arn:aws:iam::' + data.values.params.accountId + ':role/' + data.values.params.roleName
     #@   instanceConfigurations.append(instanceConfiguration)
     #@   return instanceConfigurations
     #@ end
