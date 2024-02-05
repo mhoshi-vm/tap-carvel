@@ -1,0 +1,55 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: Package
+metadata:
+  name: tap-ecs-supplychain.tanzu.japan.com.1.7.3
+spec:
+  refName: tap-ecs-supplychain.tanzu.japan.com
+  version: 1.7.3
+  valuesSchema:
+    openAPIv3:
+      title: tap-ecs.tanzu-jp values schema
+      properties:
+        crossplane:
+          type: object
+          additionalProperties: false
+          properties:
+            tag:
+              type: string
+              default: v0.47.1
+            repo:
+              type: string
+              default: xpkg.upbound.io/upbound
+            enabled:
+              type: object
+              additionalProperties: false
+              properties:
+                apprunner:
+                  type: boolean
+                  default: true
+                awsfamily:
+                  type: boolean
+                  default: true
+        aws:
+          type: object
+          additionalProperties: false
+          properties:
+            accountId:
+              type: string
+              default: ""
+            roleName:
+              type: string
+              default: tap-apprunner
+            region:
+              type: string
+              default: us-west-1
+  template:
+    spec:
+      fetch:
+      - git:
+          url: https://github.com/mhoshi-vm/tap-carvel
+          ref: origin/pkgr
+          subPath: manifests/tap-apprunner-supplychain.tanzu.japan.com/1.7.3
+      template:
+      - ytt: {}
+      deploy:
+      - kapp: {}

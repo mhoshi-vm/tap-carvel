@@ -1,0 +1,14 @@
+#@data/values-schema
+---
+crossplane:
+  tag: v0.47.1
+  repo: xpkg.upbound.io/upbound
+  enabled:
+    apprunner: true
+    awsfamily: true
+
+aws:
+  accountId: ""
+  roleName: "tap-apprunner"
+  region: us-west-1
+

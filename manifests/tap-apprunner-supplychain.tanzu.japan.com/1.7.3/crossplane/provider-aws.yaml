@@ -1,0 +1,32 @@
+#@ load("@ytt:data", "data")
+
+#@ if data.values.crossplane.enabled.apprunner:
+---
+apiVersion: pkg.crossplane.io/v1
+kind: Provider
+metadata:
+  annotations:
+    kapp.k14s.io/change-group: "crd"
+  name: upbound-provider-aws-apprunner
+spec:
+  package: #@ data.values.crossplane.repo + "/provider-aws-apprunner:" + data.values.crossplane.tag
+  skipDependencyResolution: true
+  controllerConfigRef:
+    name: upbound-provider-aws
+#@ end
+
+#@ if data.values.crossplane.enabled.awsfamily:
+---
+apiVersion: pkg.crossplane.io/v1
+kind: Provider
+metadata:
+  annotations:
+    kapp.k14s.io/change-group: "crd"
+  name: provider-family-aws
+spec:
+  controllerConfigRef:
+    name: upbound-provider-aws
+  package: #@ data.values.crossplane.repo + "/provider-family-aws:" + data.values.crossplane.tag
+  revisionHistoryLimit: 1
+  skipDependencyResolution: false
+#@ end

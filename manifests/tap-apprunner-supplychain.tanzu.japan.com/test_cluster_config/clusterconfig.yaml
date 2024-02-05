@@ -1,0 +1,195 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:yaml", "yaml")
+#@ load("@ytt:json", "json")
+
+#@ def merge_labels(fixed_values):
+#@   labels = {}
+#@   if hasattr(data.values.workload.metadata, "labels"):
+#@     labels.update(data.values.workload.metadata.labels)
+#@   end
+#@   labels.update(fixed_values)
+#@   return labels
+#@ end
+
+#@ def return_annotations(config, alwaysreplace, group, upgroup):
+#@   annotations = {}
+#@   if hasattr(config, "metadata"):
+#@      if hasattr(config.metadata, "annotations"):
+#@         annotations.update(config.metadata.annotations)
+#@      end
+#@   end
+#@   if alwaysreplace:
+#@     annotations.update({ "kapp.k14s.io/update-strategy" : "always-replace" })
+#@   end
+#@   if group != "":
+#@     annotations.update({ "kapp.k14s.io/change-group" : group })
+#@   end
+#@   if upgroup != "":
+#@     annotations.update({ "kapp.k14s.io/change-rule.update" : "upsert after upserting " + upgroup })
+#@     annotations.update({ "kapp.k14s.io/change-rule.delete" : "delete before upserting " + upgroup })
+#@   end
+#@   return annotations
+#@ end
+
+#@ def healthCheckConfiguration(config):
+#@   spec = config.spec
+#@   workload = spec.containers[0]
+#@   healthCheckConfiguration ={}
+#@   if hasattr(workload, "livenessProbe"):
+#@     if hasattr(workload["livenessProbe"], "httpGet"):
+#@       healthCheckConfiguration["path"] = workload["livenessProbe"]["httpGet"]["path"]
+#@       healthCheckConfiguration["protocol"] = workload["livenessProbe"]["httpGet"]["scheme"]
+#@     end
+#@   end
+#@   return healthCheckConfiguration
+#@ end
+
+#@ def return_cpu(config):
+#@   spec = config.spec
+#@   workload = spec.containers[0]
+#@   resources = workload.resources
+#@   cpu = 512
+#@   if hasattr(resources, "limits"):
+#@     r = resources.limits
+#@     if hasattr(r, "cpu"):
+#@       cpu = r.cpu
+#@     end
+#@   end
+#@   return cpu
+#@ end
+
+#@ def return_memory(config):
+#@   spec = config.spec
+#@   workload = spec.containers[0]
+#@   resources = workload.resources
+#@   memory = 1024
+#@   if hasattr(resources, "limits"):
+#@     r = resources.limits
+#@     if hasattr(r, "memory"):
+#@       memory = r.memory
+#@     end
+#@   end
+#@   return memory
+#@ end
+
+#@ def instanceConfiguration(config):
+#@   instanceConfiguration ={}
+#@   instanceConfiguration["cpu"] = return_cpu(config)
+#@   instanceConfiguration["memory"] = return_memory(config)
+#@   return instanceConfiguration
+#@ end
+
+
+#@ def imageRepository(config):
+#@   spec = config.spec
+#@   workload = spec.containers[0]
+#@   imageRepository = {}
+#@   imageRepository["imageIdentifier"] = workload.image
+#@   imageRepository["imageRepositoryType"] = "ECR"
+#@   imageConfiguration = {}
+#@   if hasattr(workload, "env"):
+#@     imageConfiguration["runtimeEnvironmentVariables"] = []
+#@     imageConfiguration["runtimeEnvironmentSecrets"] = []
+#@     for e in workload["env"]:
+#@       if hasattr(e, "value"):
+#@         imageConfiguration["runtimeEnvironmentVariables"].append(e)
+#@       end
+#@       if hasattr(e, "valueFrom"):
+#@         name=""
+#@         key=""
+#@         if hasattr(e.valueFrom, "configMapKeyRef"):
+#@            name = e.valueFrom.configMapKeyRef.name
+#@            key = e.valueFrom.configMapKeyRef.key
+#@         end
+#@         if hasattr(e.valueFrom, "secretKeyRef"):
+#@            name = e.valueFrom.secretKeyRef.name
+#@            key = e.valueFrom.secretKeyRef.key
+#@         end
+#@         ssm_parameter = "/"+name+"/"+key
+#@         imageConfiguration["runtimeEnvironmentSecrets"] = []
+#@         imageConfiguration["runtimeEnvironmentSecrets"].append({"name":e.name,"valueFrom": ssm_parameter })
+#@       end
+#@     end
+#@   end
+#@   if hasattr(data.values.params, "command"):
+#@     imageConfiguration["startCommand"]= data.values.params.command
+#@   end
+#@   imageRepository["imageConfiguration"] = imageConfiguration
+#@   return imageRepository
+#@ end
+
+#@ def delivery():
+---
+apiVersion: apprunner.aws.upbound.io/v1beta1
+kind: Service
+metadata:
+  labels: #@ merge_labels({ "app.kubernetes.io/component": "run", "carto.run/workload-name": data.values.workload.metadata.name })
+  name: #@ data.values.workload.metadata.name + "-" + data.values.workload.metadata.namespace
+  annotations: #@ return_annotations(data.values.config, True, "base", "")
+spec:
+  deletionPolicy: Delete
+  providerConfigRef:
+    name: aws-provider
+  forProvider:
+    serviceName: #@ data.values.workload.metadata.name + "-" + data.values.workload.metadata.namespace
+    region: #@ data.values.params.region
+    healthCheckConfiguration: #@ healthCheckConfiguration(data.values.config)
+    instanceConfiguration: #@ instanceConfiguration(data.values.config)
+    sourceConfiguration:
+      imageRepository: #@ imageRepository(data.values.config)
+---
+apiVersion: kapp.k14s.io/v1alpha1
+kind: Config
+rebaseRules:
+  - path:
+      - metadata
+      - annotations
+      - crossplane.io/external-name
+    type: copy
+    sources: [existing]
+    resourceMatchers:
+      - allMatcher: {}
+  - path:
+      - metadata
+      - annotations
+      - crossplane.io/external-create-succeeded
+    type: copy
+    sources: [existing]
+    resourceMatchers:
+      - allMatcher: {}
+  - path:
+      - metadata
+      - annotations
+      - crossplane.io/external-create-pending
+    type: copy
+    sources: [existing]
+    resourceMatchers:
+      - allMatcher: {}
+  - path:
+      - spec
+      - forProvider
+      - tags
+    type: copy
+    sources: [existing]
+    resourceMatchers:
+      - allMatcher: {}
+waitRules:
+  - supportsObservedGeneration: false
+    conditionMatchers:
+      - type: Ready
+        status: "True"
+        success: true
+      - type: LastAsyncOperation
+        status: "False"
+        failure: true
+    resourceMatchers:
+      - allMatcher: {}
+#@ end
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: #@ data.values.workload.metadata.name + "-apprunner"
+  labels: #@ merge_labels({ "app.kubernetes.io/component": "config" })
+data:
+  delivery.yml: #@ yaml.encode(delivery())
