@@ -218,6 +218,20 @@ spec:
         sources: [existing]
         resourceMatchers:
           - allMatcher: {}
+      - path:
+          - spec
+          - initProvider
+        type: copy
+        sources: [existing]
+        resourceMatchers:
+          - allMatcher: {}
+      - path:
+          - spec
+          - managementPolicies
+        type: copy
+        sources: [existing]
+        resourceMatchers:
+          - allMatcher: {}
     diffAgainstLastAppliedFieldExclusionRules:
       - path:
           - spec
