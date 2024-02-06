@@ -65,6 +65,7 @@ spec:
     #@       healthCheckConfiguration["protocol"] = workload["livenessProbe"]["httpGet"]["scheme"]
     #@     end
     #@   end
+    #@   healthCheckConfigurations.append(healthCheckConfiguration)
     #@   return healthCheckConfigurations
     #@ end
     
