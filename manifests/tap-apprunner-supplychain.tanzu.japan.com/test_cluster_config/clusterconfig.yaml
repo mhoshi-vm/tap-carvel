@@ -34,14 +34,22 @@
 #@ def healthCheckConfiguration(config):
 #@   spec = config.spec
 #@   workload = spec.containers[0]
+#@   healthCheckConfigurations =[]
 #@   healthCheckConfiguration ={}
+#@   healthCheckConfiguration["healthyThreshold"] =1
+#@   healthCheckConfiguration["interval"] = 5
+#@   healthCheckConfiguration["path"] = "/"
+#@   healthCheckConfiguration["protocol"] = "TCP"
+#@   healthCheckConfiguration["timeout"] = 2
+#@   healthCheckConfiguration["unhealthyThreshold"] = 5
 #@   if hasattr(workload, "livenessProbe"):
 #@     if hasattr(workload["livenessProbe"], "httpGet"):
 #@       healthCheckConfiguration["path"] = workload["livenessProbe"]["httpGet"]["path"]
 #@       healthCheckConfiguration["protocol"] = workload["livenessProbe"]["httpGet"]["scheme"]
 #@     end
 #@   end
-#@   return healthCheckConfiguration
+#@   healthCheckConfigurations.append(healthCheckConfiguration)
+#@   return healthCheckConfigurations
 #@ end
 
 #@ def return_cpu(config):
@@ -77,6 +85,7 @@
 #@   instanceConfiguration = {}
 #@   instanceConfiguration["cpu"] = str(return_cpu(config))
 #@   instanceConfiguration["memory"] = str(return_memory(config))
+#@   instanceConfiguration["instanceRoleArn"] = 'arn:aws:iam::' + data.values.params.accountId + ':role/' + data.values.params.roleName
 #@   instanceConfigurations.append(instanceConfiguration)
 #@   return instanceConfigurations
 #@ end
@@ -85,10 +94,14 @@
 #@ def imageRepository(config):
 #@   spec = config.spec
 #@   workload = spec.containers[0]
+#@   imageRepositories = []
 #@   imageRepository = {}
 #@   imageRepository["imageIdentifier"] = workload.image
 #@   imageRepository["imageRepositoryType"] = "ECR"
+#@   imageConfigurations = []
 #@   imageConfiguration = {}
+#@   imageConfiguration["port"] = "8080"
+#@   imageConfiguration["startCommand"] = ""
 #@   if hasattr(workload, "env"):
 #@     imageConfiguration["runtimeEnvironmentVariables"] = []
 #@     imageConfiguration["runtimeEnvironmentSecrets"] = []
@@ -117,9 +130,11 @@
 #@     imageConfiguration["startCommand"]= data.values.params.command
 #@   end
 #@   if imageConfiguration != {}:
-#@     imageRepository["imageConfiguration"] = imageConfiguration
+#@     imageConfigurations.append(imageConfiguration)
 #@   end
-#@   return imageRepository
+#@   imageRepository["imageConfiguration"] = imageConfigurations
+#@   imageRepositories.append(imageRepository)
+#@   return imageRepositories
 #@ end
 
 #@ def delivery():
@@ -137,12 +152,18 @@ spec:
   forProvider:
     serviceName: #@ data.values.workload.metadata.name + "-" + data.values.workload.metadata.namespace
     region: #@ data.values.params.region
-    #@ if/end healthCheckConfiguration(data.values.config) != {}:
+    networkConfiguration:
+      - egressConfiguration:
+          - egressType: DEFAULT
+        ingressConfiguration:
+          - isPubliclyAccessible: true
     healthCheckConfiguration: #@ healthCheckConfiguration(data.values.config)
-    #@ if/end instanceConfiguration(data.values.config) != {}:
     instanceConfiguration: #@ instanceConfiguration(data.values.config)
     sourceConfiguration:
-      imageRepository: #@ imageRepository(data.values.config)
+      - imageRepository: #@ imageRepository(data.values.config)
+        autoDeploymentsEnabled: false
+        authenticationConfiguration:
+          - accessRoleArn: #@ 'arn:aws:iam::' + data.values.params.accountId + ':role/' + data.values.params.roleName
 ---
 apiVersion: kapp.k14s.io/v1alpha1
 kind: Config
@@ -177,6 +198,29 @@ rebaseRules:
       - tags
     type: copy
     sources: [existing]
+    resourceMatchers:
+      - allMatcher: {}
+  - path:
+      - spec
+      - initProvider
+    type: copy
+    sources: [existing]
+    resourceMatchers:
+      - allMatcher: {}
+  - path:
+      - spec
+      - managementPolicies
+    type: copy
+    sources: [existing]
+    resourceMatchers:
+      - allMatcher: {}
+  - path:
+      - spec
+      - forProvider
+      - autoScalingConfigurationArn
+    type: copy
+    sources:
+      - existing
     resourceMatchers:
       - allMatcher: {}
 waitRules:

@@ -231,15 +231,15 @@ spec:
         sources: [existing]
         resourceMatchers:
           - allMatcher: {}
-    - path:
-         - spec
-         - forProvider
-         - autoScalingConfigurationArn
-      type: copy
-      sources:
-         - existing
-      resourceMatchers:
-         - allMatcher: {}
+      - path:
+          - spec
+          - forProvider
+          - autoScalingConfigurationArn
+        type: copy
+        sources:
+          - existing
+        resourceMatchers:
+          - allMatcher: {}
     waitRules:
       - supportsObservedGeneration: false
         conditionMatchers:
