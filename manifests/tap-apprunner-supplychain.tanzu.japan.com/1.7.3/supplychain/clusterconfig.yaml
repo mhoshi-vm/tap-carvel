@@ -174,11 +174,11 @@ spec:
             vpcConnectorArn: ""
           ingressConfiguration:
           - isPubliclyAccessible: true
-        autoDeploymentsEnabled: false
         healthCheckConfiguration: #@ healthCheckConfiguration(data.values.config)
         instanceConfiguration: #@ instanceConfiguration(data.values.config)
         sourceConfiguration:
         - imageRepository: #@ imageRepository(data.values.config)
+          autoDeploymentsEnabled: false
           authenticationConfiguration:
           - accessRoleArn: #@ 'arn:aws:iam::' + data.values.params.accountId + ':role/' + data.values.params.roleName
             connectionArn: ""
