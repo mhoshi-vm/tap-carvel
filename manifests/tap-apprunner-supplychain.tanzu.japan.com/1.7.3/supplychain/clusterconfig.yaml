@@ -172,7 +172,6 @@ spec:
         networkConfiguration:
         - egressConfiguration:
           - egressType: DEFAULT
-            vpcConnectorArn: ""
           ingressConfiguration:
           - isPubliclyAccessible: true
         healthCheckConfiguration: #@ healthCheckConfiguration(data.values.config)
@@ -182,7 +181,6 @@ spec:
           autoDeploymentsEnabled: false
           authenticationConfiguration:
           - accessRoleArn: #@ 'arn:aws:iam::' + data.values.params.accountId + ':role/' + data.values.params.roleName
-            connectionArn: ""
     ---
     apiVersion: kapp.k14s.io/v1alpha1
     kind: Config
@@ -233,15 +231,15 @@ spec:
         sources: [existing]
         resourceMatchers:
           - allMatcher: {}
-    diffAgainstLastAppliedFieldExclusionRules:
-      - path:
-          - spec
-          - forProvider
-          - autoScalingConfigurationArn
-        resourceMatchers:
-          - apiVersionKindMatcher:
-              apiVersion: apprunner.aws.upbound.io/v1beta1
-              kind: Service
+    - path:
+         - spec
+         - forProvider
+         - autoScalingConfigurationArn
+      type: copy
+      sources:
+         - existing
+      resourceMatchers:
+         - allMatcher: {}
     waitRules:
       - supportsObservedGeneration: false
         conditionMatchers:
