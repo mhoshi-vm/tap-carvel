@@ -22,7 +22,7 @@ kind: Provider
 metadata:
   annotations:
     kapp.k14s.io/change-group: "crd"
-  name: provider-family-aws
+  name: provider-family-aws-apprunner
 spec:
   controllerConfigRef:
     name: upbound-provider-aws-apprunner
