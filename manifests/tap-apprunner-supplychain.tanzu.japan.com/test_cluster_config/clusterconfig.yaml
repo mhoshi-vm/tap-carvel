@@ -148,7 +148,7 @@ metadata:
 spec:
   deletionPolicy: Delete
   providerConfigRef:
-    name: aws-provider
+    name: aws-provider-apprunner
   forProvider:
     serviceName: #@ data.values.workload.metadata.name + "-" + data.values.workload.metadata.namespace
     region: #@ data.values.params.region

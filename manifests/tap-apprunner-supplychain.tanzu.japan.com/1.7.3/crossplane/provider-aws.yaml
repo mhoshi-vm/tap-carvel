@@ -12,7 +12,7 @@ spec:
   package: #@ data.values.crossplane.repo + "/provider-aws-apprunner:" + data.values.crossplane.tag
   skipDependencyResolution: true
   controllerConfigRef:
-    name: upbound-provider-aws
+    name: upbound-provider-aws-apprunner
 #@ end
 
 #@ if data.values.crossplane.enabled.awsfamily:
@@ -25,7 +25,7 @@ metadata:
   name: provider-family-aws
 spec:
   controllerConfigRef:
-    name: upbound-provider-aws
+    name: upbound-provider-aws-apprunner
   package: #@ data.values.crossplane.repo + "/provider-family-aws:" + data.values.crossplane.tag
   revisionHistoryLimit: 1
   skipDependencyResolution: false
