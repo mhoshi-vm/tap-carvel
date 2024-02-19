@@ -110,7 +110,6 @@ tap_gui:
   app_config:
 
     auth:
-      allowGuestAccess: true
       #@ if data.values.tap_install.gitops.enabled:
       #@ if data.values.tap_install.gitops.accelerator.enabled:
       auth:
@@ -130,6 +129,7 @@ tap_gui:
     integrations:
       github:
         - host: github.com
+          token: #@ data.values.tap_install.gitops.password
     #@ end
 
 metadata_store:
