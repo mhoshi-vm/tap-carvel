@@ -114,6 +114,12 @@ tap_gui:
       features:
         supplyChain:
           enableTriageUI: true
+  #@ if data.values.tap_install.gitops.enabled:
+  integrations:
+    github: # Other integrations available see NOTE below
+      - host: github.com
+        token: #@ data.values.tap_install.gitops.password
+  #@ end
 
 metadata_store:
   ns_for_export_app_cert: "*"
