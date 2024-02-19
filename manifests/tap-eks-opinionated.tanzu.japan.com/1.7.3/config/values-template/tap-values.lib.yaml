@@ -108,18 +108,30 @@ tap_gui:
         - host: #@ "*." + domain
   #@ end
   app_config:
+
     auth:
       allowGuestAccess: true
+      #@ if data.values.tap_install.gitops.enabled:
+      #@ if data.values.tap_install.gitops.accelerator.enabled:
+      auth:
+        environment: development
+        providers:
+          github:
+            development:
+              clientId: #@ data.values.tap_install.gitops.accelerator.client_id
+              clientSecret: #@ data.values.tap_install.gitops.accelerator.client_secret
+      #@ end
+      #@ end
     customize:
       features:
         supplyChain:
           enableTriageUI: true
-  #@ if data.values.tap_install.gitops.enabled:
-  integrations:
-    github: # Other integrations available see NOTE below
-      - host: github.com
-        token: #@ data.values.tap_install.gitops.password
-  #@ end
+    #@ if data.values.tap_install.gitops.enabled:
+    integrations:
+      github:
+        - host: github.com
+          token: #@ data.values.tap_install.gitops.password
+    #@ end
 
 metadata_store:
   ns_for_export_app_cert: "*"

@@ -102,6 +102,19 @@ spec:
               type: object
               additionalProperties: false
               properties:
+                accelerator:
+                  type: object
+                  additionalProperties: false
+                  properties:
+                    enabled:
+                      type: boolean
+                      default: false
+                    client_id:
+                      type: string
+                      default: XXXXX
+                    client_secret:
+                      type: string
+                      default: XXXXXX
                 enabled:
                   type: boolean
                   default: false
@@ -126,7 +139,7 @@ spec:
                   gitops:
                     type: string
                     default: "false"
-              default: [ ]
+              default: []
             ingress_domain:
               type: string
               default: example.com
@@ -149,7 +162,7 @@ spec:
                   type:
                     type: string
                     default: hoge
-              default: [ ]
+              default: []
   template:
     spec:
       fetch:
