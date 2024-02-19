@@ -130,7 +130,6 @@ tap_gui:
     integrations:
       github:
         - host: github.com
-          token: #@ data.values.tap_install.gitops.password
     #@ end
 
 metadata_store:
