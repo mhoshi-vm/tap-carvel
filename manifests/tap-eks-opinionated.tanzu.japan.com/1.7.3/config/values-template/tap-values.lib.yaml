@@ -103,6 +103,8 @@ tap_gui:
     baseUrl: #@ "https://tap-gui." + domain
   backend:
     baseUrl: #@ "https://tap-gui." + domain
+    cors:
+      origin: #@ "https://tap-gui." + domain
     reading:
       allow:
         - host: #@ "*." + domain
