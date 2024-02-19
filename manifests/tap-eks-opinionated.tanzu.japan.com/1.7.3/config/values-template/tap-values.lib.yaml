@@ -110,15 +110,15 @@ tap_gui:
   app_config:
 
     auth:
+      allowGuestAccess: true
       #@ if data.values.tap_install.gitops.enabled:
       #@ if data.values.tap_install.gitops.accelerator.enabled:
-      auth:
-        environment: development
-        providers:
-          github:
-            development:
-              clientId: #@ data.values.tap_install.gitops.accelerator.client_id
-              clientSecret: #@ data.values.tap_install.gitops.accelerator.client_secret
+      environment: development
+      providers:
+        github:
+          development:
+            clientId: #@ data.values.tap_install.gitops.accelerator.client_id
+            clientSecret: #@ data.values.tap_install.gitops.accelerator.client_secret
       #@ end
       #@ end
     customize:
