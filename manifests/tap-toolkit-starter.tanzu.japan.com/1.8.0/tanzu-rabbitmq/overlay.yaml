@@ -78,6 +78,7 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: tanzu-rabbitmq-values
+  namespace: rabbitmq-install
 stringData:
   values.yml: |
     ---
