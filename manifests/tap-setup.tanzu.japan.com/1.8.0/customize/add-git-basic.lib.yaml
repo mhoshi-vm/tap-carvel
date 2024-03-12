@@ -1,0 +1,8 @@
+#@ load("@ytt:overlay", "overlay")
+
+#@ def customize():
+#@overlay/match by=overlay.subset({"kind": "ServiceAccount", "metadata": {"name": "default"}}), expects="0+"
+---
+secrets:
+- name: git-ssh
+#@ end

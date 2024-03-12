@@ -1,0 +1,22 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:overlay", "overlay")
+
+#@ if data.values.blank_pipeline_and_scan.enabled:
+---
+apiVersion: tekton.dev/v1beta1
+kind: ClusterTask
+metadata:
+  name: hello-world
+spec:
+  steps:
+    - name: test
+      securityContext:
+        capabilities:
+          drop: ["ALL"]
+        runAsUser: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      image: #@ data.values.blank_pipeline_and_scan.test_image
+      script: |-
+        echo hello
+#@ end

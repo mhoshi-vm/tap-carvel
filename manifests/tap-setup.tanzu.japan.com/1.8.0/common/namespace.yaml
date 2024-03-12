@@ -1,0 +1,30 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:overlay", "overlay")
+#@ load("@ytt:struct", "struct")
+
+#@ namespaces = data.values.dev_namespaces
+
+#@ def additional_labels(values):
+#@   var = {}
+#@   for key in values.keys():
+#@     if key == "name":
+#@       var["apps.tanzu.vmware.com/tap-ns"]= values[key]
+#@     else:
+#@       additional_key = "tap-setup.tanzu.japan.com/" + key
+#@       var[additional_key]= values[key]
+#@     end
+#@   end
+#@   return var
+#@ end
+
+
+#@ for namespace in namespaces:
+#@overlay/append
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: #@ namespace.name
+  labels: #@ additional_labels(struct.decode(namespace))
+#@ end
+

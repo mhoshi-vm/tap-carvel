@@ -1,0 +1,166 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:overlay", "overlay")
+
+#@ if data.values.bucketrepo.enabled:
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: bucketrepo
+---
+#! Source: bucketrepo/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: bucketrepo-bucketrepo
+  namespace: bucketrepo
+  labels:
+    app: bucketrepo-bucketrepo
+    chart: "bucketrepo-0.1.67"
+    release: bucketrepo
+    heritage: Helm
+  annotations:
+---
+#! Source: bucketrepo/templates/config-secret.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: bucketrepo-config
+  namespace: bucketrepo
+  annotations:
+    config/checksum: b1eb5b332c28e00b23a7c5486d015e0d78c687616523821242086ddccd823a24
+type: Opaque
+stringData:
+  config.yaml: |
+    http:
+        addr: ":8080"
+        username: "admin"
+        password: "changeme"
+        chartPath: "charts"
+
+    storage:
+        bucket_url: ""
+
+    cache:
+        base_dir: "/tmp/bucketrepo"
+
+    repositories:
+        - url: "https://repo.maven.org/maven2"
+        - url: "https://repo1.maven.org/maven2"
+        - url: "https://services.gradle.org/distributions/"
+        - url: "https://plugins.gradle.org/m2/"
+        - url: "https://repo.jenkins-ci.org/public/"
+        - url: "https://repo.jenkins-ci.org/releases/"
+        - url: "https://jitpack.io/"
+        - url: "https://registry.npmjs.org/"
+        - url: "https://repo.spring.io/milestone/"
+        - url: "https://repo.spring.io/release/"
+        - url: "http://uk.maven.org/maven2/"
+---
+#! Source: bucketrepo/templates/secret.yaml
+apiVersion: v1
+kind: Secret
+type: Opaque
+metadata:
+  annotations:
+    jenkins.io/credentials-keybinding-password: BASIC_AUTH_PASS
+    jenkins.io/credentials-keybinding-username: BASIC_AUTH_USER
+    jenkins.io/foo: bar
+  labels:
+    jenkins.io/credentials-type: usernamePassword
+    release: jenkins-x
+  name: jenkins-x-bucketrepo
+  namespace: bucketrepo
+data:
+  BASIC_AUTH_PASS: "Y2hhbmdlbWU="
+  BASIC_AUTH_USER: "YWRtaW4="
+---
+#! Source: bucketrepo/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: bucketrepo
+  namespace: bucketrepo
+  labels:
+    chart: "bucketrepo-0.1.67"
+  annotations:
+    fabric8.io/expose: "true"
+    fabric8.io/ingress.annotations: 'kubernetes.io/ingress.class: nginx'
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: 8080
+    protocol: TCP
+    name: http
+  selector:
+    app: bucketrepo-bucketrepo
+---
+#! Source: bucketrepo/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bucketrepo-bucketrepo
+  namespace: bucketrepo
+  labels:
+    draft: draft-app
+    chart: "bucketrepo-0.1.67"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bucketrepo-bucketrepo
+  template:
+    metadata:
+      labels:
+        draft: draft-app
+        app: bucketrepo-bucketrepo
+      annotations:
+        checksum/config: "645fb7fc71bad35883f334bb3942066146b3b89a9e206cdf3b1619714d0e1782"
+    spec:
+      containers:
+      - name: bucketrepo
+        image: #@ data.values.bucketrepo.image
+        imagePullPolicy: IfNotPresent
+        command: ["/home/nonroot/bucketrepo"]
+        args:
+        - "-config-path=/config"
+        - "-log-level=info"
+        env:
+        ports:
+        - containerPort: 8080
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8080
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: 8080
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        volumeMounts:
+        - name: config
+          mountPath: /config
+          readOnly: true
+        resources:
+            limits:
+              cpu: 100m
+              memory: 256Mi
+            requests:
+              cpu: 80m
+              memory: 128Mi
+      securityContext:
+        fsGroup: 65534
+      terminationGracePeriodSeconds: 10
+      serviceAccountName: bucketrepo-bucketrepo
+      volumes:
+      - name: config
+        secret:
+          secretName: bucketrepo-config
+#@ end
