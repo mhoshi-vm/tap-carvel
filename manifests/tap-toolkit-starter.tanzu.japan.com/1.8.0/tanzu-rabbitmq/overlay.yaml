@@ -64,25 +64,30 @@ kind: PackageInstall
 metadata:
   name: rabbitmq
   namespace: rabbitmq-install
+  annotations:
+    ext.packaging.carvel.dev/ytt-paths-from-secret-name.0: "namespace-overlay"
 spec:
   serviceAccountName: kapp-sa 
   packageRef:
     refName: rabbitmq.tanzu.vmware.com
     versionSelection:
       constraints: #@ data.values.rabbitmq.package.operator_version
-  values:
-    - secretRef:
-        name: tanzu-rabbitmq-values
 ---
 apiVersion: v1
 kind: Secret
 metadata:
-  name: tanzu-rabbitmq-values
+  name: namespace-overlay
   namespace: rabbitmq-install
 stringData:
-  values.yml: |
+  overlay.yaml: |
+    #@ load("@ytt:overlay", "overlay")
+    
+    #@overlay/match by=overlay.subset({"kind":"Namespace", "metadata": {"name": "rabbitmq-system"}}), expects="0+"
     ---
-    namespace: rabbitmq-install
+    metadata:
+      labels:
+        #@overlay/match missing_ok=True
+        pod-security.kubernetes.io/enforce: baseline
 #@ end
 ---
 apiVersion: rbac.authorization.k8s.io/v1
