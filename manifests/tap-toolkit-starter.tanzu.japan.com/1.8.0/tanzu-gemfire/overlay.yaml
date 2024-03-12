@@ -67,32 +67,15 @@ spec:
       - gemfire/functions.lib.yml
       inline:
         paths:
-          base.yaml: |
-            ---
-            apiVersion: v1
-            kind: Namespace
-            metadata:
-              name: gemfire-system
-            ---
-            apiVersion: v1
-            kind: Secret
-            metadata:
-              name: reg-secret
-              namespace: gemfire-system
-              annotations:
-                secretgen.carvel.dev/image-pull-secret: ""
-            type: kubernetes.io/dockerconfigjson
-            data:
-              .dockerconfigjson: e30K
           values-update.yaml: |
             #@data/values
             ---
-            namespace: gemfire-system
+            namespace: gemfire-install
             name: gemfire-operator
             certManagerNamespace: ""
             cpu: ""
             memory: ""
-            imagePullSecretName: "reg-secret"
+            imagePullSecretName: "tap-registry"
             tlsSecretName: ""
             registry:
               server: ""
