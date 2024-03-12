@@ -11,8 +11,10 @@ spec:
   steps:
     - name: test
       securityContext:
+        allowPrivilegeEscalation: false
         capabilities:
           drop: ["ALL"]
+        runAsNonRoot: true
         runAsUser: 1000
         seccompProfile:
           type: RuntimeDefault
