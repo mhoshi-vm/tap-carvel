@@ -8,6 +8,8 @@ dev_namespaces:
   gitops: "true"
   bucketrepo: "true"
   blank_pipeline_and_scan: "true"
+  labels:
+    pod-security.kubernetes.io/enforce: baseline
   
 #@schema/desc "TLS config"
 tls:

@@ -9,6 +9,10 @@
 #@   for key in values.keys():
 #@     if key == "name":
 #@       var["apps.tanzu.vmware.com/tap-ns"]= values[key]
+#@     elif key == "labels":
+#@       for label in values[key].keys():
+#@           var[label] = values[key][label]
+#@       end
 #@     else:
 #@       additional_key = "tap-setup.tanzu.japan.com/" + key
 #@       var[additional_key]= values[key]
