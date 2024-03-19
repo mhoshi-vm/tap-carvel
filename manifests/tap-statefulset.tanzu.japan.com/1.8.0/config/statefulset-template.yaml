@@ -84,6 +84,8 @@ spec:
       - metadata:
           name: #@ volume.volumeMount.name
         spec:
+          accessModes:
+          - ReadWriteOnce
           storageClassName: #@ volume.storageClassName
           resources:
             requests:
