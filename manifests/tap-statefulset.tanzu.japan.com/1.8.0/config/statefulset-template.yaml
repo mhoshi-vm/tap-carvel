@@ -11,8 +11,7 @@ metadata:
       This template consumes an input named config which contains a
       PodTemplateSpec and returns a ConfigMap which contains a
       "delivery.yml" which contains a manifests for a Kubernetes
-      Statefulset which will run the templated pod, and a "service.yml"
-      Kubernetes Service to expose the pods on the network.
+      Statefulset which will run the templated pod.
 spec:
   configPath: .data
 
