@@ -1,0 +1,11 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: PackageMetadata
+metadata:
+  name: tap-statefulset.tanzu.japan.com
+spec:
+  displayName: "Statefulset for TAP"
+  shortDescription: "Statefulset for TAP"
+  supportDescription: "https://carvel.dev/"
+  providerName: "VMware"
+  maintainers:
+  - name: "Machi Hoshino"
