@@ -8,6 +8,11 @@ params:
      volumeMount:
        name: data-mount
        mountPath: /data
+   - storageClassName: default2
+     storageSize: 2Gi
+     volumeMount:
+       name: data-mount2
+       mountPath: /data2
 
 workload:
   metadata:
