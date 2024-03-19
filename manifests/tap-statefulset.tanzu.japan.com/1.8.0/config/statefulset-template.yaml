@@ -78,8 +78,8 @@ spec:
       selector:
         matchLabels: #@ data.values.config.metadata.labels
       template: #@ overlay.apply(data.values.config,addVolumes())
-    #@ if/end hasattr(data.values.params, "volumes"):
-    volumeClaimTemplates:
+      #@ if/end hasattr(data.values.params, "volumes"):
+      volumeClaimTemplates:
       #@ for volume in data.values.params.volumes:
       - metadata:
           name: #@ volume.volumeMount.name
