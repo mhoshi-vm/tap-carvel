@@ -5,7 +5,7 @@
 apiVersion: carto.run/v1alpha1
 kind: ClusterConfigTemplate
 metadata:
-  name: server-template
+  name: statefulset-template
   annotations:
     doc: |
       This template consumes an input named config which contains a
@@ -17,11 +17,6 @@ spec:
   configPath: .data
 
   params:
-    - name: ports
-      default:
-        - containerPort: 8080
-          port: 8080
-          name: http
     - name: volumes
       default:
         - storageClassName: default
@@ -42,6 +37,7 @@ spec:
     #@ load("@ytt:overlay", "overlay")
 
     #@ def addVolumes():
+    #@ if/end hasattr(data.values.params, "volumes"):
     spec:
       containers:
       #@overlay/match by="name"
@@ -50,17 +46,6 @@ spec:
         #@ for volume in data.values.params.volumes:
         volumeMounts: #@ volume.volumeMount
         #@ end
-      #@overlay/match missing_ok=True
-      volumeClaimTemplates:
-      #@ for volume in data.values.params.volumes:
-      - metadata:
-          name: #@ volume.volumeMount.name
-        spec:
-          storageClassName #@ volume.storageClassName
-          resources:
-            requests:
-              storage: #@ volume.storageSize
-      #@ end
     #@ end
 
     #@ def merge_labels(fixed_values):
@@ -77,30 +62,6 @@ spec:
     #@   return labels
     #@ end
 
-    #@ def intOrString(v):
-    #@   return v if type(v) == "int" else int(v.strip()) if v.strip().isdigit() else v
-    #@ end
-
-    #@ def merge_ports(ports_spec, containers):
-    #@   ports = {}
-    #@   for c in containers:
-    #@     for p in getattr(c, "ports", []):
-    #@       ports[p.containerPort] = {"targetPort": p.containerPort, "port": p.containerPort, "name": getattr(p, "name", str(p.containerPort))}
-    #@     end
-    #@   end
-    #@   for p in ports_spec:
-    #@     targetPort = getattr(p, "containerPort", p.port)
-    #@     type(targetPort) in ("string", "int") or fail("containerPort must be a string or int")
-    #@     targetPort = intOrString(targetPort)
-    #@
-    #@     port = p.port
-    #@     type(port) in ("string", "int") or fail("port must be a string or int")
-    #@     port = int(port)
-    #@     ports[p.port] = {"targetPort": targetPort, "port": port, "name": getattr(p, "name", str(p.port))}
-    #@   end
-    #@   return ports.values()
-    #@ end
-
     #@ def delivery():
     ---
     apiVersion: apps/v1
@@ -115,25 +76,17 @@ spec:
     spec:
       selector:
         matchLabels: #@ data.values.config.metadata.labels
-      template: #@ data.values.config
-    ---
-    apiVersion: v1
-    kind: Service
-    metadata:
-      name: #@ data.values.workload.metadata.name
-      labels: #@ merge_labels({ "app.kubernetes.io/component": "run", "carto.run/workload-name": data.values.workload.metadata.name })
-    spec:
-      selector: #@ data.values.config.metadata.labels
-      ports:
-      #@ hasattr(data.values.params, "ports") and len(data.values.params.ports) or assert.fail("one or more ports param must be provided.")
-      #@ declared_ports = []
-      #@ if "ports" in data.values.params:
-      #@   declared_ports = data.values.params.ports
-      #@ else:
-      #@   declared_ports = struct.encode([{ "containerPort": 8080, "port": 8080, "name": "http"}])
-      #@ end
-      #@ for p in merge_ports(declared_ports, data.values.config.spec.containers):
-      - #@ p
+      template: #@ overlay.apply(data.values.config,addVolumes())
+    #@ if/end hasattr(data.values.params, "volumes"):
+    volumeClaimTemplates:
+      #@ for volume in data.values.params.volumes:
+      - metadata:
+          name: #@ volume.volumeMount.name
+        spec:
+          storageClassName: #@ volume.storageClassName
+          resources:
+            requests:
+              storage: #@ volume.storageSize
       #@ end
     #@ end
 
