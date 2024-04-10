@@ -15,13 +15,3 @@ stringData:
         - timeoutPolicy:
             idle: 60s
             response: 60s
-    
-    #@overlay/match by=overlay.subset({"kind": "HTTPProxy", "metadata": {"name": "accelerator"}})
-    ---
-    spec:
-      routes:
-        #@overlay/match by=overlay.subset({"services": [{"name": "acc-server"}]})
-        #@overlay/match-child-defaults missing_ok=True
-        - timeoutPolicy:
-            idle: 60s
-            response: 60s
