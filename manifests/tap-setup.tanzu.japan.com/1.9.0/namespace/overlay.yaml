@@ -1,0 +1,125 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:overlay", "overlay")
+
+#@ if hasattr(data.values, "gitops"):
+#@ if data.values.gitops == "true":
+#@overlay/append
+---
+apiVersion: secretgen.carvel.dev/v1alpha1
+kind: SecretImport
+metadata:
+  name: git-ssh-import
+spec:
+  fromNamespace: tap-install
+---
+apiVersion: secretgen.carvel.dev/v1alpha1
+kind: SecretTemplate
+metadata:
+  name: git-ssh
+spec:
+  inputResources:
+  - name: secret
+    ref:
+      apiVersion: v1
+      kind: Secret
+      name: git-ssh-import
+  #! the template that follows a subset of the Secret API
+  template:
+    metadata:
+      annotations:
+        tekton.dev/git-0: https://github.com
+    type: kubernetes.io/basic-auth
+    data:
+      username: $(.secret.data.username)
+      password: $(.secret.data.password)
+#@ end
+#@ end
+
+#@ if hasattr(data.values, "bucketrepo"):
+#@ if data.values.bucketrepo == "true":
+---
+apiVersion: secretgen.carvel.dev/v1alpha1
+kind: SecretImport
+metadata:
+  name: bucketrepo-settings-xml
+spec:
+  fromNamespace: tap-install
+#@ end
+#@ end
+
+#@ if hasattr(data.values, "blank_pipeline_and_scan"):
+#@ if data.values.blank_pipeline_and_scan == "true":
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: developer-defined-tekton-pipeline
+  labels:
+    apps.tanzu.vmware.com/pipeline: test
+spec:
+  params:
+    - name: source-url
+    - name: source-revision
+  tasks:
+    - name: test
+      taskRef:
+        name: hello-world
+        kind: ClusterTask
+---
+apiVersion: scanning.apps.tanzu.vmware.com/v1beta1
+kind: ScanPolicy
+metadata:
+  name: scan-policy
+spec:
+  regoFile: |
+    package main
+    deny[msg] {
+    	false
+    	msg = "dummy"
+    }
+#@ end
+#@ end
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: default-deliverable
+  annotations:
+    kapp.k14s.io/change-group: "sa"
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: deliverable
+subjects:
+  - kind: ServiceAccount
+    name: default
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: app-editor
+  annotations:
+    kapp.k14s.io/change-group: "sa"
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: app-editor-bindings
+  annotations:
+    kapp.k14s.io/change-group: "sa"
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: app-editor
+subjects:
+  - kind: ServiceAccount
+    name: app-editor
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: app-editor-token
+  annotations:
+    kubernetes.io/service-account.name: app-editor
+    kapp.k14s.io/change-rule: "upsert after upserting sa"
+type: kubernetes.io/service-account-token
