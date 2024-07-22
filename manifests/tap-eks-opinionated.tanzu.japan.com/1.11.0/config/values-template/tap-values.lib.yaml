@@ -41,7 +41,6 @@ package_overlays:
   - name: ootb-templates
     secrets:
       - name: ootb-templates-ecr-repo-template
-      - name: ootb-templates-overlay-kaniko-build
   - name: ootb-supply-chain-testing-scanning
     secrets:
       - name: ootb-supply-chain-add-ecr-repo-template
