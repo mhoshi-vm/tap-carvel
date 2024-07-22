@@ -1,0 +1,23 @@
+#@ load("@ytt:data", "data")
+
+#@ if data.values.full_deps.enabled:
+---
+apiVersion: packaging.carvel.dev/v1alpha1
+kind: PackageInstall
+metadata:
+  name: full-deps
+  namespace: tap-install
+  annotations:
+    kapp.k14s.io/change-group: tap-pkgi
+    kapp.k14s.io/change-rule.0: "upsert after upserting pkgr"
+    kapp.k14s.io/change-rule.1: "delete before deleting pkgr"
+spec:
+  serviceAccountName: tap-installer-sa
+  packageRef:
+    refName: full-deps.buildservice.tanzu.vmware.com
+    versionSelection:
+      constraints: #@ data.values.full_deps.version.package_version
+  values:
+    - secretRef:
+        name: tap-values
+#@ end

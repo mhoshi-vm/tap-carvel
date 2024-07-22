@@ -1,0 +1,49 @@
+#@data/values-schema
+---
+aws_services:
+  account_id: XXXXXX
+  region: us-west-1
+  rds:
+    version:
+      package_version: 0.4.0
+    enabled: true
+    security_group: sg-xxxx
+  #@schema/default [ "0.0.0.0/0" ]
+  source_ranges:
+    - ""
+  acm:
+    enabled: true
+    arn: xxxxx
+
+full_deps:
+  enabled: true
+  version:
+    package_version: 1.7.45
+    package_repo_bundle_tag: 1.11.0
+  package_repository:
+    oci_repository: tanzu.packages.broadcom.com/tanzu-application-platform/full-deps-package-repo
+
+tap_install:
+  version:
+    package_version: 1.11.0
+    package_repo_bundle_tag: 1.11.0
+  package_repository:
+    oci_repository: tanzu.packages.broadcom.com/tanzu-application-platform/tap-packages
+  gitops:
+    accelerator:
+      enabled: false
+      client_id: XXXXXX
+      client_secret: XXXXXX
+    enabled: false
+    username: aaaa
+    password: bbbb
+  dev_namespaces:
+    - name: demo
+      blank_pipeline_and_scan: "true"
+      gitops: "false"
+  ingress_domain: example.com
+  ecr_repo_template:
+    enabled: true
+  supported_workloads:
+    - cluster_config_template_name: hoge-template
+      type: hoge
