@@ -6,7 +6,7 @@ metadata:
   name: tap
   namespace: tap-install
   annotations:
-    kapp.k14s.io/change-group: pkgi
+    kapp.k14s.io/change-group: tap-pkgi
     kapp.k14s.io/change-rule.0: "upsert after upserting pkgr"
     kapp.k14s.io/change-rule.1: "delete before deleting pkgr"
 spec:

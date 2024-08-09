@@ -8,7 +8,7 @@ metadata:
   name: aws-services
   namespace: tap-install
   annotations:
-    kapp.k14s.io/change-group: pkgi
+    kapp.k14s.io/change-group: aws-pkgi
     kapp.k14s.io/change-rule.0: "upsert after upserting tap-pkgi"
     kapp.k14s.io/change-rule.1: "delete before deleting tap-pkgi"
     ext.packaging.carvel.dev/ytt-paths-from-secret-name.0: "aws-services-overlay"
