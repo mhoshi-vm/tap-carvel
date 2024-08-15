@@ -19,14 +19,14 @@ full_deps:
   enabled: true
   version:
     package_version: 1.7.45
-    package_repo_bundle_tag: 1.11.0
+    package_repo_bundle_tag: 1.11.1
   package_repository:
     oci_repository: tanzu.packages.broadcom.com/tanzu-application-platform/full-deps-package-repo
 
 tap_install:
   version:
-    package_version: 1.11.0
-    package_repo_bundle_tag: 1.11.0
+    package_version: 1.11.1
+    package_repo_bundle_tag: 1.11.1
   package_repository:
     oci_repository: tanzu.packages.broadcom.com/tanzu-application-platform/tap-packages
   gitops:
