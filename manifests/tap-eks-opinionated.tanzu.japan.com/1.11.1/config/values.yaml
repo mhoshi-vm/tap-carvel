@@ -18,7 +18,7 @@ aws_services:
 full_deps:
   enabled: true
   version:
-    package_version: 1.7.45
+    package_version: 1.11.8
     package_repo_bundle_tag: 1.11.1
   package_repository:
     oci_repository: tanzu.packages.broadcom.com/tanzu-application-platform/full-deps-package-repo
