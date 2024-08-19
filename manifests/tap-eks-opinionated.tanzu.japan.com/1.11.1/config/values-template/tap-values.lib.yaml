@@ -48,12 +48,11 @@ package_overlays:
 
 supply_chain: testing_scanning
 
-scanning:
-  active_keychains:
-  - ecr
-
 ootb_supply_chain_testing_scanning:
   image_scanner_template_name: image-vulnerability-scan-trivy
+  scanning:
+    active_keychains:
+      - ecr
   supported_workloads:
     #@ for/end workload in supported_workloads()["workloads"]:
     - cluster_config_template_name: #@ workload["cluster_config_template_name"]
