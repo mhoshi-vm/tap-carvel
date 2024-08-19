@@ -5,7 +5,7 @@ aws_services:
   region: us-west-1
   rds:
     version:
-      package_version: 0.4.0
+      package_version: 0.4.1
     enabled: true
     security_group: sg-xxxx
   #@schema/default [ "0.0.0.0/0" ]
