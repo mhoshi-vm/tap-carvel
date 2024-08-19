@@ -48,10 +48,6 @@ package_overlays:
 
 supply_chain: testing_scanning
 
-scanning:
-  active_keychains:
-    - name: ecr
-
 ootb_supply_chain_testing_scanning:
   image_scanner_template_name: image-vulnerability-scan-trivy
   supported_workloads:
