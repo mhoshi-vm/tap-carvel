@@ -23,13 +23,6 @@ spec:
               type: object
               additionalProperties: false
               properties:
-                version:
-                  type: object
-                  additionalProperties: false
-                  properties:
-                    package_version:
-                      type: string
-                      default: 0.1.0
                 enabled:
                   type: boolean
                   default: true
@@ -64,9 +57,6 @@ spec:
               type: object
               additionalProperties: false
               properties:
-                package_version:
-                  type: string
-                  default: 1.7.45
                 package_repo_bundle_tag:
                   type: string
                   default: 1.11.1

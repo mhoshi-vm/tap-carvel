@@ -16,7 +16,7 @@ spec:
   packageRef:
     refName: full-deps.buildservice.tanzu.vmware.com
     versionSelection:
-      constraints: #@ data.values.full_deps.version.package_version
+      constraints: ">0.0.0"
   values:
     - secretRef:
         name: tap-values

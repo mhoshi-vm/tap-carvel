@@ -17,7 +17,7 @@ spec:
   packageRef:
     refName: aws.services.tanzu.vmware.com
     versionSelection:
-      constraints: #@ data.values.aws_services.rds.version.package_version
+      constraints: ">0.0.0"
   values:
     - secretRef:
         name: aws-services-values
