@@ -1,0 +1,62 @@
+#@data/values-schema
+---
+domain: example.com
+
+ca:
+  crt: dummy
+  key: dummy
+
+certmanager:
+  enabled: true
+  package_repo: 
+    install: false
+    repo: projects.registry.vmware.com/tkg/packages/standard/repo
+    version: 2.2.0
+  package:
+    install: true
+
+dex:
+  enabled: true
+  version: 0.14.3  
+
+oidc:
+  secret: randomsecret
+
+tmc:
+  repo: internalrepo.com/tmc
+  postgres:
+    password: Passw0rd
+  minio:
+    username: root
+    password: Passw0rd
+
+openldap:
+  ldif: |
+    dn: dc=tmc,dc=dev
+    objectClass: dcObject
+    objectclass: organization
+    o: tmc
+    dc: tmc
+    
+    dn: ou=usergroups,dc=tmc,dc=dev
+    objectClass: organizationalUnit
+    objectClass: top
+    ou: usergroups
+    
+    dn: cn=tmc01,ou=usergroups,dc=tmc,dc=dev
+    cn: tmc01
+    sn: tmc01
+    objectClass: inetOrgPerson
+    objectClass: posixAccount
+    objectClass: shadowAccount
+    userPassword: VMware1!
+    uid: tmc01
+    mail: tmc01@tmc.com
+    uidNumber: 1000
+    gidNumber: 1000
+    homeDirectory: /home/user01
+    
+    dn: cn=tmc:admin,ou=usergroups,dc=tmc,dc=dev
+    cn: tmc:admin
+    objectClass: groupOfNames
+    member: cn=tmc01,ou=usergroups,dc=tmc,dc=dev
