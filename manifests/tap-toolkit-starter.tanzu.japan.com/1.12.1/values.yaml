@@ -1,0 +1,40 @@
+#@data/values-schema
+---
+#@schema/desc "Rabbitmq starter"
+rabbitmq:
+  #@schema/desc "Enable starter"
+  enabled: true
+  #@schema/desc "package installation"
+  package:
+    #@schema/desc "install via carvel"
+    install: true
+    #@schema/desc "install repo"
+    repo: rabbitmq-kubernetes.packages.broadcom.com/tanzu-rabbitmq-package-repo
+    #@schema/desc "install version"
+    version: 4.0.1
+    #@schema/desc "operator version"
+    operator_version: 4.0.1
+  #@schema/desc "instance count"
+  count: 0
+
+
+
+#@schema/desc "AppSSO starter"
+sso:
+  #@schema/desc "tls setting"
+  tls:
+   #@schema/desc "enable (recommended to true)"
+   enabled: false
+   #@schema/desc "cert name"
+   certname: cnrs-default-tls
+   #@schema/desc "cert namespace" 
+   certnamespace: tanzu-system-ingress
+  #@schema/desc "Enable test users"
+  testuser_enabled: true
+  #@schema/desc "Providers"
+  #@schema/type any=True
+  providers: []
+  #@schema/desc "Redirect URLs"
+  redirect_urls: 
+  - https://example.com
+
