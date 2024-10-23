@@ -1,0 +1,94 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: Package
+metadata:
+  name: tap-toolkit-starter.tanzu.japan.com.1.12.1
+spec:
+  refName: tap-toolkit-starter.tanzu.japan.com
+  version: 1.12.1
+  valuesSchema:
+    openAPIv3:
+      title: tap-toolkit-starter.tanzu-jp values schema
+      properties:
+        rabbitmq:
+          type: object
+          additionalProperties: false
+          description: Rabbitmq starter
+          properties:
+            enabled:
+              type: boolean
+              description: Enable starter
+              default: true
+            package:
+              type: object
+              additionalProperties: false
+              description: package installation
+              properties:
+                install:
+                  type: boolean
+                  description: install via carvel
+                  default: true
+                repo:
+                  type: string
+                  description: install repo
+                  default: rabbitmq-kubernetes.packages.broadcom.com/tanzu-rabbitmq-package-repo
+                version:
+                  type: string
+                  description: install version
+                  default: 4.0.1
+                operator_version:
+                  type: string
+                  description: operator version
+                  default: 4.0.1
+            count:
+              type: integer
+              description: instance count
+              default: 0
+        sso:
+          type: object
+          additionalProperties: false
+          description: AppSSO starter
+          properties:
+            tls:
+              type: object
+              additionalProperties: false
+              description: tls setting
+              properties:
+                enabled:
+                  type: boolean
+                  description: enable (recommended to true)
+                  default: false
+                certname:
+                  type: string
+                  description: cert name
+                  default: cnrs-default-tls
+                certnamespace:
+                  type: string
+                  description: cert namespace
+                  default: tanzu-system-ingress
+            testuser_enabled:
+              type: boolean
+              description: Enable test users
+              default: true
+            providers:
+              nullable: true
+              description: Providers
+              default: []
+            redirect_urls:
+              type: array
+              description: Redirect URLs
+              items:
+                type: string
+                default: https://example.com
+              default: []
+
+  template:
+    spec:
+      fetch:
+      - git:
+          url: https://github.com/mhoshi-vm/tap-carvel
+          ref: origin/pkgr
+          subPath: manifests/tap-toolkit-starter.tanzu.japan.com/1.12.1
+      template:
+      - ytt: {}
+      deploy:
+      - kapp: {}
