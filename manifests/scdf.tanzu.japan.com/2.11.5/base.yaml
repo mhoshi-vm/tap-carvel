@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: scdf
+  labels:
+    pod-security.kubernetes.io/enforce: baseline
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: scdf-registry
+  namespace: scdf
+  annotations:
+    secretgen.carvel.dev/image-pull-secret: ""
+type: kubernetes.io/dockerconfigjson
+data:
+  .dockerconfigjson: e30K
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: default
+  namespace: scdf
+  annotations:
+    kapp.k14s.io/create-strategy: fallback-on-update  
+secrets:
+  - name: scdf-registry
+imagePullSecrets:
+  - name: scdf-registry
