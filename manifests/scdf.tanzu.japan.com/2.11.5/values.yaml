@@ -52,4 +52,4 @@ postgres:
 scdf:
   package:
     repo: registry.packages.broadcom.com/p-scdf-for-kubernetes/scdf-pro-repo
-    version: 1.6.4
+    version: 1.6.1
