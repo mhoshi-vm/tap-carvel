@@ -17,7 +17,7 @@ spec:
 apiVersion: packaging.carvel.dev/v1alpha1
 kind: PackageInstall
 metadata:
-  name: postgres
+  name: scdf
   namespace: scdf
   annotations:
     kapp.k14s.io/change-rule: "upsert after upserting tkcrd"
