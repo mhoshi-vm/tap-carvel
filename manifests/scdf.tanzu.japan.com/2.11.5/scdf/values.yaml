@@ -1,0 +1,43 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:struct", "struct")
+#@ load("@ytt:yaml", "yaml")
+
+#@ def scdf_values():
+scdf:
+  binder:
+    type: rabbit
+    rabbit:
+      host: rmq-1.scdf
+  server:
+    service:
+      type: LoadBalancer
+    env:
+      - name: SPRING_CLOUD_DATAFLOW_FEATURES_STREAMS_ENABLED
+        value: "true"
+      - name: SPRING_CLOUD_DATAFLOW_FEATURES_TASKS_ENABLED
+        value: "true"
+      - name: SPRING_CLOUD_DATAFLOW_FEATURES_SCHEDULES_ENABLED
+        value: "true"
+    database:
+      url: jdbc:postgresql://postgres-11.scdf:5432/postgres-11
+      secretName: postgres-11-app-user-db-secret
+      secretUsernameKey: username
+      secretPasswordKey: password
+  skipper:
+    database:
+      url: jdbc:postgresql://postgres-11.scdf:5432/postgres-11
+      secretName: postgres-11-app-user-db-secret
+      secretUsernameKey: username
+      secretPasswordKey: password
+  registry:
+    secret:
+      ref: "scdf-registry"
+#@ end
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: scdf-values
+  namespace: scdf
+stringData:
+  values.yaml: #@ yaml.encode(scdf_values())
