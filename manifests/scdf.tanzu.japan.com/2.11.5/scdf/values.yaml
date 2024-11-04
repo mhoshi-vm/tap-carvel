@@ -20,12 +20,14 @@ scdf:
         value: "true"
     database:
       url: jdbc:postgresql://postgres-11.scdf:5432/postgres-11
+      driverClassName: org.postgresql.Driver
       secretName: postgres-11-app-user-db-secret
       secretUsernameKey: username
       secretPasswordKey: password
   skipper:
     database:
       url: jdbc:postgresql://postgres-11.scdf:5432/postgres-11
+      driverClassName: org.postgresql.Driver
       secretName: postgres-11-app-user-db-secret
       secretUsernameKey: username
       secretPasswordKey: password
