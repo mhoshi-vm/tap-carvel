@@ -27,3 +27,13 @@ secrets:
   - name: scdf-registry
 imagePullSecrets:
   - name: scdf-registry
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: kapp-sa
+  namespace: scdf
+secrets:
+  - name: scdf-registry
+imagePullSecrets:
+  - name: scdf-registry
