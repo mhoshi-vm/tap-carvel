@@ -129,6 +129,8 @@ spec:
       cpu: 250m
       memory: 250Mi
   rabbitmq:
+    additionalConfig: |
+      loopback_users = none
     additionalPlugins:
       - rabbitmq_shovel
       - rabbitmq_shovel_management
