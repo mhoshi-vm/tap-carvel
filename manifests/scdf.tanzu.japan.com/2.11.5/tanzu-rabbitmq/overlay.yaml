@@ -116,6 +116,9 @@ metadata:
   annotations:
     kapp.k14s.io/change-rule: "upsert after upserting tkcrd"
 spec:
+  secretBackend:
+    externalSecret:
+      name: #@ "rabbitmq-secret-" + str(j)
   imagePullSecrets:
   - name: scdf-registry
   resources:
@@ -132,5 +135,21 @@ spec:
       - rabbitmq_management
       - rabbitmq_prometheus
       - rabbitmq_peer_discovery_k8s
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: #@ "rabbitmq-secret-" + str(j)
+  namespace: scdf
+stringData:
+  host: #@ "rmq-" + str(j) + ".scdf.svc"
+  port: "5672"
+  provider: rabbitmq
+  username: guest
+  password: guest
+  type: rabbitmq
+  default_user.conf: |
+    default_user = guest
+    default_pass = guest
 #@ end
 #@ end

@@ -12,16 +12,6 @@ scdf:
     service:
       type: LoadBalancer
     env:
-      - name: SPRING_RABBITMQ_USERNAME
-        valueFrom:
-          secretKeyRef:
-            key: username
-            name: rmq-1-default-user
-      - name: SPRING_RABBITMQ_PASSWORD
-        valueFrom:
-          secretKeyRef:
-            key: password
-            name: rmq-1-default-user
       - name: SPRING_CLOUD_DATAFLOW_FEATURES_STREAMS_ENABLED
         value: "true"
       - name: SPRING_CLOUD_DATAFLOW_FEATURES_TASKS_ENABLED
@@ -35,17 +25,6 @@ scdf:
       secretUsernameKey: username
       secretPasswordKey: password
   skipper:
-    env:
-      - name: SPRING_RABBITMQ_USERNAME
-        valueFrom:
-          secretKeyRef:
-            key: username
-            name: rmq-1-default-user
-      - name: SPRING_RABBITMQ_PASSWORD
-        valueFrom:
-          secretKeyRef:
-            key: password
-            name: rmq-1-default-user
     database:
       url: jdbc:postgresql://postgres-11.scdf:5432/postgres-11
       driverClassName: org.postgresql.Driver
