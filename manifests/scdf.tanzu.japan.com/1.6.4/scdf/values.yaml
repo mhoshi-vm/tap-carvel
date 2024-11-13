@@ -11,7 +11,6 @@ scdf:
   ctr:
     image:
       repository: #@ data.values.scdf.package.base_repo + "/spring-cloud-dataflow-composed-task-runner"
-      # tag: #@ "2.11.5_scdf-k8s-" + data.values.scdf.package.version
       digest: #@ data.values.scdf.package.digest.ctr
   server:
     image:
