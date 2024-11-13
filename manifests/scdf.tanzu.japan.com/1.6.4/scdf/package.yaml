@@ -12,6 +12,8 @@ spec:
   fetch:
     - imgpkgBundle:
         image: #@ data.values.scdf.package.base_repo + "/scdf-pro-package:" + data.values.scdf.package.version
+        secretRef:
+          name: scdf-registry
   template:
     - ytt:
         ignoreUnknownComments: true
