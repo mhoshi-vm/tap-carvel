@@ -1,0 +1,139 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: Package
+metadata:
+  name: scdf.tanzu.japan.com.1.6.4
+spec:
+  refName: scdf.tanzu.japan.com
+  version: 1.6.4
+  valuesSchema:
+    openAPIv3:
+      title: scdf.tanzu-jp values schema
+      properties:
+        certmanager:
+          type: object
+          additionalProperties: false
+          properties:
+            enabled:
+              type: boolean
+              default: true
+            package_repo:
+              type: object
+              additionalProperties: false
+              properties:
+                install:
+                  type: boolean
+                  default: false
+                repo:
+                  type: string
+                  default: projects.registry.vmware.com/tkg/packages/standard/repo
+                version:
+                  type: string
+                  default: 2.2.0
+            package:
+              type: object
+              additionalProperties: false
+              properties:
+                install:
+                  type: boolean
+                  default: true
+        rabbitmq:
+          type: object
+          additionalProperties: false
+          description: Rabbitmq starter
+          properties:
+            enabled:
+              type: boolean
+              description: Enable starter
+              default: true
+            package:
+              type: object
+              additionalProperties: false
+              description: package installation
+              properties:
+                install:
+                  type: boolean
+                  description: install via carvel
+                  default: true
+                repo:
+                  type: string
+                  description: install repo
+                  default: rabbitmq-kubernetes.packages.broadcom.com/tanzu-rabbitmq-package-repo
+                version:
+                  type: string
+                  description: install version
+                  default: 4.0.1
+                operator_version:
+                  type: string
+                  description: operator version
+                  default: 4.0.1
+            count:
+              type: integer
+              description: instance count
+              default: 1
+        postgres:
+          type: object
+          additionalProperties: false
+          description: Postgres starter
+          properties:
+            enabled:
+              type: boolean
+              description: Enable starter
+              default: true
+            package:
+              type: object
+              additionalProperties: false
+              description: package installation
+              properties:
+                install:
+                  type: boolean
+                  description: install via carvel
+                  default: true
+                repo:
+                  type: string
+                  description: install repo
+                  default: tanzu-sql-postgres.packages.broadcom.com/tds-packages
+                version:
+                  type: string
+                  description: install version
+                  default: 1.14.0
+                operator_version:
+                  type: string
+                  description: operator version
+                  default: 3.0.0
+            count:
+              type: integer
+              description: instance count
+              default: 1
+            storage_class:
+              type: string
+              description: storage class
+              default: default
+            instance_version:
+              type: string
+              description: instance version
+              default: postgres-14
+        scdf:
+          type: object
+          additionalProperties: false
+          properties:
+            package:
+              type: object
+              additionalProperties: false
+              properties:
+                base_repo:
+                  type: string
+                  default: registry.packages.broadcom.com/p-scdf-for-kubernetes
+                version:
+                  type: string
+                  default: 1.6.4
+  template:
+    spec:
+      fetch:
+      - git:
+          url: https://github.com/mhoshi-vm/tap-carvel
+          ref: origin/pkgr
+          subPath: manifests/scdf.tanzu.japan.com/1.6.4
+      template:
+      - ytt: {}
+      deploy:
+      - kapp: {}

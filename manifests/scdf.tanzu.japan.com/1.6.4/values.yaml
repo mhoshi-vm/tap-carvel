@@ -1,0 +1,55 @@
+#@data/values-schema
+---
+certmanager:
+  enabled: true
+  package_repo:
+    install: false
+    repo: projects.registry.vmware.com/tkg/packages/standard/repo
+    version: 2.2.0
+  package:
+    install: true
+
+#@schema/desc "Rabbitmq starter"
+rabbitmq:
+  #@schema/desc "Enable starter"
+  enabled: true
+  #@schema/desc "package installation"
+  package:
+    #@schema/desc "install via carvel"
+    install: true
+    #@schema/desc "install repo"
+    repo: rabbitmq-kubernetes.packages.broadcom.com/tanzu-rabbitmq-package-repo
+    #@schema/desc "install version"
+    version: 4.0.1
+    #@schema/desc "operator version"
+    operator_version: 4.0.1
+  #@schema/desc "instance count"
+  count: 1
+
+
+#@schema/desc "Postgres starter"
+postgres:
+  #@schema/desc "Enable starter"
+  enabled: true
+  #@schema/desc "package installation"
+  package:
+    #@schema/desc "install via carvel"
+    install: true
+    #@schema/desc "install repo"
+    repo: tanzu-sql-postgres.packages.broadcom.com/tds-packages
+    #@schema/desc "install version"
+    version: 1.14.0
+    #@schema/desc "operator version"
+    operator_version: 3.0.0
+  #@schema/desc "instance count"
+  count: 1
+  #@schema/desc "storage class"
+  storage_class: default
+  #@schema/desc "instance version"
+  instance_version: postgres-14
+
+
+scdf:
+  package:
+    base_repo: registry.packages.broadcom.com/p-scdf-for-kubernetes
+    version: 1.6.4

@@ -1,0 +1,20 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:overlay", "overlay")
+
+---
+apiVersion: packaging.carvel.dev/v1alpha1
+kind: PackageInstall
+metadata:
+  name: scdf
+  namespace: scdf
+  annotations:
+    kapp.k14s.io/change-rule: "upsert after upserting tkcrd"
+spec:
+  serviceAccountName: kapp-sa
+  packageRef:
+    refName: scdf-pro.tanzu.vmware.com
+    versionSelection:
+      constraints: ">0.0.0"
+  values:
+  - secretRef:
+      name: scdf-values
