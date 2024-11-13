@@ -22,9 +22,6 @@ spec:
         valuesFrom:
           - secretRef:
               name: scdf-values
-    - kbld:
-        paths:
-          - '-'
   deploy:
     - kapp:
         rawOptions:

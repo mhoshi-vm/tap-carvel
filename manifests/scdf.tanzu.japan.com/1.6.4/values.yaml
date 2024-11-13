@@ -53,3 +53,7 @@ scdf:
   package:
     base_repo: registry.packages.broadcom.com/p-scdf-for-kubernetes
     version: 1.6.4
+    digest:
+      server: sha256:d61157568a5dfc2cae7fa6d74d8d019a988209b7582b933c6c7c5f462d5d58cc
+      skipper: sha256:2faf663f5e0e6dc81dbf96870b1f67b4b5c1a314735bae7c417cefc59574400e
+      ctr: sha256:b2b0efaabfbdbd92af6193e49a4f97bf090d62bb1de1ec4a6b418805261015c1

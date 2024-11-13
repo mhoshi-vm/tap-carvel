@@ -11,10 +11,12 @@ scdf:
   ctr:
     image:
       repository: #@ data.values.scdf.package.base_repo + "/spring-cloud-dataflow-composed-task-runner"
-      tag: #@ "2.11.5_scdf-k8s-" + data.values.scdf.package.version
+      # tag: #@ "2.11.5_scdf-k8s-" + data.values.scdf.package.version
+      digest: #@ data.values.scdf.package.digest.ctr
   server:
     image:
       repository: #@ data.values.scdf.package.base_repo + "/scdf-pro-server"
+      digest: #@ data.values.scdf.package.digest.server
     service:
       type: LoadBalancer
     env:
@@ -33,6 +35,7 @@ scdf:
   skipper:
     image:
       repository: #@ data.values.scdf.package.base_repo + "/scdf-pro-skipper"
+      digest: #@ data.values.scdf.package.digest.skipper
     database:
       url: jdbc:postgresql://postgres-11.scdf:5432/postgres-11
       driverClassName: org.postgresql.Driver
