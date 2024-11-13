@@ -20,9 +20,9 @@ rabbitmq:
     #@schema/desc "install repo"
     repo: rabbitmq-kubernetes.packages.broadcom.com/tanzu-rabbitmq-package-repo
     #@schema/desc "install version"
-    version: 4.0.1
+    version: 4.0.3
     #@schema/desc "operator version"
-    operator_version: 4.0.1
+    operator_version: 4.0.3
   #@schema/desc "instance count"
   count: 1
 
