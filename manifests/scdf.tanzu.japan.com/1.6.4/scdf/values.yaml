@@ -32,6 +32,21 @@ scdf:
       secretUsernameKey: username
       secretPasswordKey: password
   skipper:
+    config:
+      spring:
+        cloud:
+          skipper:
+            server:
+              platform:
+                kubernetes:
+                  accounts:
+                    default:
+                      requests:
+                        cpu: 100m
+                        memory: 512Mi
+                      limits:
+                        cpu: 2000m
+                        memory: 4096Mi
     image:
       repository: #@ data.values.scdf.package.base_repo + "/scdf-pro-skipper"
       digest: #@ data.values.scdf.package.digest.skipper
