@@ -40,9 +40,6 @@ scdf:
       secretName: postgres-11-app-user-db-secret
       secretUsernameKey: username
       secretPasswordKey: password
-    registry:
-      secret:
-        ref: "scdf-registry"
   skipper:
     config:
       spring:
