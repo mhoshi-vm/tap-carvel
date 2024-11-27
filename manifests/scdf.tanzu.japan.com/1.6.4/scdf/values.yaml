@@ -13,6 +13,15 @@ scdf:
       repository: #@ data.values.scdf.package.base_repo + "/spring-cloud-dataflow-composed-task-runner"
       digest: #@ data.values.scdf.package.digest.ctr
   server:
+    config:
+      spring:
+        cloud:
+          dataflow:
+            container:
+              registry-configurations:
+                ghcr:
+                  registry-host: ghcr.io
+                  authorization-type: dockeroauth2
     image:
       repository: #@ data.values.scdf.package.base_repo + "/scdf-pro-server"
       digest: #@ data.values.scdf.package.digest.server
@@ -31,6 +40,9 @@ scdf:
       secretName: postgres-11-app-user-db-secret
       secretUsernameKey: username
       secretPasswordKey: password
+    registry:
+      secret:
+        ref: "scdf-registry"
   skipper:
     config:
       spring:
