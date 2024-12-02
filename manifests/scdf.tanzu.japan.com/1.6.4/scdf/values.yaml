@@ -50,6 +50,7 @@ scdf:
                 kubernetes:
                   accounts:
                     default:
+                      imagePullPolicy: Always
                       requests:
                         cpu: 100m
                         memory: 256Mi
