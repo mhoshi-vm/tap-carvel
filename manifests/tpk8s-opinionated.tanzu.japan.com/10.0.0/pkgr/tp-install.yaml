@@ -97,7 +97,7 @@ spec:
   packageRef:
     refName: sm.tanzu.vmware.com
     versionSelection:
-      constraints: ">0.0.0"
+      constraints: #@ data.values.tp.version
   values:
   - secretRef:
       name: tp-values
