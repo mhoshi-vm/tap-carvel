@@ -4,11 +4,11 @@
 #@ load("@ytt:yaml", "yaml")
 
 #@ def dockerhub_config_fragment():
-username: #@ data.values.imageRegistry.username
-password: #@ data.values.imageRegistry.password
+username: #@ data.values.tp.imageRegistry.username
+password: #@ data.values.tp.imageRegistry.password
 #@ end
 
-#@ docker_config = { data.values.imageRegistry.host : dockerhub_config_fragment()}
+#@ docker_config = { data.values.tp.imageRegistry.server : dockerhub_config_fragment()}
 
 #@ def dockerhub_config():
 auths: #@ docker_config
