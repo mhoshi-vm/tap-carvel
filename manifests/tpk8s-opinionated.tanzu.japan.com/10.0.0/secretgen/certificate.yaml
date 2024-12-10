@@ -6,6 +6,8 @@ kind: Certificate
 metadata:
   name: root-ca-cert
   namespace: #@ data.values.tp.namespace
+  annotations:
+    kapp.k14s.io/change-group: "secrettemplate"
 spec:
   isCA: true
 ---
@@ -14,6 +16,8 @@ kind: Certificate
 metadata:
   name: inter-ca-cert
   namespace: #@ data.values.tp.namespace
+  annotations:
+    kapp.k14s.io/change-group: "secrettemplate"
 spec:
   caRef:
     name: root-ca-cert
@@ -27,6 +31,8 @@ kind: Secret
 metadata:
   name: inter-ca-cert
   namespace: #@ data.values.tp.namespace
+  annotations:
+    kapp.k14s.io/change-group: "secrettemplate"
 type: Opaque
 stringData:
   crt.pem: #@ data.values.tp.ingress.tls.certificate

@@ -5,10 +5,13 @@ kind: RSAKey
 metadata:
   name: rsa-key
   namespace: #@ data.values.tp.namespace
----
+  annotations:
+    kapp.k14s.io/change-group: "secrettemplate"
 ---
 apiVersion: secretgen.k14s.io/v1alpha1
 kind: RSAKey
 metadata:
   name: jwt-key
   namespace: #@ data.values.tp.namespace
+  annotations:
+    kapp.k14s.io/change-group: "secrettemplate"
