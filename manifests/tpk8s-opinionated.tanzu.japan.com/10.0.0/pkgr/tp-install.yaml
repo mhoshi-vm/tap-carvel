@@ -57,6 +57,7 @@ metadata:
   namespace: #@ data.values.tp.namespace
   annotations:
     kapp.k14s.io/change-group: "pkgr"
+    kapp.k14s.io/change-rule: "upsert after upserting secret"
 spec:
   fetch:
     imgpkgBundle:
@@ -71,6 +72,7 @@ metadata:
   namespace: #@ data.values.tp.namespace
   annotations:
     kapp.k14s.io/change-group: "pkgr"
+    kapp.k14s.io/change-rule: "upsert after upserting secret"
 spec:
   fetch:
     imgpkgBundle:
