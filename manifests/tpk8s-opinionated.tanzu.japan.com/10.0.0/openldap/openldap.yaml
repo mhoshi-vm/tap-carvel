@@ -1,0 +1,165 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:base64", "base64")
+
+#@ port = 636 if data.values.openldap.ssl else 389
+#@ containerPort = port + 1000
+#@ if data.values.openldap.enabled:
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: openldap
+  labels:
+    pod-security.kubernetes.io/enforce: privileged
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/name: openldap
+  name: openldap
+  namespace: openldap
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: openldap
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: openldap
+    spec:
+      volumes:
+        - name: openldap-ldif
+          secret:
+            secretName: openldap-ldif
+        #@ if data.values.openldap.ssl:
+        - name: certifcate
+          secret:
+            secretName: openldap-cert
+        #@ end
+      containers:
+      - env:
+        - name: LDAP_ROOT
+          value: #@ data.values.openldap.rootdn
+        - name: LDAP_ADMIN_USERNAME
+          value: admin
+        - name: LDAP_ADMIN_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: adminpassword
+              name: openldap
+        #@ if data.values.openldap.ssl:
+        - name: LDAP_ENABLE_TLS
+          value: "yes"
+        - name: LDAP_TLS_CERT_FILE
+          value: /tls/tls.crt
+        - name: LDAP_TLS_KEY_FILE
+          value: /tls/tls.key
+        - name: LDAP_TLS_CA_FILE
+          value: /tls/ca.crt
+        #@ end
+        image: index.docker.io/bitnami/openldap@sha256:8e3f28db7a8c05d7db99ec688b8ca1044f0deaf8f98ea5b1f71c42276e3c1583
+        imagePullPolicy: Always
+        name: openldap
+        ports:
+        - containerPort: #@ containerPort
+          name: tcp-ldap
+        resources:
+          requests:
+            cpu: 100m
+            memory: 64Mi
+        volumeMounts:
+          - mountPath: "/ldifs"
+            name: openldap-ldif
+            readOnly: true
+          #@ if data.values.openldap.ssl:
+          - mountPath: "/tls"
+            name: certifcate
+            readOnly: true
+          #@ end
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/name: openldap
+  name: openldap
+  namespace: openldap
+spec:
+  ports:
+  - name: tcp-ldap
+    port: #@ port
+    targetPort: tcp-ldap
+  selector:
+    app.kubernetes.io/name: openldap
+  type: ClusterIP
+---
+apiVersion: v1
+data:
+  adminpassword: #@ base64.encode(data.values.openldap.adminpassword)
+kind: Secret
+metadata:
+  name: openldap
+  namespace: openldap
+---
+apiVersion: v1
+data:
+  custom.ldif: #@ base64.encode(data.values.openldap.ldif)
+kind: Secret
+metadata:
+  creationTimestamp: null
+  name: openldap-ldif
+  namespace: openldap
+
+#@ if data.values.openldap.ssl:
+---
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+ name: openldap-root-issuer
+ namespace: openldap
+spec:
+ selfSigned: {}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+ name: openldap-rootca
+ namespace: openldap
+spec:
+  isCA: true
+  commonName: openldap-rootca
+  secretName: openldap-rootca
+  issuerRef:
+    name: openldap-root-issuer
+    kind: Issuer
+    group: cert-manager.io
+---
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: openldap-ca-issuer
+  namespace: openldap
+spec:
+  ca:
+    secretName: openldap-rootca
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: openldap-cert
+  namespace: openldap
+spec:
+  secretName: openldap-cert
+  isCA: false
+  usages:
+    - server auth
+    - client auth
+  dnsNames:
+  - #@ "openldap.openldap.svc.cluster.local"
+  - "openldap"
+  issuerRef:
+    name: openldap-ca-issuer
+#@ end
+#@ end

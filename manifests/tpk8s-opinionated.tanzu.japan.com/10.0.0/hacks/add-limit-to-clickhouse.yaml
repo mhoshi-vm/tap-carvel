@@ -1,0 +1,34 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: add-limit-to-clickhouse
+  namespace: #@ data.values.tp.namespace
+stringData:
+  add-limit-to-clickhouse.yaml: |
+    #@ load("@ytt:overlay", "overlay")
+    #@ load("@ytt:base64", "base64")
+    #@ load("@ytt:yaml", "yaml")
+    
+    #@overlay/match-child-defaults missing_ok=True
+    ---
+    #@ def reduce_size():
+    #@overlay/match missing_ok=True
+    resources:
+      requests:
+        cpu: 0.5
+        memory: 1Gi
+      #@overlay/match missing_ok=True
+      limits:
+        #@overlay/match missing_ok=True
+        cpu: 1
+        #@overlay/match missing_ok=True
+        memory: 2Gi
+    #@ end
+    
+    #@overlay/match by=overlay.subset({"kind":"Secret", "metadata": {"name": "clickhouse-values"}})
+    ---
+    data:
+      #@overlay/replace via=lambda orig, _: yaml.encode(overlay.apply(yaml.decode(base64.decode(orig)),reduce_size()))
+      values.yaml:

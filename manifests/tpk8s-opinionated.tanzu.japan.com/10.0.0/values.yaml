@@ -1,0 +1,70 @@
+#@data/values-schema
+---
+certmanager:
+  enabled: true
+  package_repo:
+    install: false
+    repo: projects.registry.vmware.com/tkg/packages/standard/repo
+    version: 2.2.0
+  package:
+    install: true
+
+openldap:
+  enabled: true
+  ssl: false
+  rootdn: dc=tp,dc=dev
+  group: usergroups
+  adminpassword: adminpassword
+  ldif: |
+    dn: dc=tp,dc=dev
+    objectClass: dcObject
+    objectclass: organization
+    o: tp
+    dc: tp
+
+    dn: ou=usergroups,dc=tp,dc=dev
+    objectClass: organizationalUnit
+    objectClass: top
+    ou: usergroups
+
+    dn: cn=tp01,ou=usergroups,dc=tp,dc=dev
+    cn: tp01
+    sn: tp01
+    objectClass: inetOrgPerson
+    objectClass: posixAccount
+    objectClass: shadowAccount
+    userPassword: VMware1!
+    uid: tp01
+    mail: tp01@tp.com
+    uidNumber: 1000
+    gidNumber: 1000
+    homeDirectory: /home/tp01
+
+    dn: cn=tp:admin,ou=usergroups,dc=tp,dc=dev
+    cn: tp:admin
+    objectClass: groupOfNames
+    member: cn=tp01,ou=usergroups,dc=tp,dc=dev
+
+tp:
+  flavor: full
+  profile: evaluation
+  version: '10.0.0-oct-2024-rc.533-vc0bb325'
+  tmc_repo_sha: 995872bc410553e0858155a0b3a7bc6d3a280fa1e795fc1f7aac7c129e8c2b60
+  storage_class: tkg-ds
+  ingress:
+    host: tp.example.com
+    self_signed_cert: true
+    certificate: ""
+    privateKey: ""
+  salt_disabled: true
+  vcf_disabled: true
+  imageRegistry:
+    server: harbor.example.com
+    username: admin
+    password: ""
+    repo: tpk8s/10.0.0
+  organization:
+    name: default
+  namespace: tanzusm
+  ldap_enabled: true
+  oauthProviders: [ "" ]

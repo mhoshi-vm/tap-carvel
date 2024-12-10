@@ -1,0 +1,29 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: reduce-redis-replica
+  namespace: #@ data.values.tp.namespace
+stringData:
+  reduce-redis-replica.yaml: |
+    #@ load("@ytt:overlay", "overlay")
+    #@ load("@ytt:base64", "base64")
+    #@ load("@ytt:yaml", "yaml")
+    
+    #@overlay/match-child-defaults missing_ok=True
+    ---
+    #@ def reduce_replica():
+    #@overlay/match missing_ok=True
+    architecture: standalone
+    #@overlay/match missing_ok=True
+    replica:
+      #@overlay/match missing_ok=True
+      replicaCount: 1
+    #@ end
+    
+    #@overlay/match by=overlay.subset({"kind":"Secret", "metadata": {"name": "redis-values"}})
+    ---
+    data:
+      #@overlay/replace via=lambda orig, _: base64.encode(yaml.encode(overlay.apply(yaml.decode(base64.decode(orig)),reduce_replica())))
+      values.yaml:

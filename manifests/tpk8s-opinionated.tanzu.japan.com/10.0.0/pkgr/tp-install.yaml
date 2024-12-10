@@ -1,0 +1,104 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:overlay", "overlay")
+#@ load("@ytt:base64", "base64")
+#@ load("@ytt:yaml", "yaml")
+
+#@ def dockerhub_config_fragment():
+username: #@ data.values.imageRegistry.username
+password: #@ data.values.imageRegistry.password
+#@ end
+
+#@ docker_config = { data.values.imageRegistry.host : dockerhub_config_fragment()}
+
+#@ def dockerhub_config():
+auths: #@ docker_config
+#@ end
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: #@ data.values.tp.namespace
+  labels:
+    pod-security.kubernetes.io/enforce: privileged
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: registrysecret
+  namespace: #@ data.values.tp.namespace
+type: kubernetes.io/dockerconfigjson
+data:
+  .dockerconfigjson: #@ base64.encode("{}".format(yaml.decode(yaml.encode(dockerhub_config()))))
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: kapp-sa
+  namespace: #@ data.values.tp.namespace
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: tmc-kapp-role-binding
+  namespace: #@ data.values.tp.namespace
+subjects:
+- kind: ServiceAccount
+  name: kapp-sa
+  namespace: #@ data.values.tp.namespace
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+---
+apiVersion: packaging.carvel.dev/v1alpha1
+kind: PackageRepository
+metadata:
+  name: tanzu.vmware.com
+  namespace: #@ data.values.tp.namespace
+  annotations:
+    kapp.k14s.io/change-group: "pkgr"
+spec:
+  fetch:
+    imgpkgBundle:
+      image: #@  data.values.tp.imageRegistry.server + "/" +  data.values.tp.imageRegistry.repo + ":" + data.values.tp.version
+      secretRef:
+        name: registrysecret
+---
+apiVersion: packaging.carvel.dev/v1alpha1
+kind: PackageRepository
+metadata:
+  name: tmc-sm-repo
+  namespace: #@ data.values.tp.namespace
+  annotations:
+    kapp.k14s.io/change-group: "pkgr"
+spec:
+  fetch:
+    imgpkgBundle:
+      image: #@  data.values.tp.imageRegistry.server + "/" +  data.values.tp.imageRegistry.repo + "@sha256:" + data.values.tp.tmc_repo_sha
+      secretRef:
+        name: registrysecret
+---
+apiVersion: packaging.carvel.dev/v1alpha1
+kind: PackageInstall
+metadata:
+  name: sm
+  namespace: #@ data.values.tp.namespace
+  annotations:
+    ext.packaging.carvel.dev/ytt-paths-from-secret-name.0: add-limit-to-clickhouse
+    ext.packaging.carvel.dev/ytt-paths-from-secret-name.1: make-tmc-xsmall
+    ext.packaging.carvel.dev/ytt-paths-from-secret-name.2: reduce-kafka-replica
+    ext.packaging.carvel.dev/ytt-paths-from-secret-name.3: reduce-redis-replica
+    ext.packaging.carvel.dev/fetch-0-secret-name: registrysecret
+    kapp.k14s.io/change-rule: "upsert after upserting pkgr"
+spec:
+  serviceAccountName: kapp-sa
+  packageRef:
+    refName: sm.tanzu.vmware.com
+    versionSelection:
+      constraints: ">0.0.0"
+  values:
+  - secretRef:
+      name: tp-values
+  - secretRef:
+      name: tp-values-generated-secrets
+

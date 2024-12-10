@@ -1,0 +1,34 @@
+#@ load("@ytt:data", "data")
+#@ if data.values.tp.ingress.self_signed_cert:
+---
+apiVersion: secretgen.k14s.io/v1alpha1
+kind: Certificate
+metadata:
+  name: root-ca-cert
+  namespace: #@ data.values.tp.namespace
+spec:
+  isCA: true
+---
+apiVersion: secretgen.k14s.io/v1alpha1
+kind: Certificate
+metadata:
+  name: inter-ca-cert
+  namespace: #@ data.values.tp.namespace
+spec:
+  caRef:
+    name: root-ca-cert
+  alternativeNames:
+    - localhost
+    - #@ data.values.tp.ingress.host
+#@ else:
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: inter-ca-cert
+  namespace: #@ data.values.tp.namespace
+type: Opaque
+stringData:
+  crt.pem: #@ data.values.tp.ingress.tls.certificate
+  key.pem: #@ data.values.tp.ingress.tls.privateKey
+#@ end
