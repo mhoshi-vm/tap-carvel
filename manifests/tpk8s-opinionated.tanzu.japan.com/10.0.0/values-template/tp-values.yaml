@@ -119,4 +119,8 @@ metadata:
   name: tp-values
   namespace: #@ data.values.tp.namespace
 stringData:
-  values.yaml: #@ yaml.encode(tp_values())
+  #@yaml/text-templated-strings
+  data-values.yaml: |
+    #@data/values
+    ---
+    (@= yaml.encode(tp_values())@)
