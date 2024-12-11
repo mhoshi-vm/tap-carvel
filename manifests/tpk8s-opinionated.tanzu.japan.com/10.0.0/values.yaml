@@ -56,8 +56,8 @@ tp:
     self_signed_cert: true
     certificate: ""
     privateKey: ""
-  salt_disabled: true
-  vcf_disabled: true
+  salt_disabled: false
+  vcf_disabled: false
   imageRegistry:
     server: harbor.example.com
     username: admin
