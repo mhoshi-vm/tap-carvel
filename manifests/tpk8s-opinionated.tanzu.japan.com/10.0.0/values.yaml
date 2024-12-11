@@ -67,4 +67,16 @@ tp:
     name: default
   namespace: tanzusm
   ldap_enabled: true
-  oauthProviders: [ {} ]
+  oauthProviders:
+    - name: "ad"
+      certificate: ""
+      configUrl: ""
+      issuerUrl: ""
+      scopes: [""]
+        
+      loginPageLinkText: "Microsoft AD"
+      clientId: ""
+      secret: ""
+      attributeMappings:
+        username: email
+        groups: groups

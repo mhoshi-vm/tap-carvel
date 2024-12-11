@@ -161,7 +161,44 @@ spec:
               items:
                 type: object
                 additionalProperties: false
-                properties: {}
+                properties:
+                  name:
+                    type: string
+                    default: ad
+                  certificate:
+                    type: string
+                    default: ""
+                  configUrl:
+                    type: string
+                    default: ""
+                  issuerUrl:
+                    type: string
+                    default: ""
+                  scopes:
+                    type: array
+                    items:
+                      type: string
+                      default: ""
+                    default: []
+                  loginPageLinkText:
+                    type: string
+                    default: Microsoft AD
+                  clientId:
+                    type: string
+                    default: ""
+                  secret:
+                    type: string
+                    default: ""
+                  attributeMappings:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      username:
+                        type: string
+                        default: email
+                      groups:
+                        type: string
+                        default: groups
               default: []
   template:
     spec:
