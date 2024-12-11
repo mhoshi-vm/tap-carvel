@@ -6,7 +6,7 @@ metadata:
   name: make-ensemble-read-single-kafka
   namespace: #@ data.values.tp.namespace
 stringData:
-  make-ensemble-read-single-kafka: |
+  make-ensemble-read-single-kafka.yaml: |
     #@ load("@ytt:overlay", "overlay")
     #@ load("@ytt:base64", "base64")
     #@ load("@ytt:yaml", "yaml")
