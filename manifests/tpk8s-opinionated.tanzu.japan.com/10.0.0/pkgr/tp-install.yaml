@@ -66,21 +66,6 @@ spec:
         name: registrysecret
 ---
 apiVersion: packaging.carvel.dev/v1alpha1
-kind: PackageRepository
-metadata:
-  name: tmc-sm-repo
-  namespace: #@ data.values.tp.namespace
-  annotations:
-    kapp.k14s.io/change-group: "pkgr"
-    kapp.k14s.io/change-rule: "upsert after upserting secret"
-spec:
-  fetch:
-    imgpkgBundle:
-      image: #@  data.values.tp.imageRegistry.server + "/" +  data.values.tp.imageRegistry.repo + "@sha256:" + data.values.tp.tmc_repo_sha
-      secretRef:
-        name: registrysecret
----
-apiVersion: packaging.carvel.dev/v1alpha1
 kind: PackageInstall
 metadata:
   name: sm
