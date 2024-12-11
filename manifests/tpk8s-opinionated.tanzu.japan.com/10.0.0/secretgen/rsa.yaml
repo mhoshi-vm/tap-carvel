@@ -3,15 +3,19 @@
 apiVersion: secretgen.k14s.io/v1alpha1
 kind: RSAKey
 metadata:
-  name: rsa-key
-  namespace: #@ data.values.tp.namespace
-  annotations:
-    kapp.k14s.io/change-group: "secrettemplate"
----
-apiVersion: secretgen.k14s.io/v1alpha1
-kind: RSAKey
-metadata:
   name: jwt-key
   namespace: #@ data.values.tp.namespace
   annotations:
     kapp.k14s.io/change-group: "secrettemplate"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: rsa-key
+  namespace: #@ data.values.tp.namespace
+  annotations:
+    kapp.k14s.io/change-group: "secrettemplate"
+type: Opaque
+stringData:
+  pub.pem: "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAveA/k9CPio5XQf1zbvWG\nIAjZlC364oH2Va3EzL6CKdHsmb+OQUqSBNZxcRo2F1kEJOjvZsZWQ2xzoZPohueT\nr0hrie/FItRzzjC3dwhGeNe1ZNW7dxWS4OrdQAkWijKlbTVa9kcJToiKUH6y1Wzk\n+46KZ1qpv8PH7DHH2usCA2CNnDyPaV9ZElsG2KMbmW3dGWZDi3c405iKkUZm5gdQ\nq1nDvcaR1Nqxr9NuSHrvPLcwB6Jnr46/93m33v5p0CYCR6BZFbPlm/ejOuZSQPYY\nYVxzdl1zAdVROEA8H+v7BWRmI6vd05EyNMZwbB5EYqnXws6OoIDOHS7mJV9az6N7\n0wIDAQAB\n-----END PUBLIC KEY-----\n"
+  key.pem: "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC94D+T0I+KjldB\n/XNu9YYgCNmULfrigfZVrcTMvoIp0eyZv45BSpIE1nFxGjYXWQQk6O9mxlZDbHOh\nk+iG55OvSGuJ78Ui1HPOMLd3CEZ417Vk1bt3FZLg6t1ACRaKMqVtNVr2RwlOiIpQ\nfrLVbOT7jopnWqm/w8fsMcfa6wIDYI2cPI9pX1kSWwbYoxuZbd0ZZkOLdzjTmIqR\nRmbmB1CrWcO9xpHU2rGv025Ieu88tzAHomevjr/3ebfe/mnQJgJHoFkVs+Wb96M6\n5lJA9hhhXHN2XXMB1VE4QDwf6/sFZGYjq93TkTI0xnBsHkRiqdfCzo6ggM4dLuYl\nX1rPo3vTAgMBAAECggEAMQboI6ikh6g9S6K/3ZSz7y2Z0LMWpsnb6z+VIzDFtzqn\nFwPpHV692VXtsMCN2vV3Jnim6CiqOXqVWNEyJzNAZPAUJGeuxVGKHWFi3e9bEvTP\nt5ugbh058a1zN4ehNEnjgRFXzWOGOarz29j7IDSf43xorEsyrXtF8ezgp9wqhuhD\niOo9aW2QySc5sBZ4ZnPeCSf0C/Dq/f7jQafknPlVufFt5VvAkWQFV4dCgWaZ9OrJ\nmPcCKBwHPmJ20q1luodJ3OQKKvnNlBoxkeAwQBlmjtBrdx0gTbrD46JRl6EmmFab\nU6hEl2d63rIJutNWfHNRFnq+WcJq6TY9XvboXhgfcQKBgQDgSgA5QW0U0Cu+dsYq\nZgHa1B8oPpSPzYnzFC/Vfpcm32zSRBaA4lGCOcRDXE4hU2z1hPyBZ4TXWKS0s/6L\nNLjNz76XbdoFG10mN71L8IqAX/PmZ2kqFKzrhrZxqgyFbutCrDMlgkvczranmJdK\notdHI6SuOy5+LLwmmX+5xl8u5QKBgQDYuLAAiQZLDix0x2bAxswQ1riFG9r2Azb3\nF0H7YR2Fskflitk3U1kBieX88/blo7/T4lcQgKVQ0UYnPyWfnUHAMKEc1VO2HU4g\nPrVprArLGv2XFJKvsdbFY4Dv+rADh1On5TAKSYYrR22p85z7geP4KZbohvSBzrmh\nXMpO72ucVwKBgFx8Jzt0zxYWAPO45l31Ui556Z8erwPdLVUerdrLKGjPGIBbsyvS\nJuocB+H+3fi//d3/yF9T4GMsGj6pOf0M8Gdtkpm+ongYoIBx24zE01e8OUZ4vdSs\nUeGM2w5joGYlJr2HZE/DOqUCWC8jrL8KBts+x1lQ7gr5R1xjT1e7hORBAoGBAMCM\nXnsrQvceUaszmnx+Y8I2M9y3ofPfaU9hT5M7dpJZkn1DvrfkCnlOfpMeYmcm9IEZ\nYMddtQM32/90oEXO3yMVUZ+ffW+ZW9dUP7PyUeigQ1yev7Dv7WSUgnM0pHuOGWpb\nOzJ4nocHQEy2D+x5PAU5VkWj2csW02ClY218VHyjAoGBAL5pGhJ9vu4kmNQbhyzQ\nasIjgCkO6aQNRe66DG+OzO/9V1FJ4GviWLW/Uoh1J78tU4FFUZf2JiCVBcMLYhKM\nJiab8Ly26ieZKLPA4oGIPfNDrNS0SLwBkM37jcL0AeFu4JidABpaTKvJhkqCaUye\n9vMB+b4alzC5OS2XAsP/nJE0\n-----END PRIVATE KEY-----\n"

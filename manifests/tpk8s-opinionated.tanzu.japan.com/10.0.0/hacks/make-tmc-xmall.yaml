@@ -14,6 +14,8 @@ stringData:
     #@ def xsmall():
     #@overlay/match missing_ok=True
     size: xsmall
+    #@overlay/match missing_ok=True
+    createNamespace: false
     #@ end
     
     #@overlay/match by=overlay.subset({"kind":"Secret", "metadata": {"name": "tmc-values"}})
