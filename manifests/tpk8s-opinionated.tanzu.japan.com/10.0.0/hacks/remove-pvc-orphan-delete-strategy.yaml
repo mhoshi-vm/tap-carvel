@@ -1,0 +1,20 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: remove-pvc-orphan-delete-strategy
+  namespace: #@ data.values.tp.namespace
+stringData:
+  remove-pvc-orphan-delete-strategy.yaml: |
+    #! By default TP will automatically put PVCs into orphan status, but for PoC this will lead to PVC not being deleted after uninstall
+    #@ load("@ytt:overlay", "overlay")
+    
+    #@overlay/match by=overlay.subset({"kind": "PackageInstall"}), expects="1+"
+    ---
+    metadata:
+      #@overlay/match missing_ok=True
+      annotations:
+        #@overlay/remove
+        ext.packaging.carvel.dev/ytt-paths-from-secret-name.5: pvc-orphan-delete-strategy-overlay
+
