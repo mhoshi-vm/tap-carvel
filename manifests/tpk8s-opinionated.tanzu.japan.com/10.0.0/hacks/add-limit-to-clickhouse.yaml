@@ -30,5 +30,5 @@ stringData:
     #@overlay/match by=overlay.subset({"kind":"Secret", "metadata": {"name": "clickhouse-values"}})
     ---
     data:
-      #@overlay/replace via=lambda orig, _: yaml.encode(overlay.apply(yaml.decode(base64.decode(orig)),reduce_size()))
+      #@overlay/replace via=lambda orig, _: base64.encode(yaml.encode(overlay.apply(yaml.decode(base64.decode(orig)),reduce_size())))
       values.yaml:
