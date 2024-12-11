@@ -47,7 +47,7 @@ login:
       mailAttribute: mail
     groups:
       baseDN: #@ user_dn
-      searchFilter: '(&(objectClass=posixAccount)(member={0}))'
+      searchFilter: '(&(objectClass=groupOfNames)(member={0}))'
       searchDepth: 10
   #@ end
   oauthProviders: #@ data.values.tp.oauthProviders
