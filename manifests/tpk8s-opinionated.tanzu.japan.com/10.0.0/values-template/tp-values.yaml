@@ -43,12 +43,11 @@ login:
       password: #@ data.values.openldap.adminpassword
     users:
       baseDN: #@ user_dn
-      searchFilter: '(objectClass=posixAccount)'
+      searchFilter: '(&(objectClass=posixAccount)(cn={0}))'
       mailAttribute: mail
     groups:
       baseDN: #@ user_dn
-      searchFilter: '(objectClass=groupOfNames)'
-      groupNameAttribute: cn
+      searchFilter: '(&(objectClass=posixAccount)(member={0}))'
       searchDepth: 10
   #@ end
   oauthProviders: #@ data.values.tp.oauthProviders
