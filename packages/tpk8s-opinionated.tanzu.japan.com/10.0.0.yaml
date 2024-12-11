@@ -99,12 +99,12 @@ spec:
             version:
               type: string
               default: 10.0.0-oct-2024-rc.533-vc0bb325
-            tmc_repo_sha:
-              type: string
-              default: 995872bc410553e0858155a0b3a7bc6d3a280fa1e795fc1f7aac7c129e8c2b60
             storage_class:
               type: string
               default: tkg-ds
+            keep_pvc:
+              type: boolean
+              default: false
             ingress:
               type: object
               additionalProperties: false
@@ -159,10 +159,10 @@ spec:
             oauthProviders:
               type: array
               items:
-                type: string
-                default: ""
+                type: object
+                additionalProperties: false
+                properties: {}
               default: []
-
   template:
     spec:
       fetch:
