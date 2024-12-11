@@ -50,6 +50,7 @@ tp:
   profile: evaluation
   version: '10.0.0-oct-2024-rc.533-vc0bb325'
   storage_class: tkg-ds
+  keep_pvc: false
   ingress:
     host: tp.example.com
     self_signed_cert: true
