@@ -37,7 +37,7 @@ login:
   #@ admin_dn = "cn=admin," + data.values.openldap.rootdn
   #@ user_dn = "ou=" + data.values.openldap.group + "," + data.values.openldap.rootdn
   ldap:
-    url: 'ldap://openldap.openldap:1389/'
+    url: 'ldap://openldap.openldap:389/'
     credentials:
       userDN: #@ admin_dn
       password: #@ data.values.openldap.adminpassword
