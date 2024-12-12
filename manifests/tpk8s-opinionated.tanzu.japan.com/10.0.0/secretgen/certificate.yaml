@@ -1,43 +1,50 @@
 #@ load("@ytt:data", "data")
 #@ if data.values.tp.ingress.self_signed_cert:
 ---
-apiVersion: secretgen.k14s.io/v1alpha1
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: tp-root-issuer
+  namespace: #@ data.values.tp.namespace
+spec:
+  selfSigned: {}
+---
+apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: root-ca-cert
+  name: tp-cert
   namespace: #@ data.values.tp.namespace
-  annotations:
-    kapp.k14s.io/change-group: "secrettemplate"
 spec:
   isCA: true
----
-apiVersion: secretgen.k14s.io/v1alpha1
-kind: Certificate
-metadata:
-  name: inter-ca-cert
-  namespace: #@ data.values.tp.namespace
-  annotations:
-    kapp.k14s.io/change-group: "secrettemplate"
-spec:
-  caRef:
-    name: root-ca-cert
-  #! https://github.gwd.broadcom.net/TNZ/ensemble-self-managed/blob/master/installer/pkg/install/certificate_step.go#L59
   commonName: #@ data.values.tp.ingress.host
-  alternativeNames:
+  secretName: tp-cert
+  dnsNames:
     - localhost
     - #@ data.values.tp.ingress.host
     - #@ "*." + data.values.tp.ingress.host
+  issuerRef:
+    name: tp-root-issuer
+    kind: Issuer
+    group: cert-manager.io
+  privateKey:
+    encoding: PKCS8
+    size: 4096
+  usages:
+    - digital signature
+    - key encipherment
+    - cert sign
+    - server auth
 #@ else:
 ---
 apiVersion: v1
 kind: Secret
 metadata:
-  name: inter-ca-cert
+  name: tp-cert
   namespace: #@ data.values.tp.namespace
   annotations:
     kapp.k14s.io/change-group: "secrettemplate"
 type: Opaque
 stringData:
-  crt.pem: #@ data.values.tp.ingress.certificate
-  key.pem: #@ data.values.tp.ingress.privateKey
+  tls.crt: #@ data.values.tp.ingress.certificate
+  tls.key: #@ data.values.tp.ingress.privateKey
 #@ end
