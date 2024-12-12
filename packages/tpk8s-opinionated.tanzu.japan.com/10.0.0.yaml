@@ -28,7 +28,7 @@ spec:
                   default: projects.registry.vmware.com/tkg/packages/standard/repo
                 version:
                   type: string
-                  default: 2.2.0
+                  default: v2024.8.21
             package:
               type: object
               additionalProperties: false
@@ -48,44 +48,52 @@ spec:
               default: false
             rootdn:
               type: string
-              default: dc=tp,dc=dev
-            group:
-              type: string
-              default: usergroups
+              default: dc=tanzu,dc=net
             adminpassword:
               type: string
               default: adminpassword
             ldif:
               type: string
               default: |
-                dn: dc=tp,dc=dev
+                dn: dc=tanzu,dc=net
+                dc: tanzu
                 objectClass: dcObject
-                objectclass: organization
-                o: tp
-                dc: tp
+                objectClass: organization
+                o: Tanzu, Inc
 
-                dn: ou=usergroups,dc=tp,dc=dev
+                dn: ou=core,dc=tanzu,dc=net
                 objectClass: organizationalUnit
-                objectClass: top
-                ou: usergroups
+                ou: core
 
-                dn: cn=tp01,ou=usergroups,dc=tp,dc=dev
-                cn: tp01
-                sn: tp01
+                dn: cn=tpviewer,ou=core,dc=tanzu,dc=net
                 objectClass: inetOrgPerson
-                objectClass: posixAccount
-                objectClass: shadowAccount
-                userPassword: VMware1!
-                uid: tp01
-                mail: tp01@tp.com
-                uidNumber: 1000
-                gidNumber: 1000
-                homeDirectory: /home/tp01
+                cn: tpviewer
+                sn: TP Viewer
+                uid: tpviewer
+                mail: tpviewer@tanzu.net
+                userPassword: tpsm1!
 
-                dn: cn=tp:admin,ou=usergroups,dc=tp,dc=dev
-                cn: tp:admin
+                dn: cn=tpadmin,ou=core,dc=tanzu,dc=net
+                objectClass: inetOrgPerson
+                cn: tpadmin
+                sn: TP Admin
+                uid: tpadmin
+                mail: tpadmin@tanzu.net
+                userPassword: tpsm1!
+
+                dn: cn=tpadmins,dc=tanzu,dc=net
+                objectClass: top
                 objectClass: groupOfNames
-                member: cn=tp01,ou=usergroups,dc=tp,dc=dev
+                cn: tpadmins
+                description: Tanzu Platform Admins
+                member: cn=tpadmin,ou=core,dc=tanzu,dc=net
+
+                dn: cn=tpviewers,dc=tanzu,dc=net
+                objectClass: top
+                objectClass: groupOfNames
+                cn: tpviewers
+                description: Tanzu Platform Viewer
+                member: cn=tpviewer,ou=core,dc=tanzu,dc=net
         tp:
           type: object
           additionalProperties: false
@@ -156,50 +164,6 @@ spec:
             ldap_enabled:
               type: boolean
               default: true
-            oauthProviders:
-              type: array
-              items:
-                type: object
-                additionalProperties: false
-                properties:
-                  name:
-                    type: string
-                    default: ad
-                  certificate:
-                    type: string
-                    default: ""
-                  configUrl:
-                    type: string
-                    default: ""
-                  issuerUrl:
-                    type: string
-                    default: ""
-                  scopes:
-                    type: array
-                    items:
-                      type: string
-                      default: ""
-                    default: []
-                  loginPageLinkText:
-                    type: string
-                    default: Microsoft AD
-                  clientId:
-                    type: string
-                    default: ""
-                  secret:
-                    type: string
-                    default: ""
-                  attributeMappings:
-                    type: object
-                    additionalProperties: false
-                    properties:
-                      username:
-                        type: string
-                        default: email
-                      groups:
-                        type: string
-                        default: groups
-              default: []
   template:
     spec:
       fetch:

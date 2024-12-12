@@ -58,7 +58,7 @@ internal:
   #@     var.append(component)
   #@   end
   #@ end
-  #@ if data.values.tp.salt_disabled:
+  #@ if data.values.tp.vcf_disabled:
   #@   for component in [ "vcf-ingestion-service" ]:
   #@     var.append(component)
   #@   end
@@ -86,7 +86,6 @@ uaa:
       pkceEnabled: "true"
       redirectUri: http://127.0.0.1:*/**
     ensemble_user_service:
-      secret: sZ_T10QqaFvQHS_1JZvx
       grantTypes: password,authorization_code,client_credentials,refresh_token
       authorities: openid,roles,scim.write,scim.read
       scope: openid,roles,scim.write,scim.read
