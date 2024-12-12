@@ -102,34 +102,6 @@ uaa:
     keys:
       tp:
         alg: RS256
-        key: |
-          -----BEGIN RSA PRIVATE KEY-----
-          MIIEpAIBAAKCAQEA8QhimmFh77bxVVzqKSMATfxiKjjKVFb0kyJi/sdcQtj4neU2
-          tg3pgL6StkeEU9KKzZ+R2ssJVI+X4YqTvoI+xS6cAmCTbyTRyWxVKq+sGYieYdNq
-          OOzHLp32ko0UY9Ie42i3st+lwHSnXVcIh2Fb2CSn3ZQ72jZZD/Vni+AcMZ8NhrMf
-          HZo0i+ZMRzYR03Jykdqn+vKPP1pYcVvecySCS5baE+AH2FxcAd28icanVecylk8F
-          41qnNAhpatItZncv0dhvkNj/ByyBEwUFhWGkY+40Krzwqa3yeUwdWxHGkfjWtHl1
-          VjXUohKQiQQVQ6Dhv7ZDV5mnI9SjnO8gfObDnwIDAQABAoIBAGjxU60PtUpfhpe6
-          CqG6gYly13K2ozExYu8ky6FOP5dDTIvCnp2JVR8e2lXOsYilZJW+Ygy21eshUel7
-          InSR1K6ZaoeGcOq1RznBlxssvWuolfzVxavfO6HKWO7ZygTkGVq93y1cPpiasbvs
-          BuSauRhUbVoGDkEl5IUUPe8itmPLmfqz4KOLasNNf/uXSW3KdutXLVvW03rOQBW+
-          bMfuwPukutAWvJ5fcVbKLORSx/LCYF8DYg4maG12HDKZtNJeN1uW0JujIFEQpYbD
-          YJuPI0aHwF9K89zBr9bkCLvaytXIw89NrlmnZWhtNPvbDUhuUsGOnOLQKgxB71t2
-          vJVJEoECgYEA//As8KEUtJC3Surn9xzdd60ZLkmeDAlDjtPJQK7CQVvekgP0ocKi
-          yrIJ/xuFPWcp8clyfkXou8AG4LWq3oWYgX6hxB7sa2TTHozScsqoy7XFmnPp9EGn
-          ohRuvy+tPWUo5n0tBoyvdOdNzGwU020q87FGN+1++BPTu7oBNWydiCECgYEA8RdJ
-          vF7zOMHHrNGk7H+/X8qqQAyNogFx9+2Bp6sx/s+fGkfs3SFMQiSbBf1gOGmhpVfa
-          otbp9OSBx4DnJbcfuodEICVBAFWPbOaeKwaEiJn2gxP5lwvMkQV10boHp3DJLWKC
-          1zBA9XzXDkgtmcP7fZ+bNnK5w2ODRNI9tmrL078CgYBczOZOnemXCz4awRA47tNy
-          uGX//Zt7+8PuPuajOHqhHkGWqi6ClMNYQbQUNxNZz1VLIWMNXCXmJduYkOaS5tgE
-          ZDkdlqTcz+MpGaCZFNidfJxYw5zZ/xBcWZJKamwjbdGluU+hJ1PbTJ9N9waaHuRL
-          FkVCtC+snevRDsGvcGGyYQKBgQDoZuGOcx0UfkAECMdpry+EoLGDMlapb6k0LMAK
-          J8326p9dTy42b626KN1DZd8GIlVPNKQuyusWRdwQu+KWCbPNNC1oq2DAeLncaWbY
-          5NyHbZsi+fNkNlyJA3FyrVhJgUB8vnSQCRTlT+VjABLtIe3hSCTv1KHbhqb4hY41
-          tTcsswKBgQDgBlpKVnrKb/jiAERVohHy/a4SzJDOeW1r6+NQX1i45RFbS9eKtHJU
-          aobgIaZT72wJz5ZuE7/rWtry8h2g82/CjcYftBKhNxw10XNxmx39a6S5oatN3xsP
-          lsJ6pFFM5NiUGA5Xspu2UlV2itcwvpuRUozS9J1twHCM1ckbfqF6HQ==
-          -----END RSA PRIVATE KEY-----
   serviceName: uaa
   servicePort: "8080"
   branding:

@@ -22,7 +22,7 @@ spec:
   caRef:
     name: root-ca-cert
   #! https://github.gwd.broadcom.net/TNZ/ensemble-self-managed/blob/master/installer/pkg/install/certificate_step.go#L59
-  commonName: #@ "*." + data.values.tp.ingress.host
+  commonName: #@ data.values.tp.ingress.host
   alternativeNames:
     - localhost
     - #@ data.values.tp.ingress.host
