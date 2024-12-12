@@ -12,39 +12,48 @@ certmanager:
 openldap:
   enabled: true
   ssl: false
-  rootdn: dc=tp,dc=dev
-  group: usergroups
+  rootdn: dc=tanzu,dc=net
   adminpassword: adminpassword
   ldif: |
-    dn: dc=tp,dc=dev
+    dn: dc=tanzu,dc=net
+    dc: tanzu
     objectClass: dcObject
-    objectclass: organization
-    o: tp
-    dc: tp
-
-    dn: ou=usergroups,dc=tp,dc=dev
+    objectClass: organization
+    o: Tanzu, Inc
+    
+    dn: ou=core,dc=tanzu,dc=net
     objectClass: organizationalUnit
-    objectClass: top
-    ou: usergroups
-
-    dn: cn=tp01,ou=usergroups,dc=tp,dc=dev
-    cn: tp01
-    sn: tp01
+    ou: core
+    
+    dn: cn=tpviewer,ou=core,dc=tanzu,dc=net
     objectClass: inetOrgPerson
-    objectClass: posixAccount
-    objectClass: shadowAccount
-    userPassword: VMware1!
-    uid: tp01
-    mail: tp01@tp.com
-    uidNumber: 1000
-    gidNumber: 1000
-    homeDirectory: /home/tp01
-
-    dn: cn=tp:admin,ou=usergroups,dc=tp,dc=dev
-    cn: tp:admin
+    cn: tpviewer
+    sn: TP Viewer
+    uid: tpviewer
+    mail: tpviewer@tanzu.net
+    userPassword: tpsm1!
+    
+    dn: cn=tpadmin,ou=core,dc=tanzu,dc=net
+    objectClass: inetOrgPerson
+    cn: tpadmin
+    sn: TP Admin
+    uid: tpadmin
+    mail: tpadmin@tanzu.net
+    userPassword: tpsm1!
+    
+    dn: cn=tpadmins,dc=tanzu,dc=net
+    objectClass: top
     objectClass: groupOfNames
-    member: cn=tp01,ou=usergroups,dc=tp,dc=dev
-
+    cn: tpadmins
+    description: Tanzu Platform Admins
+    member: cn=tpadmin,ou=core,dc=tanzu,dc=net
+    
+    dn: cn=tpviewers,dc=tanzu,dc=net
+    objectClass: top
+    objectClass: groupOfNames
+    cn: tpviewers
+    description: Tanzu Platform Viewer
+    member: cn=tpviewer,ou=core,dc=tanzu,dc=net
 tp:
   flavor: full
   profile: evaluation
@@ -67,16 +76,4 @@ tp:
     name: default
   namespace: tanzusm
   ldap_enabled: true
-  oauthProviders:
-    - name: "ad"
-      certificate: ""
-      configUrl: ""
-      issuerUrl: ""
-      scopes: [""]
-        
-      loginPageLinkText: "Microsoft AD"
-      clientId: ""
-      secret: ""
-      attributeMappings:
-        username: email
-        groups: groups
+  oauthProviders: [{}]
