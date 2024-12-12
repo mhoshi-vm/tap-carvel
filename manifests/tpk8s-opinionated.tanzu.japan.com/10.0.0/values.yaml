@@ -5,7 +5,7 @@ certmanager:
   package_repo:
     install: false
     repo: projects.registry.vmware.com/tkg/packages/standard/repo
-    version: 2.2.0
+    version: v2024.8.21
   package:
     install: true
 
