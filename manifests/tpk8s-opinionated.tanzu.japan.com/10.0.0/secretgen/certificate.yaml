@@ -38,6 +38,6 @@ metadata:
     kapp.k14s.io/change-group: "secrettemplate"
 type: Opaque
 stringData:
-  crt.pem: #@ data.values.tp.ingress.tls.certificate
-  key.pem: #@ data.values.tp.ingress.tls.privateKey
+  crt.pem: #@ data.values.tp.ingress.certificate
+  key.pem: #@ data.values.tp.ingress.privateKey
 #@ end
