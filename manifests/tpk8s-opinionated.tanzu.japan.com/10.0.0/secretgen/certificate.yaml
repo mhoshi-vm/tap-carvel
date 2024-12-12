@@ -21,6 +21,7 @@ metadata:
 spec:
   caRef:
     name: root-ca-cert
+  commonName: #@ data.values.tp.ingress.host
   alternativeNames:
     - localhost
     - #@ data.values.tp.ingress.host
