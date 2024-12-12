@@ -6,6 +6,8 @@ kind: Issuer
 metadata:
   name: tp-root-issuer
   namespace: #@ data.values.tp.namespace
+  annotations:
+    kapp.k14s.io/change-group: "secrettemplate"
 spec:
   selfSigned: {}
 ---
@@ -14,6 +16,8 @@ kind: Certificate
 metadata:
   name: tp-cert
   namespace: #@ data.values.tp.namespace
+  annotations:
+    kapp.k14s.io/change-group: "secrettemplate"
 spec:
   isCA: true
   commonName: #@ data.values.tp.ingress.host
