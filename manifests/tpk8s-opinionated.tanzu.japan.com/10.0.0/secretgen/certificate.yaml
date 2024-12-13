@@ -8,6 +8,7 @@ metadata:
   namespace: #@ data.values.tp.namespace
   annotations:
     kapp.k14s.io/change-group: "secrettemplate"
+    kapp.k14s.io/change-rule: "upsert after upserting pkg-cert"
 spec:
   selfSigned: {}
 ---
@@ -18,6 +19,7 @@ metadata:
   namespace: #@ data.values.tp.namespace
   annotations:
     kapp.k14s.io/change-group: "secrettemplate"
+    kapp.k14s.io/change-rule: "upsert after upserting pkg-cert"
 spec:
   isCA: true
   commonName: #@ data.values.tp.ingress.host
