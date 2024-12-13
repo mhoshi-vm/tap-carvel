@@ -59,7 +59,7 @@ spec:
         - name: LDAP_TLS_CA_FILE
           value: /tls/ca.crt
         #@ end
-        image: index.docker.io/bitnami/openldap@sha256:8e3f28db7a8c05d7db99ec688b8ca1044f0deaf8f98ea5b1f71c42276e3c1583
+        image: #@ data.values.openldap.image
         imagePullPolicy: Always
         name: openldap
         ports:

@@ -71,16 +71,16 @@ metadata:
   name: sm
   namespace: #@ data.values.tp.namespace
   annotations:
-    ext.packaging.carvel.dev/ytt-paths-from-secret-name.0: add-limit-to-clickhouse
-    ext.packaging.carvel.dev/ytt-paths-from-secret-name.1: make-tmc-xsmall
-    ext.packaging.carvel.dev/ytt-paths-from-secret-name.2: reduce-kafka-replica
-    ext.packaging.carvel.dev/ytt-paths-from-secret-name.3: reduce-redis-replica
-    ext.packaging.carvel.dev/ytt-paths-from-secret-name.4: make-ensemble-read-single-kafka
-    #@ if not data.values.tp.keep_pvc:
-    ext.packaging.carvel.dev/ytt-paths-from-secret-name.5: remove-pvc-orphan-delete-strategy
+    ext.packaging.carvel.dev/ytt-paths-from-secret-name.0: tp-values
+    ext.packaging.carvel.dev/ytt-paths-from-secret-name.1: tp-values-generated-secrets
+    #@ if data.values.tp.hack_enabled:
+    ext.packaging.carvel.dev/ytt-paths-from-secret-name.2: add-limit-to-clickhouse
+    ext.packaging.carvel.dev/ytt-paths-from-secret-name.3: make-tmc-xsmall
+    ext.packaging.carvel.dev/ytt-paths-from-secret-name.4: reduce-kafka-replica
+    ext.packaging.carvel.dev/ytt-paths-from-secret-name.5: reduce-redis-replica
+    ext.packaging.carvel.dev/ytt-paths-from-secret-name.6: make-ensemble-read-single-kafka
+    ext.packaging.carvel.dev/ytt-paths-from-secret-name.7: change-pvc-orphan-delete-strategy
     #@ end
-    ext.packaging.carvel.dev/ytt-paths-from-secret-name.6: tp-values
-    ext.packaging.carvel.dev/ytt-paths-from-secret-name.7: tp-values-generated-secrets
     ext.packaging.carvel.dev/fetch-0-secret-name: registrysecret
     kapp.k14s.io/change-rule: "upsert after upserting pkgr"
 spec:

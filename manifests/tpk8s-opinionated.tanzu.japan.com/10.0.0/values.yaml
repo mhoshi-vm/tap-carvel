@@ -11,6 +11,7 @@ certmanager:
 
 openldap:
   enabled: true
+  image: index.docker.io/bitnami/openldap@sha256:8e3f28db7a8c05d7db99ec688b8ca1044f0deaf8f98ea5b1f71c42276e3c1583
   ssl: false
   rootdn: dc=tanzu,dc=net
   adminpassword: adminpassword
@@ -59,14 +60,18 @@ tp:
   profile: evaluation
   version: '10.0.0-oct-2024-rc.533-vc0bb325'
   storage_class: tkg-ds
-  keep_pvc: false
+  hack_enabled: true
+  salt_disabled: true
+  vcf_disabled: true
+  ldap_enabled: true
+  rsa_builder:
+    openssl_image: index.docker.io/alpine/openssl@sha256:7f9e867564f38e409098eb6438e982bcc26b805942ce6524ad770534c0afdafb
+    kubectl_image: index.docker.io/bitnami/kubectl@sha256:671516f53dd61f1e7d1dc178ba30d47faecc6caaa1e8c2a0f53d3d939f11c077
   ingress:
     host: tp.example.com
     self_signed_cert: true
     certificate: ""
     privateKey: ""
-  salt_disabled: true
-  vcf_disabled: true
   imageRegistry:
     server: harbor.example.com
     username: admin
@@ -75,5 +80,4 @@ tp:
   organization:
     name: default
   namespace: tanzusm
-  ldap_enabled: true
   oauthProviders: [{}]
