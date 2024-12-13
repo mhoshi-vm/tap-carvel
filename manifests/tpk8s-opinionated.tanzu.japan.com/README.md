@@ -56,6 +56,7 @@ ghcr.io/mhoshi-vm/tap-carvel
 ```
 <details>
   <summary>screenshot</summary>
+
 ![](img/d428efec.png)
 
 ---
@@ -65,6 +66,7 @@ ghcr.io/mhoshi-vm/tap-carvel
 Step 2 : From [Add-Ons] > [Installed Tanzu Packages] choose [Browse Packages] and find [TP Opinionated (Unofficial)] 
 <details>
   <summary>screenshot</summary>
+
 ![](img/85079642.png)
 
 ---
@@ -82,6 +84,7 @@ tp:
 ```
 <details>
   <summary>screenshot</summary>
+
 ![](img/60d7828b.png)
 
 ---
