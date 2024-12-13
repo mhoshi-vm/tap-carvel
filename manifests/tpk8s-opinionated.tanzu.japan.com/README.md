@@ -54,14 +54,21 @@ Name: mhoshi-vm
 Repository URL:
 ghcr.io/mhoshi-vm/tap-carvel
 ```
+<details>
+  <summary>screenshot</summary>
 ![](img/d428efec.png)
 
 ---
+</details>
+
 
 Step 2 : From [Add-Ons] > [Installed Tanzu Packages] choose [Browse Packages] and find [TP Opinionated (Unofficial)] 
+<details>
+  <summary>screenshot</summary>
 ![](img/85079642.png)
 
 ---
+</details>
 
 Step 3: Install package. Package name can be anything, for Overlay YAML, by minimum add the following, wait and enjoy
 ```
@@ -73,6 +80,9 @@ tp:
   ingress:
     host: <tp fqdn>
 ```
+<details>
+  <summary>screenshot</summary>
 ![](img/60d7828b.png)
 
 ---
+</details>
