@@ -1,6 +1,42 @@
 #@ load("@ytt:data", "data")
 #@ if data.values.tp.ingress.self_signed_cert:
 ---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: issuers.cert-manager.io
+  annotations:
+    kapp.k14s.io/exists: ""
+    kapp.k14s.io/change-rule: "upsert after upserting pkg-cert"
+spec:
+  group: cert-manager.io
+  scope: Namespaced
+  versions:
+    - name: v1
+      served: true
+      storage: true
+  names:
+    kind: Issuer
+    plural: issuers
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: certificates.cert-manager.io
+  annotations:
+    kapp.k14s.io/exists: ""
+    kapp.k14s.io/change-rule: "upsert after upserting pkg-cert"
+spec:
+  group: cert-manager.io
+  scope: Namespaced
+  versions:
+    - name: v1
+      served: true
+      storage: true
+  names:
+    kind: Certificate
+    plural: certificates
+---
 apiVersion: cert-manager.io/v1
 kind: Issuer
 metadata:
@@ -8,7 +44,6 @@ metadata:
   namespace: #@ data.values.tp.namespace
   annotations:
     kapp.k14s.io/change-group: "secrettemplate"
-    kapp.k14s.io/change-rule: "upsert after upserting pkg-cert"
 spec:
   selfSigned: {}
 ---
@@ -19,7 +54,6 @@ metadata:
   namespace: #@ data.values.tp.namespace
   annotations:
     kapp.k14s.io/change-group: "secrettemplate"
-    kapp.k14s.io/change-rule: "upsert after upserting pkg-cert"
 spec:
   isCA: true
   commonName: #@ data.values.tp.ingress.host
