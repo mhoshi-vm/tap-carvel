@@ -1,6 +1,6 @@
-# Unofficial Tanzu Platform for K8S opinionated carvel installer
+# Unofficial Tanzu Platform Self Managed opinionated carvel installer
 
-An unofficial version on the Tanzu Platform for k8s installer. No support included.
+An unofficial version on the Tanzu Platform Self Managed installer. No support included.
 
 ## Features
 - No `tanzu-sm-installer` cli = Better for gitops and/or can be installed via TMC
