@@ -60,7 +60,7 @@ spec:
           emptyDir: {}
       containers:
         - name: openssl
-          image: #@ data.values.tp.rsa_builer.openssl_image
+          image: #@ data.values.tp.rsa_builder.openssl_image
           command:
             - /bin/sh
             - -c
@@ -73,7 +73,7 @@ spec:
             - mountPath: /data
               name: data
         - name: kubectl
-          image: #@ data.values.tp.rsa_builer.kubectl_image
+          image: #@ data.values.tp.rsa_builder.kubectl_image
           command:
             - kubectl
           args:
