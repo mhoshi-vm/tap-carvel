@@ -1,6 +1,6 @@
-# Unofficial Tanzu Platform for K8S opinionanted carvel installer
+# Unofficial Tanzu Platform for K8S opinionated carvel installer
 
-A unofficial version on the Tanzu Platform for k8s installer. No support included.
+An unofficial version on the Tanzu Platform for k8s installer. No support included.
 
 ## Features
 - No `tanzu-sm-installer` cli = Better for gitops and/or can be installed via TMC
@@ -48,7 +48,7 @@ tanzu package install tp -p tpk8s-opinionated.tanzu.japan.com --version 10.0.0 -
 
 ### TMC
 
-Step 1 : From [Add-Ons] > [Tanzu repositores] choose [Add package repository] with the following paramter
+Step 1 : From [Add-Ons] > [Tanzu repositories] choose [Add package repository] with the following parameter
 ```
 Name: mhoshi-vm
 Repository URL:
