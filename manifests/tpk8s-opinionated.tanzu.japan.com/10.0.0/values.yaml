@@ -42,19 +42,19 @@ openldap:
     mail: tpadmin@tanzu.net
     userPassword: tpsm1!
     
-    dn: cn=tpadmins,dc=tanzu,dc=net
+    dn: cn=ensemble:admin,dc=tanzu,dc=net
     objectClass: top
     objectClass: groupOfNames
-    cn: tpadmins
+    cn: ensemble:admin
     description: Tanzu Platform Admins
-    member: cn=tpadmin,ou=core,dc=tanzu,dc=net
+    member: cn=ensemble:admin,ou=core,dc=tanzu,dc=net
     
-    dn: cn=tpviewers,dc=tanzu,dc=net
+    dn: cn= ensemble:viewer,dc=tanzu,dc=net
     objectClass: top
     objectClass: groupOfNames
-    cn: tpviewers
+    cn: ensemble:viewer
     description: Tanzu Platform Viewer
-    member: cn=tpviewer,ou=core,dc=tanzu,dc=net
+    member: cn= ensemble:viewer,ou=core,dc=tanzu,dc=net
 tp:
   flavor: full
   profile: evaluation
