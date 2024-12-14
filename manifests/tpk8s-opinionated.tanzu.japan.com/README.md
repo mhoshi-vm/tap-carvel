@@ -13,6 +13,7 @@ An unofficial version on the Tanzu Platform Self Managed installer. No support i
 - Prepare TKGs/m with the following size by minimum
   - 1 control nodes with 2vCPU, 8GB Memory 
   - 2 Nodes with 12 vCPU, 32 GB Memory, 200GB mounted on /var/lib/containerd 
+  - Non-TKGs/m k8s should work with the same resources, as long as [cluster essentials](https://techdocs.broadcom.com/us/en/vmware-tanzu/standalone-components/cluster-essentials-for-tanzu/1-10/cluster-essentials/deploy.html) is installed.
 - Complete `Download and stage the installation images` step only in [installation guide](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-platform/10-0/tnz-platform/tp-sm-install-install-tp-sm.html)
 
 ## How to install 
