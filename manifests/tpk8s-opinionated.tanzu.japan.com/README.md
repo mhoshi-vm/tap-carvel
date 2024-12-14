@@ -4,6 +4,7 @@ An unofficial version on the Tanzu Platform Self Managed installer. No support i
 
 ## Features
 - No `tanzu-sm-installer` cli = Better for gitops and/or can be installed via TMC
+- Improved/easier install experience for PoC purpose
 - Installs cert-manager automatically
 - Installs and configures openldap for removing OIDC dependency
 - No plain text secrets needed for `config.yaml` (better for gitops)
