@@ -37,6 +37,7 @@ tp:
   imageRegistry:
     password: <admin-password>
     server: <harbor-url>
+    repo: <repo-path>
   ingress:
     host: <tp fqdn>
 ```
@@ -79,6 +80,7 @@ tp:
   imageRegistry:
     password: <admin-password>
     server: <harbor-url>
+    repo: <repo-path>
   ingress:
     host: <tp fqdn>
 ```
