@@ -53,12 +53,12 @@ organization:
   name: #@ data.values.tp.organization.name
 internal:
   #@ var=[]
-  #@ if data.values.tp.salt_disabled:
+  #@ if data.values.tp.hack.salt_disabled:
   #@   for component in [ "raas", "idem-helm", "guardrails-helm" ]:
   #@     var.append(component)
   #@   end
   #@ end
-  #@ if data.values.tp.vcf_disabled:
+  #@ if data.values.tp.hack.vcf_disabled:
   #@   for component in [ "vcf-ingestion-service" ]:
   #@     var.append(component)
   #@   end

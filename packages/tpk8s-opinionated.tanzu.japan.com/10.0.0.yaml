@@ -43,6 +43,9 @@ spec:
             enabled:
               type: boolean
               default: true
+            image:
+              type: string
+              default: index.docker.io/bitnami/openldap@sha256:8e3f28db7a8c05d7db99ec688b8ca1044f0deaf8f98ea5b1f71c42276e3c1583
             ssl:
               type: boolean
               default: false
@@ -110,9 +113,44 @@ spec:
             storage_class:
               type: string
               default: tkg-ds
-            keep_pvc:
+            hack:
+              type: object
+              additionalProperties: false
+              properties:
+                add_limit_to_clickhouse:
+                  type: boolean
+                  default: true
+                change_pvc_orphan_delete_strategy:
+                  type: boolean
+                  default: true
+                reduce_kafka_replica:
+                  type: boolean
+                  default: true
+                reduce_redis_replica:
+                  type: boolean
+                  default: true
+                make_tmc_xsmall:
+                  type: boolean
+                  default: true
+                salt_disabled:
+                  type: boolean
+                  default: true
+                vcf_disabled:
+                  type: boolean
+                  default: true
+            ldap_enabled:
               type: boolean
-              default: false
+              default: true
+            rsa_builder:
+              type: object
+              additionalProperties: false
+              properties:
+                openssl_image:
+                  type: string
+                  default: index.docker.io/alpine/openssl@sha256:7f9e867564f38e409098eb6438e982bcc26b805942ce6524ad770534c0afdafb
+                kubectl_image:
+                  type: string
+                  default: index.docker.io/bitnami/kubectl@sha256:671516f53dd61f1e7d1dc178ba30d47faecc6caaa1e8c2a0f53d3d939f11c077
             ingress:
               type: object
               additionalProperties: false
@@ -129,12 +167,6 @@ spec:
                 privateKey:
                   type: string
                   default: ""
-            salt_disabled:
-              type: boolean
-              default: true
-            vcf_disabled:
-              type: boolean
-              default: true
             imageRegistry:
               type: object
               additionalProperties: false
@@ -161,9 +193,13 @@ spec:
             namespace:
               type: string
               default: tanzusm
-            ldap_enabled:
-              type: boolean
-              default: true
+            oauthProviders:
+              type: array
+              items:
+                type: object
+                additionalProperties: false
+                properties: {}
+              default: []
   template:
     spec:
       fetch:
