@@ -3,17 +3,16 @@
 apiVersion: v1
 kind: Secret
 metadata:
-  name: make-tmc-xsmall
+  name: tmc-createnamespace-false
   namespace: #@ data.values.tp.namespace
 stringData:
-  make-tmc-xsmall.yaml: |
+  tmc-createnamespace-false.yaml: |
     #@ load("@ytt:overlay", "overlay")
     #@ load("@ytt:base64", "base64")
     #@ load("@ytt:yaml", "yaml")
     
     #@ def xsmall():
-    #@overlay/match missing_ok=True
-    size: xsmall
+    createNamespace: false
     #@ end
     
     #@overlay/match by=overlay.subset({"kind":"Secret", "metadata": {"name": "tmc-values"}})
