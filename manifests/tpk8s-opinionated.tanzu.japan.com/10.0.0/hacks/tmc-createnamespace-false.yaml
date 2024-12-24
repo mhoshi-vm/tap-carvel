@@ -11,12 +11,13 @@ stringData:
     #@ load("@ytt:base64", "base64")
     #@ load("@ytt:yaml", "yaml")
     
-    #@ def xsmall():
+    #@ def create_namespace_false():
+    #@overlay/match missing_ok=True
     createNamespace: false
     #@ end
     
     #@overlay/match by=overlay.subset({"kind":"Secret", "metadata": {"name": "tmc-values"}})
     ---
     data:
-      #@overlay/replace via=lambda orig, _: base64.encode(yaml.encode(overlay.apply(yaml.decode(base64.decode(orig)),xsmall())))
+      #@overlay/replace via=lambda orig, _: base64.encode(yaml.encode(overlay.apply(yaml.decode(base64.decode(orig)),create_namespace_false())))
       values.yaml:
