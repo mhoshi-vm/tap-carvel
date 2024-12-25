@@ -7,17 +7,13 @@ metadata:
   namespace: #@ data.values.tp.namespace
 stringData:
   make-tmc-xsmall.yaml: |
+    #! By default TP will automatically put PVCs into orphan status, but for PoC this will lead to PVC not being deleted after uninstall
     #@ load("@ytt:overlay", "overlay")
-    #@ load("@ytt:base64", "base64")
-    #@ load("@ytt:yaml", "yaml")
     
-    #@ def xsmall():
-    #@overlay/match missing_ok=True
-    size: xsmall
-    #@ end
-    
-    #@overlay/match by=overlay.subset({"kind":"Secret", "metadata": {"name": "tmc-values"}})
+    #@overlay/match by=overlay.subset({"kind": "PackageInstall", "metadata": {"name": "tmc"}}), expects="1+"
     ---
-    data:
-      #@overlay/replace via=lambda orig, _: base64.encode(yaml.encode(overlay.apply(yaml.decode(base64.decode(orig)),xsmall())))
-      values.yaml:
+    metadata:
+      #@overlay/match missing_ok=True
+      annotations:
+        #@overlay/match missing_ok=True
+        ext.packaging.carvel.dev/ytt-paths-from-secret-name.9: make-tmc-xsmall-secret
