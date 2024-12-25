@@ -16,7 +16,7 @@ An unofficial version on the Tanzu Platform Self Managed installer. No support i
   - 2 Nodes with 12 vCPU, 32 GB Memory, 200GB mounted on /var/lib/containerd 
   - Non-TKGs/m k8s should work with the same resources, as long as [cluster essentials](https://techdocs.broadcom.com/us/en/vmware-tanzu/standalone-components/cluster-essentials-for-tanzu/1-10/cluster-essentials/deploy.html) is installed.
 - Complete `Download and stage the installation images` step only in [installation guide](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-platform/10-0/tnz-platform/tp-sm-install-install-tp-sm.html)
-
+- Push the tmc extensions `./cli_bundle/linux/amd64/tanzu-sm-installer push tmc-extensions -a "admin:PWD" -r "$REGISTRY_UL/hub-self-managed/${VERSION}/repo/" -f agent-images.tar`
 ## How to install 
 
 ### tanzu cli
