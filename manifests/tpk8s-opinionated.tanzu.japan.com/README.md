@@ -18,8 +18,11 @@ An unofficial version on the Tanzu Platform Self Managed installer. No support i
 - Complete `Download and stage the installation images` step only in [installation guide](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-platform/10-0/tnz-platform/tp-sm-install-install-tp-sm.html)
 - Push the tmc extensions `./cli_bundle/linux/amd64/tanzu-sm-installer push tmc-extensions -a "admin:PWD" -r "$REGISTRY_UL/hub-self-managed/${VERSION}/repo/" -f agent-images.tar`
 
-The most time-consuming part is uploading the artifact to your local private registry.
+The most time-consuming part is uploading the artifact to your local private registry. Downloading the product to your local system can be achived by `om` cli.
 
+```
+om download-product -p tanzu-platform-k8s -o /tmp --file-glob '*10.0.0.tar.gz' --product-version 10.0.0 --pivnet-api-token <your token>
+```
 
 ## How to install 
 
