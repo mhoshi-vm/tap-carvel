@@ -78,9 +78,10 @@ metadata:
     ext.packaging.carvel.dev/ytt-paths-from-secret-name.3: add-limit-to-clickhouse
     #@ if/end data.values.tp.hack.make_tmc_xsmall:
     ext.packaging.carvel.dev/ytt-paths-from-secret-name.4: make-tmc-xsmall
-    #@ if/end data.values.tp.hack.reduce_kafka_replica:
+    #@ if data.values.tp.hack.reduce_kafka_replica:
     ext.packaging.carvel.dev/ytt-paths-from-secret-name.5: reduce-kafka-replica
     ext.packaging.carvel.dev/ytt-paths-from-secret-name.6: make-ensemble-read-single-kafka
+    #@ end
     #@ if/end data.values.tp.hack.reduce_redis_replica:
     ext.packaging.carvel.dev/ytt-paths-from-secret-name.7: reduce-redis-replica
     #@ if/end data.values.tp.hack.change_pvc_orphan_delete_strategy:

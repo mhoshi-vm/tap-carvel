@@ -7,7 +7,6 @@ metadata:
   namespace: #@ data.values.tp.namespace
 stringData:
   make-tmc-xsmall-pkgi.yaml: |
-    #! By default TP will automatically put PVCs into orphan status, but for PoC this will lead to PVC not being deleted after uninstall
     #@ load("@ytt:overlay", "overlay")
     
     #@overlay/match by=overlay.subset({"kind": "PackageInstall"}), expects="1+"
