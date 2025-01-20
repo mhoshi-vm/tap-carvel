@@ -68,6 +68,7 @@ tp:
     make_tmc_xsmall: true
     salt_disabled: true
     vcf_disabled: true
+    fix_promtheus_too_small: true
   ldap_enabled: true
   rsa_builder:
     openssl_image: index.docker.io/alpine/openssl@sha256:7f9e867564f38e409098eb6438e982bcc26b805942ce6524ad770534c0afdafb
