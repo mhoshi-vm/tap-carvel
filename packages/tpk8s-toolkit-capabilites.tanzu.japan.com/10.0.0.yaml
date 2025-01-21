@@ -11,7 +11,7 @@ metadata:
          "groupVersionKinds": [
             { "apiVersion": "sql.tanzu.vmware.com/v1", "kind": "Postgres" },
             { "apiVersion": "gemfire.vmware.com/v1", "kind": "GemFireCluster" },
-            { "apiVersion": "rabbitmq.com/v1beta1", "kind": "RabbitmqCluster" },
+            { "apiVersion": "rabbitmq.com/v1beta1", "kind": "RabbitmqCluster" }
           ]
        }
       ]
