@@ -21,7 +21,7 @@ spec:
   version: 10.0.0
   valuesSchema:
     openAPIv3:
-      title: tpk8s-toolikt.tanzu-jp values schema
+      title: tpk8s-toolkit-cp.tanzu-jp values schema
       properties:
         rabbitmq:
           type: object

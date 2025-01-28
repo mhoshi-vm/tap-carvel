@@ -1,0 +1,22 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:overlay", "overlay")
+
+#@ count = data.values.postgres.count + 1
+#@ for j in range(1,count):
+---
+apiVersion: sql.tanzu.vmware.com/v1
+kind: Postgres
+metadata:
+  name: #@ "postgres-1" + str(j)
+spec:
+  memory: 400Mi
+  cpu: "0.4"
+  storageSize: 10G
+  storageClassName: #@ data.values.postgres.storage_class
+  monitorStorageClassName: #@ data.values.postgres.storage_class
+  postgresVersion:
+    name: #@ data.values.postgres.instance_version
+  highAvailability:
+    enabled: false
+#@ end
+

@@ -1,0 +1,23 @@
+#@data/values-schema
+---
+#@schema/desc "Rabbitmq starter"
+rabbitmq:
+  #@schema/desc "instance count"
+  count: 1
+
+#@schema/desc "Postgres starter"
+postgres:
+  #@schema/desc "instance count"
+  count: 1
+  #@schema/desc "storage class"
+  storage_class: default
+  #@schema/desc "instance version"
+  instance_version: postgres-14
+
+#@schema/desc "Gemfire starter"
+gemfire:
+  count: 1
+  #@schema/desc "gemfire image"
+  image:
+    repo: registry.tanzu.vmware.com/pivotal-gemfire/vmware-gemfire
+    version: "10.1"
