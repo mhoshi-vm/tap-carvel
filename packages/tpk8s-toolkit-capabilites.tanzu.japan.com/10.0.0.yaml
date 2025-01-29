@@ -3,12 +3,13 @@ kind: Package
 metadata:
   annotations:
     capability.tanzu.vmware.com/provides: |
-      [{ "name": "tpk8s-toolkit-capabilites.tanzu.japan.com",
+      [{ "name": "tpk8s-toolkit-capabilities.tanzu.japan.com",
          "displayName": "TPk8s Toolkit",
          "vendor": "VMware Tanzu",
-         "description": "Allows using Tanzu Posrgres, RabbitMQ, Gemfire for k8s",
+         "description": "Allows using Tanzu Postgres, RabbitMQ, Gemfire for k8s",
          "tags":["Services & Data Services"],
          "groupVersionKinds": [
+            { "apiVersion": "v1", "kind": "Service" },
             { "apiVersion": "sql.tanzu.vmware.com/v1", "kind": "Postgres" },
             { "apiVersion": "gemfire.vmware.com/v1", "kind": "GemFireCluster" },
             { "apiVersion": "rabbitmq.com/v1beta1", "kind": "RabbitmqCluster" }
