@@ -67,6 +67,8 @@ internal:
 cas:
   encryptionKeyVersion: 1
 namespace: tanzusm
+TanzuIntelligentAssist:
+  enable: "False"
 uaa:
   oauthClients:
     tp_app:
