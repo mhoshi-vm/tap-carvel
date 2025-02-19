@@ -82,7 +82,7 @@ tp:
     server: harbor.example.com
     username: admin
     password: ""
-    repo: tpk8s/10.0.0
+    repo: tpk8s/10.1.0
   organization:
     name: default
   namespace: tanzusm
