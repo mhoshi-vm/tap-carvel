@@ -86,8 +86,6 @@ metadata:
     ext.packaging.carvel.dev/ytt-paths-from-secret-name.7: reduce-redis-replica
     #@ if/end data.values.tp.hack.change_pvc_orphan_delete_strategy:
     ext.packaging.carvel.dev/ytt-paths-from-secret-name.8: change-pvc-orphan-delete-strategy
-    #@ if/end data.values.tp.hack.fix_promtheus_too_small:
-    ext.packaging.carvel.dev/ytt-paths-from-secret-name.9: fix-prometheus-too-small
     ext.packaging.carvel.dev/fetch-0-secret-name: registrysecret
     kapp.k14s.io/change-rule: "upsert after upserting pkgr"
 spec:
