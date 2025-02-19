@@ -2,7 +2,7 @@
 #@ load("@ytt:json", "json")
 #! https://github.gwd.broadcom.net/TNZ/ensemble-self-managed/blob/master/installer/pkg/install/feature_flag_step.go
 
-#@ def feature_flags()
+#@ def feature_flags():
 #! https://github.gwd.broadcom.net/TNZ/ensemble-self-managed/blob/723bc39ddc099a65a4aaa04ad3c478f3b9ca8506/installer/pkg/install/resources/feature-flags/feature-flags.lib.yml
 featureFlags:
   global:
