@@ -68,7 +68,7 @@ cas:
   encryptionKeyVersion: 1
 namespace: tanzusm
 TanzuIntelligentAssist:
-  enable: "False"
+  enable: #@ data.values.tp.TanzuIntelligentAssist.enable
 uaa:
   oauthClients:
     tp_app:

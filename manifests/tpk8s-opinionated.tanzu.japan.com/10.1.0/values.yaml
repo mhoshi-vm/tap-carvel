@@ -87,3 +87,5 @@ tp:
     name: default
   namespace: tanzusm
   oauthProviders: [{}]
+  TanzuIntelligentAssist:
+    enable: "False"
