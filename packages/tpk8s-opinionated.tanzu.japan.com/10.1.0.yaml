@@ -1,0 +1,213 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: Package
+metadata:
+  name: tpk8s-opinionated.tanzu.japan.com.10.1.0
+spec:
+  refName: tpk8s-opinionated.tanzu.japan.com
+  version: 10.1.0
+  valuesSchema:
+    openAPIv3:
+      title: tmc-sm.tanzu-jp values schema
+      properties:
+        certmanager:
+          type: object
+          additionalProperties: false
+          properties:
+            enabled:
+              type: boolean
+              default: true
+            package_repo:
+              type: object
+              additionalProperties: false
+              properties:
+                install:
+                  type: boolean
+                  default: false
+                repo:
+                  type: string
+                  default: projects.registry.vmware.com/tkg/packages/standard/repo
+                version:
+                  type: string
+                  default: v2024.8.21
+            package:
+              type: object
+              additionalProperties: false
+              properties:
+                install:
+                  type: boolean
+                  default: true
+        openldap:
+          type: object
+          additionalProperties: false
+          properties:
+            enabled:
+              type: boolean
+              default: true
+            image:
+              type: string
+              default: index.docker.io/bitnami/openldap@sha256:8e3f28db7a8c05d7db99ec688b8ca1044f0deaf8f98ea5b1f71c42276e3c1583
+            ssl:
+              type: boolean
+              default: false
+            rootdn:
+              type: string
+              default: dc=tanzu,dc=net
+            adminpassword:
+              type: string
+              default: adminpassword
+            ldif:
+              type: string
+              default: |
+                dn: dc=tanzu,dc=net
+                dc: tanzu
+                objectClass: dcObject
+                objectClass: organization
+                o: Tanzu, Inc
+
+                dn: ou=core,dc=tanzu,dc=net
+                objectClass: organizationalUnit
+                ou: core
+
+                dn: cn=tpviewer,ou=core,dc=tanzu,dc=net
+                objectClass: inetOrgPerson
+                cn: tpviewer
+                sn: TP Viewer
+                uid: tpviewer
+                mail: tpviewer@tanzu.net
+                userPassword: tpsm1!
+
+                dn: cn=tpadmin,ou=core,dc=tanzu,dc=net
+                objectClass: inetOrgPerson
+                cn: tpadmin
+                sn: TP Admin
+                uid: tpadmin
+                mail: tpadmin@tanzu.net
+                userPassword: tpsm1!
+
+                dn: cn=tpadmins,dc=tanzu,dc=net
+                objectClass: top
+                objectClass: groupOfNames
+                cn: tpadmins
+                description: Tanzu Platform Admins
+                member: cn=tpadmin,ou=core,dc=tanzu,dc=net
+
+                dn: cn=tpviewers,dc=tanzu,dc=net
+                objectClass: top
+                objectClass: groupOfNames
+                cn: tpviewers
+                description: Tanzu Platform Viewer
+                member: cn=tpviewer,ou=core,dc=tanzu,dc=net
+        tp:
+          type: object
+          additionalProperties: false
+          properties:
+            flavor:
+              type: string
+              default: full
+            profile:
+              type: string
+              default: evaluation
+            version:
+              type: string
+              default: 10.1.0-oct-2024-rc.533-vc0bb325
+            storage_class:
+              type: string
+              default: tkg-ds
+            hack:
+              type: object
+              additionalProperties: false
+              properties:
+                add_limit_to_clickhouse:
+                  type: boolean
+                  default: true
+                change_pvc_orphan_delete_strategy:
+                  type: boolean
+                  default: true
+                reduce_kafka_replica:
+                  type: boolean
+                  default: true
+                reduce_redis_replica:
+                  type: boolean
+                  default: true
+                make_tmc_xsmall:
+                  type: boolean
+                  default: true
+                salt_disabled:
+                  type: boolean
+                  default: true
+                vcf_disabled:
+                  type: boolean
+                  default: true
+            ldap_enabled:
+              type: boolean
+              default: true
+            rsa_builder:
+              type: object
+              additionalProperties: false
+              properties:
+                openssl_image:
+                  type: string
+                  default: index.docker.io/alpine/openssl@sha256:7f9e867564f38e409098eb6438e982bcc26b805942ce6524ad770534c0afdafb
+                kubectl_image:
+                  type: string
+                  default: index.docker.io/bitnami/kubectl@sha256:671516f53dd61f1e7d1dc178ba30d47faecc6caaa1e8c2a0f53d3d939f11c077
+            ingress:
+              type: object
+              additionalProperties: false
+              properties:
+                host:
+                  type: string
+                  default: tp.example.com
+                self_signed_cert:
+                  type: boolean
+                  default: true
+                certificate:
+                  type: string
+                  default: ""
+                privateKey:
+                  type: string
+                  default: ""
+            imageRegistry:
+              type: object
+              additionalProperties: false
+              properties:
+                server:
+                  type: string
+                  default: harbor.example.com
+                username:
+                  type: string
+                  default: admin
+                password:
+                  type: string
+                  default: ""
+                repo:
+                  type: string
+                  default: tpk8s/10.1.0
+            organization:
+              type: object
+              additionalProperties: false
+              properties:
+                name:
+                  type: string
+                  default: default
+            namespace:
+              type: string
+              default: tanzusm
+            oauthProviders:
+              type: array
+              items:
+                type: object
+                additionalProperties: false
+                properties: {}
+              default: []
+  template:
+    spec:
+      fetch:
+      - git:
+          url: https://github.com/mhoshi-vm/tap-carvel
+          ref: origin/pkgr
+          subPath: manifests/tpk8s-opinionated.tanzu.japan.com/10.1.0
+      template:
+      - ytt: {}
+      deploy:
+      - kapp: {}

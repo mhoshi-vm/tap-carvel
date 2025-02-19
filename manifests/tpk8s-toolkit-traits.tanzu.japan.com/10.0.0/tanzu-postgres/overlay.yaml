@@ -9,8 +9,11 @@ kind: Postgres
 metadata:
   name: #@ "postgres-1" + str(j)
 spec:
-  memory: 400Mi
-  cpu: "0.4"
+  resources:
+    data:
+      requests:
+        memory: 400Mi
+        cpu: "0.4"
   storageSize: 10G
   storageClassName: #@ data.values.postgres.storage_class
   monitorStorageClassName: #@ data.values.postgres.storage_class
@@ -18,5 +21,20 @@ spec:
     name: #@ data.values.postgres.instance_version
   highAvailability:
     enabled: false
+---
+#! https://vmw-jira.broadcom.net/browse/POSTGRES-157
+apiVersion: v1
+kind: Service
+metadata:
+  name: #@ "postgres-1" + str(j) + "-agent-dummy"
+spec:
+  clusterIP: None
+  selector:
+    headless-service: #@ "postgres-1" + str(j)
+  type: ClusterIP
+  ports:
+    - port: 5432
+      protocol: TCP
+      targetPort: 5432
 #@ end
 

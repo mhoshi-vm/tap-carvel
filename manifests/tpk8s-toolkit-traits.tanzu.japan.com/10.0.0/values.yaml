@@ -10,7 +10,7 @@ postgres:
   #@schema/desc "instance count"
   count: 1
   #@schema/desc "storage class"
-  storage_class: default
+  storage_class: tkg-ds
   #@schema/desc "instance version"
   instance_version: postgres-14
 
