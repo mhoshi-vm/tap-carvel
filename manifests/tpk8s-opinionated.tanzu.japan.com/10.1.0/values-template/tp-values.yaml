@@ -25,7 +25,6 @@ seaweedfsS3:
   storageClass: #@ data.values.tp.storage_class
 prometheus:
   storageClass: #@ data.values.tp.storage_class
-  storageSize: 8Gi
   tmcStorageClass: #@ data.values.tp.storage_class
 kafka:
   storageClass: #@ data.values.tp.storage_class
