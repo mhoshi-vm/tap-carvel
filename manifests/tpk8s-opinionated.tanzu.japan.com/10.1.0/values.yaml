@@ -56,7 +56,7 @@ openldap:
     description: Tanzu Platform Viewer
     member: cn=tpviewer,ou=core,dc=tanzu,dc=net
 tp:
-  flavor: full
+  flavor: essentials
   profile: evaluation
   version: '10.1.0-asteroid-rc.89-v59b5eec'
   storage_class: tkg-ds
@@ -65,10 +65,10 @@ tp:
     change_pvc_orphan_delete_strategy: true
     reduce_kafka_replica: true
     reduce_redis_replica: true
-    make_tmc_xsmall: true
+    make_tmc_xsmall: false
     salt_disabled: true
     vcf_disabled: true
-    fix_promtheus_too_small: true
+    fix_promtheus_too_small: false
   ldap_enabled: true
   rsa_builder:
     openssl_image: index.docker.io/alpine/openssl@sha256:707f1866ecf0f97282d3d6b970e4f464e5df9fb41b38df7865311372411bc2e2
