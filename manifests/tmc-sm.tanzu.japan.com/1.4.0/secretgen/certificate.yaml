@@ -1,0 +1,58 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: clusterissuers.cert-manager.io
+  annotations:
+    kapp.k14s.io/exists: ""
+    kapp.k14s.io/change-group: "tkcrd"
+    kapp.k14s.io/change-rule: "upsert after upserting pkg"
+spec:
+  group: cert-manager.io
+  versions:
+    - name: v1
+      served: true
+      storage: true
+  names:
+    kind: ClusterIssuer
+    plural: clusterissuers
+  scope: Cluster
+---
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: tmc-local-issuer
+  annotations:
+    kapp.k14s.io/change-rule: "upsert after upserting tkcrd"
+spec:
+  selfSigned: {}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: tmc-cert
+  namespace: tmc-local
+  annotations:
+    kapp.k14s.io/change-group: "secrettemplate"
+spec:
+  isCA: true
+  commonName: #@ "tmc-sm." + data.values.domain
+  secretName: tmc-cert
+  dnsNames:
+    - localhost
+    - #@ "tmc-sm." + data.values.domain
+    - #@ "*." + data.values.domain
+  issuerRef:
+    name: tmc-local-issuer
+    kind: ClusterIssuer
+    group: cert-manager.io
+  privateKey:
+    encoding: PKCS8
+    size: 4096
+  usages:
+    - digital signature
+    - key encipherment
+    - cert sign
+    - server auth
+---

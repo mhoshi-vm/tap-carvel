@@ -1,0 +1,43 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:yaml", "yaml")
+---
+#@ def tmc_values():
+
+clusterIssuer: tmc-local-issuer
+
+contourEnvoy:
+  serviceType: LoadBalancer
+
+size: #@ data.values.tmc.size
+dnsZone: #@ data.values.domain
+harborProject: #@ data.values.tmc.repo
+authenticationType: ldap
+oidc:
+  issuerType: pinniped
+  issuerURL: https://pinniped-supervisor.tmc.tanzu.io/provider/pinniped
+
+ldap:
+  type: "ldap"
+  host: "openldap.openldap:389"
+  username: "cn=admin,dc=tanzu,dc=net"
+  password: #@ data.values.openldap.adminpassword
+  userBaseDN: "dc=tanzu,dc=net"
+  userSearchFilter: "cn={0}"
+  userSearchAttributeUsername: sAMAccountName
+  groupBaseDN: "dc=tanzu,dc=net"
+  groupSearchFilter: "member={0}"
+minio:
+  username: admin
+#@ end
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: tmc-values
+  namespace: tmc-local
+stringData:
+  #@yaml/text-templated-strings
+  data-values.yaml: |
+    #@data/values
+    ---
+    (@= yaml.encode(tmc_values())@)
