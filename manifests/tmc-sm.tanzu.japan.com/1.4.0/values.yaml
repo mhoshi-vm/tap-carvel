@@ -2,61 +2,63 @@
 ---
 domain: example.com
 
-ca:
-  crt: dummy
-  key: dummy
-
 certmanager:
   enabled: true
-  package_repo: 
+  package_repo:
     install: false
     repo: projects.registry.vmware.com/tkg/packages/standard/repo
-    version: 2.2.0
+    version: v2024.8.21
   package:
     install: true
 
-dex:
-  enabled: true
-  version: 0.14.3  
-
-oidc:
-  secret: randomsecret
-
 tmc:
+  size: xsmall
   repo: internalrepo.com/tmc
-  postgres:
-    password: Passw0rd
-  minio:
-    username: root
-    password: Passw0rd
+  version: 1.4.0
 
 openldap:
+  enabled: true
+  image: index.docker.io/bitnami/openldap@sha256:d78905f12749014709bf6da54192fe74c72686c0e614bfb6e1fa935e66f91d26
+  ssl: false
+  rootdn: dc=tanzu,dc=net
+  adminpassword: adminpassword
   ldif: |
-    dn: dc=tmc,dc=dev
+    dn: dc=tanzu,dc=net
+    dc: tanzu
     objectClass: dcObject
-    objectclass: organization
-    o: tmc
-    dc: tmc
+    objectClass: organization
+    o: Tanzu, Inc
     
-    dn: ou=usergroups,dc=tmc,dc=dev
+    dn: ou=core,dc=tanzu,dc=net
     objectClass: organizationalUnit
-    objectClass: top
-    ou: usergroups
+    ou: core
     
-    dn: cn=tmc01,ou=usergroups,dc=tmc,dc=dev
-    cn: tmc01
-    sn: tmc01
+    dn: cn=tmcviewer,ou=core,dc=tanzu,dc=net
     objectClass: inetOrgPerson
-    objectClass: posixAccount
-    objectClass: shadowAccount
-    userPassword: VMware1!
-    uid: tmc01
-    mail: tmc01@tmc.com
-    uidNumber: 1000
-    gidNumber: 1000
-    homeDirectory: /home/user01
+    cn: tmcviewer
+    sn: TMC Viewer
+    uid: tmcviewer
+    mail: tmcviewer@tanzu.net
+    userPassword: tmcsm1!
     
-    dn: cn=tmc:admin,ou=usergroups,dc=tmc,dc=dev
-    cn: tmc:admin
+    dn: cn=tmcadmin,ou=core,dc=tanzu,dc=net
+    objectClass: inetOrgPerson
+    cn: tmcadmin
+    sn: TMC Admin
+    uid: tmcadmin
+    mail: tmcadmin@tanzu.net
+    userPassword: tmcsm1!
+    
+    dn: cn=tmcadmins,dc=tanzu,dc=net
+    objectClass: top
     objectClass: groupOfNames
-    member: cn=tmc01,ou=usergroups,dc=tmc,dc=dev
+    cn: tmcadmins
+    description: Tanzu Admins
+    member: cn=tmcadmin,ou=core,dc=tanzu,dc=net
+    
+    dn: cn=tmcviewers,dc=tanzu,dc=net
+    objectClass: top
+    objectClass: groupOfNames
+    cn: tmcviewers
+    description: Tanzu Viewer
+    member: cn=tmcviewer,ou=core,dc=tanzu,dc=net

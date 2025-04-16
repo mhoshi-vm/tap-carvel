@@ -21,9 +21,9 @@ metadata:
   name: certmanager-kapp-role-binding
   namespace: certmanager-install
 subjects:
-- kind: ServiceAccount
-  name: kapp-sa
-  namespace: certmanager-install
+  - kind: ServiceAccount
+    name: kapp-sa
+    namespace: certmanager-install
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
@@ -50,7 +50,7 @@ metadata:
   name: cert-manager
   namespace: certmanager-install
   annotations:
-    kapp.k14s.io/change-group: "pkg"
+    kapp.k14s.io/change-group: "pkg-cert"
 spec:
   packageRef:
     refName: cert-manager.tanzu.vmware.com
@@ -58,42 +58,4 @@ spec:
       constraints: ">0.0.0"
   serviceAccountName: kapp-sa
 #@ end
----
-apiVersion: apiextensions.k8s.io/v1
-kind: CustomResourceDefinition
-metadata:
-  name: clusterissuers.cert-manager.io
-  annotations:
-    kapp.k14s.io/exists: ""
-    kapp.k14s.io/change-group: "tkcrd"
-    kapp.k14s.io/change-rule: "upsert after upserting pkg"
-spec:
-  group: cert-manager.io
-  versions:
-    - name: v1
-  names:
-    kind: ClusterIssuer
-  scope: Cluster
----
-apiVersion: cert-manager.io/v1
-kind: ClusterIssuer
-metadata:
-  name: tmc-local-issuer
-  annotations:
-    kapp.k14s.io/change-rule: "upsert after upserting tkcrd"
-spec:
-  ca:
-    secretName: ca-key-pair
----
-apiVersion: v1
-data:
-  tls.crt: #@ base64.encode(data.values.ca.crt)
-  tls.key: #@ base64.encode(data.values.ca.key)
-kind: Secret
-metadata:
-  name: ca-key-pair
-  namespace: cert-manager
-  annotations:
-    kapp.k14s.io/change-rule: "upsert after upserting tkcrd"
-type: kubernetes.io/tls
 #@ end

@@ -3,31 +3,7 @@
 #@ load("@ytt:base64", "base64")
 #@ load("@ytt:yaml", "yaml")
 
-#@ def tmc_config():
-#@overlay/match missing_ok=True
-#@overlay/match-child-defaults missing_ok=True
-clusterIssuer: tmc-local-issuer
-
-contourEnvoy:
-  serviceType: LoadBalancer
-
-dnsZone: #@ data.values.domain
-harborProject: #@ data.values.tmc.repo
-
-oidc:
-  issuerType: pinniped
-  issuerURL: #@ "https://dex." + data.values.domain + "/dex"
-  clientID: dex-authenticator
-  clientSecret: #@ data.values.oidc.secret
-postgres:
-  userPassword: #@ data.values.tmc.postgres.password
-minio:
-  username: #@ data.values.tmc.minio.username
-  password: #@ data.values.tmc.minio.password
-trustedCAs:
-  local-ca.crt: #@ data.values.ca.crt
-#@ end
-
+---
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -71,7 +47,8 @@ metadata:
   name: tmc
   namespace: tmc-local
   annotations:
-    ext.packaging.carvel.dev/ytt-paths-from-secret-name.0: tmc-overlay-override
+    ext.packaging.carvel.dev/ytt-paths-from-secret-name.0: tmc-values
+    ext.packaging.carvel.dev/ytt-paths-from-secret-name.1: tmc-values-generated-secrets
     kapp.k14s.io/change-rule: "upsert after upserting tmcpkgr"
 spec:
   serviceAccountName: kapp-sa
@@ -79,14 +56,3 @@ spec:
     refName: tmc.tanzu.vmware.com
     versionSelection:
       constraints: ">0.0.0"
-  values:
-  - secretRef:
-      name: change-default-secret
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: change-default-secret
-  namespace: tmc-local
-stringData:
-  change-default-reg-secret.yml: #@ yaml.encode(overlay.apply(tmc_config()))

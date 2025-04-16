@@ -1,0 +1,126 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: Package
+metadata:
+  name: tmc-sm.tanzu.japan.com.1.4.0
+spec:
+  refName: tmc-sm.tanzu.japan.com
+  version: 1.4.0
+  valuesSchema:
+    openAPIv3:
+      title: tmc-sm.tanzu-jp values schema
+      properties:
+        domain:
+          type: string
+          default: example.com
+        certmanager:
+          type: object
+          additionalProperties: false
+          properties:
+            enabled:
+              type: boolean
+              default: true
+            package_repo:
+              type: object
+              additionalProperties: false
+              properties:
+                install:
+                  type: boolean
+                  default: false
+                repo:
+                  type: string
+                  default: projects.registry.vmware.com/tkg/packages/standard/repo
+                version:
+                  type: string
+                  default: v2024.8.21
+            package:
+              type: object
+              additionalProperties: false
+              properties:
+                install:
+                  type: boolean
+                  default: true
+        tmc:
+          type: object
+          additionalProperties: false
+          properties:
+            size:
+              type: string
+              default: xsmall
+            repo:
+              type: string
+              default: internalrepo.com/tmc
+            version:
+              type: string
+              default: 1.4.0
+        openldap:
+          type: object
+          additionalProperties: false
+          properties:
+            enabled:
+              type: boolean
+              default: true
+            image:
+              type: string
+              default: index.docker.io/bitnami/openldap@sha256:d78905f12749014709bf6da54192fe74c72686c0e614bfb6e1fa935e66f91d26
+            ssl:
+              type: boolean
+              default: false
+            rootdn:
+              type: string
+              default: dc=tanzu,dc=net
+            adminpassword:
+              type: string
+              default: adminpassword
+            ldif:
+              type: string
+              default: |-
+                dn: dc=tanzu,dc=net
+                dc: tanzu
+                objectClass: dcObject
+                objectClass: organization
+                o: Tanzu, Inc
+                
+                dn: ou=core,dc=tanzu,dc=net
+                objectClass: organizationalUnit
+                ou: core
+                
+                dn: cn=tmcviewer,ou=core,dc=tanzu,dc=net
+                objectClass: inetOrgPerson
+                cn: tmcviewer
+                sn: TMC Viewer
+                uid: tmcviewer
+                mail: tmcviewer@tanzu.net
+                userPassword: tmcsm1!
+                
+                dn: cn=tmcadmin,ou=core,dc=tanzu,dc=net
+                objectClass: inetOrgPerson
+                cn: tmcadmin
+                sn: TMC Admin
+                uid: tmcadmin
+                mail: tmcadmin@tanzu.net
+                userPassword: tmcsm1!
+                
+                dn: cn=tmcadmins,dc=tanzu,dc=net
+                objectClass: top
+                objectClass: groupOfNames
+                cn: tmcadmins
+                description: Tanzu Admins
+                member: cn=tmcadmin,ou=core,dc=tanzu,dc=net
+                
+                dn: cn=tmcviewers,dc=tanzu,dc=net
+                objectClass: top
+                objectClass: groupOfNames
+                cn: tmcviewers
+                description: Tanzu Viewer
+                member: cn=tmcviewer,ou=core,dc=tanzu,dc=net
+  template:
+    spec:
+      fetch:
+      - git:
+          url: https://github.com/mhoshi-vm/tap-carvel
+          ref: origin/pkgr
+          subPath: manifests/tmc-sm.tanzu.japan.com/1.4.0
+      template:
+      - ytt: {}
+      deploy:
+      - kapp: {}
