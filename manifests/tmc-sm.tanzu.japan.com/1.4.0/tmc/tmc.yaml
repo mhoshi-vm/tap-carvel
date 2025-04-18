@@ -3,17 +3,42 @@
 #@ load("@ytt:base64", "base64")
 #@ load("@ytt:yaml", "yaml")
 
+#@ def dockerhub_config_fragment():
+username: #@ data.values.tp.imageRegistry.username
+password: #@ data.values.tp.imageRegistry.password
+#@ end
+
+#@ docker_config = { data.values.tp.imageRegistry.server : dockerhub_config_fragment()}
+
+#@ def dockerhub_config():
+auths: #@ docker_config
+#@ end
 ---
 apiVersion: v1
 kind: Namespace
 metadata:
   name: tmc-local
+  labels:
+    pod-security.kubernetes.io/enforce: privileged
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: registrysecret
+  namespace: tmc-local
+type: kubernetes.io/dockerconfigjson
+data:
+  .dockerconfigjson: #@ base64.encode("{}".format(yaml.decode(yaml.encode(dockerhub_config()))))
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: kapp-sa
   namespace: tmc-local
+secrets:
+- name: registrysecret
+imagePullSecrets:
+- name: registrysecret
 ---
 kind: ClusterRoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
@@ -29,30 +54,32 @@ roleRef:
   kind: ClusterRole
   name: cluster-admin
 ---
-#apiVersion: packaging.carvel.dev/v1alpha1
-#kind: PackageRepository
-#metadata:
-#  name: tanzu-mission-control-packages
-#  namespace: tmc-local
-#  annotations:
-#    kapp.k14s.io/change-group: "tmcpkgr"
-#spec:
-#  fetch:
-#    imgpkgBundle:
-#      image: #@  data.values.tmc.repo + "/package-repository:" + data.values.tmc.version
-#---
-#apiVersion: packaging.carvel.dev/v1alpha1
-#kind: PackageInstall
-#metadata:
-#  name: tmc
-#  namespace: tmc-local
-#  annotations:
-#    ext.packaging.carvel.dev/ytt-paths-from-secret-name.0: tmc-values
-#    ext.packaging.carvel.dev/ytt-paths-from-secret-name.1: tmc-values-generated-secrets
-#    kapp.k14s.io/change-rule: "upsert after upserting tmcpkgr"
-#spec:
-#  serviceAccountName: kapp-sa
-#  packageRef:
-#    refName: tmc.tanzu.vmware.com
-#    versionSelection:
-#      constraints: ">0.0.0"
+apiVersion: packaging.carvel.dev/v1alpha1
+kind: PackageRepository
+metadata:
+  name: tanzu-mission-control-packages
+  namespace: tmc-local
+  annotations:
+    kapp.k14s.io/change-group: "tmcpkgr"
+spec:
+  fetch:
+    imgpkgBundle:
+      image: #@  data.values.tmc.repo + "/package-repository:" + data.values.tmc.version
+      secretRef:
+        name: registrysecret
+---
+apiVersion: packaging.carvel.dev/v1alpha1
+kind: PackageInstall
+metadata:
+  name: tmc
+  namespace: tmc-local
+  annotations:
+    ext.packaging.carvel.dev/ytt-paths-from-secret-name.0: tmc-values
+    ext.packaging.carvel.dev/ytt-paths-from-secret-name.1: tmc-values-generated-secrets
+    kapp.k14s.io/change-rule: "upsert after upserting tmcpkgr"
+spec:
+  serviceAccountName: kapp-sa
+  packageRef:
+    refName: tmc.tanzu.vmware.com
+    versionSelection:
+      constraints: ">0.0.0"
