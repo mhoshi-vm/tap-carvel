@@ -35,10 +35,6 @@ kind: ServiceAccount
 metadata:
   name: kapp-sa
   namespace: tmc-local
-secrets:
-- name: registrysecret
-imagePullSecrets:
-- name: registrysecret
 ---
 kind: ClusterRoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
@@ -74,6 +70,7 @@ metadata:
   name: tmc
   namespace: tmc-local
   annotations:
+    ext.packaging.carvel.dev/fetch-0-secret-name: registrysecret
     ext.packaging.carvel.dev/ytt-paths-from-secret-name.0: tmc-values
     ext.packaging.carvel.dev/ytt-paths-from-secret-name.1: tmc-values-generated-secrets
     kapp.k14s.io/change-rule: "upsert after upserting tmcpkgr"
