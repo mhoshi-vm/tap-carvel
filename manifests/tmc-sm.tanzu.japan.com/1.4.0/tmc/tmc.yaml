@@ -30,6 +30,15 @@ type: kubernetes.io/dockerconfigjson
 data:
   .dockerconfigjson: #@ base64.encode("{}".format(yaml.decode(yaml.encode(dockerhub_config()))))
 ---
+apiVersion: secretgen.carvel.dev/v1alpha1
+kind: SecretExport
+metadata:
+  name: registrysecret
+  namespace: tmc-local
+spec:
+  toNamespaces:
+    - "tmc-local"
+---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
@@ -61,8 +70,6 @@ spec:
   fetch:
     imgpkgBundle:
       image: #@  data.values.tmc.imageRegistry.server + "/" + data.values.tmc.imageRegistry.repo + "/package-repository:" + data.values.tmc.version
-      secretRef:
-        name: registrysecret
 ---
 apiVersion: packaging.carvel.dev/v1alpha1
 kind: PackageInstall
@@ -70,7 +77,6 @@ metadata:
   name: tmc
   namespace: tmc-local
   annotations:
-    ext.packaging.carvel.dev/fetch-0-secret-name: registrysecret
     ext.packaging.carvel.dev/ytt-paths-from-secret-name.0: tmc-values
     ext.packaging.carvel.dev/ytt-paths-from-secret-name.1: tmc-values-generated-secrets
     kapp.k14s.io/change-rule: "upsert after upserting tmcpkgr"
