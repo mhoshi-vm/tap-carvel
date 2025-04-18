@@ -21,6 +21,7 @@ ldap:
   host: "openldap.openldap:389"
   username: "cn=admin,dc=tanzu,dc=net"
   password: #@ data.values.openldap.adminpassword
+  domainName: "in-cluster-openldap"
   userBaseDN: "dc=tanzu,dc=net"
   userSearchFilter: "cn={0}"
   groupBaseDN: "dc=tanzu,dc=net"
