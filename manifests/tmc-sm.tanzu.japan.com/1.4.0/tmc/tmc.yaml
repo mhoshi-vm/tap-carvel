@@ -4,11 +4,11 @@
 #@ load("@ytt:yaml", "yaml")
 
 #@ def dockerhub_config_fragment():
-username: #@ data.values.tp.imageRegistry.username
-password: #@ data.values.tp.imageRegistry.password
+username: #@ data.values.tmc.imageRegistry.username
+password: #@ data.values.tmc.imageRegistry.password
 #@ end
 
-#@ docker_config = { data.values.tp.imageRegistry.server : dockerhub_config_fragment()}
+#@ docker_config = { data.values.tmc.imageRegistry.server : dockerhub_config_fragment()}
 
 #@ def dockerhub_config():
 auths: #@ docker_config
@@ -64,7 +64,7 @@ metadata:
 spec:
   fetch:
     imgpkgBundle:
-      image: #@  data.values.tmc.repo + "/package-repository:" + data.values.tmc.version
+      image: #@  data.values.tmc.imageRegistry.server + "/" + data.values.tmc.imageRegistry.repo + "/package-repository:" + data.values.tmc.version
       secretRef:
         name: registrysecret
 ---

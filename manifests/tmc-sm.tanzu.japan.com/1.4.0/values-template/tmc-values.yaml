@@ -10,7 +10,7 @@ contourEnvoy:
 
 size: #@ data.values.tmc.size
 dnsZone: #@ data.values.domain
-harborProject: #@ data.values.tmc.repo
+harborProject: #@ data.values.tmc.imageRegistry.server + "/" + data.values.tmc.imageRegistry.repo
 authenticationType: ldap
 oidc:
   issuerType: pinniped

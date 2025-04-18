@@ -13,8 +13,12 @@ certmanager:
 
 tmc:
   size: xsmall
-  repo: internalrepo.com/tmc
   version: 1.4.0
+  imageRegistry:
+    server: harbor.example.com
+    username: admin
+    password: ""
+    repo: tmc
 
 openldap:
   enabled: true
