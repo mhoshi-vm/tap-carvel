@@ -12,7 +12,7 @@ certmanager:
     install: true
 
 tmc:
-  size: xsmall
+  size: small
   version: 1.4.0
   imageRegistry:
     server: harbor.example.com
