@@ -3,16 +3,6 @@
 #@ load("@ytt:base64", "base64")
 #@ load("@ytt:yaml", "yaml")
 
-#@ def dockerhub_config_fragment():
-username: #@ data.values.tmc.imageRegistry.username
-password: #@ data.values.tmc.imageRegistry.password
-#@ end
-
-#@ docker_config = { data.values.tmc.imageRegistry.server : dockerhub_config_fragment()}
-
-#@ def dockerhub_config():
-auths: #@ docker_config
-#@ end
 ---
 apiVersion: v1
 kind: Namespace
@@ -20,24 +10,6 @@ metadata:
   name: tmc-local
   labels:
     pod-security.kubernetes.io/enforce: privileged
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: registrysecret
-  namespace: tmc-local
-type: kubernetes.io/dockerconfigjson
-data:
-  .dockerconfigjson: #@ base64.encode("{}".format(yaml.decode(yaml.encode(dockerhub_config()))))
----
-apiVersion: secretgen.carvel.dev/v1alpha1
-kind: SecretExport
-metadata:
-  name: registrysecret
-  namespace: tmc-local
-spec:
-  toNamespaces:
-    - "tmc-local"
 ---
 apiVersion: v1
 kind: ServiceAccount

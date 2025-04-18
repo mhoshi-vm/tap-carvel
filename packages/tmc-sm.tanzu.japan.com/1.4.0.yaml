@@ -63,12 +63,6 @@ spec:
                     server:
                       type: string
                       default: harbor.example.com
-                    username:
-                      type: string
-                      default: admin
-                    password:
-                      type: string
-                      default: ""
                     repo:
                       type: string
                       default: tmc
