@@ -18,7 +18,7 @@ oidc:
 
 ldap:
   type: "ldap"
-  host: "openldap.svc.cluster.local:636"
+  host: "openldap.openldap.svc.cluster.local:636"
   username: "cn=admin,dc=tanzu,dc=net"
   password: #@ data.values.openldap.adminpassword
   domainName: "in-cluster-openldap"
