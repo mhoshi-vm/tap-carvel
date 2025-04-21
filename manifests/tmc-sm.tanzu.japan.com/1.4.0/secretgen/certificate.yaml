@@ -76,3 +76,23 @@ spec:
   ca:
     secretName: tmc-cert
 ---
+apiVersion: secretgen.carvel.dev/v1alpha1
+kind: SecretExport
+metadata:
+  name: tmc-cert
+  namespace: cert-manager
+  annotations:
+    kapp.k14s.io/change-group: "secrettemplate"
+spec:
+  toNamespace: tmc-local
+---
+apiVersion: secretgen.carvel.dev/v1alpha1
+kind: SecretImport
+metadata:
+  name: tmc-cert
+  namespace: tmc-local
+  annotations:
+    kapp.k14s.io/change-group: "secrettemplate"
+spec:
+  fromNamespace: cert-manager
+---
