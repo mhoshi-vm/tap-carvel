@@ -167,6 +167,8 @@ spec:
   - "openldap"
   issuerRef:
     name: openldap-ca-issuer
+    kind: ClusterIssuer
+    group: cert-manager.io
 ---
 apiVersion: secretgen.carvel.dev/v1alpha1
 kind: SecretExport
