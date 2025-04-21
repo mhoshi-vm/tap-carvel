@@ -115,10 +115,9 @@ metadata:
 #@ if data.values.openldap.ssl:
 ---
 apiVersion: cert-manager.io/v1
-kind: Issuer
+kind: ClusterIssuer
 metadata:
  name: openldap-root-issuer
- namespace: openldap
 spec:
  selfSigned: {}
 ---
@@ -133,14 +132,13 @@ spec:
   secretName: openldap-rootca
   issuerRef:
     name: openldap-root-issuer
-    kind: Issuer
+    kind: ClusterIssuer
     group: cert-manager.io
 ---
 apiVersion: cert-manager.io/v1
-kind: Issuer
+kind: ClusterIssuer
 metadata:
   name: openldap-ca-issuer
-  namespace: openldap
 spec:
   ca:
     secretName: openldap-rootca
