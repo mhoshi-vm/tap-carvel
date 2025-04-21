@@ -145,24 +145,5 @@ spec:
     kind: ClusterIssuer
     group: cert-manager.io
 ---
-apiVersion: secretgen.carvel.dev/v1alpha1
-kind: SecretExport
-metadata:
-  name: openldap-cert
-  namespace: openldap
-  annotations:
-    kapp.k14s.io/change-group: "secrettemplate"
-spec:
-  toNamespace: tmc-local
----
-apiVersion: secretgen.carvel.dev/v1alpha1
-kind: SecretImport
-metadata:
-  name: openldap-cert
-  namespace: tmc-local
-  annotations:
-    kapp.k14s.io/change-group: "secrettemplate"
-spec:
-  fromNamespace: openldap
 #@ end
 #@ end
