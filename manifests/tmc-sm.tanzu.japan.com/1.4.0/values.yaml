@@ -51,16 +51,16 @@ openldap:
     mail: tmcadmin@tanzu.net
     userPassword: tmcsm1!
     
-    dn: cn=tmcadmins,dc=tanzu,dc=net
+    dn: cn=tmc:admin,dc=tanzu,dc=net
     objectClass: top
     objectClass: groupOfNames
-    cn: tmcadmins
+    cn: tmc:admin
     description: Tanzu Admins
     member: cn=tmcadmin,ou=core,dc=tanzu,dc=net
     
-    dn: cn=tmcviewers,dc=tanzu,dc=net
+    dn: cn=tmc:member,dc=tanzu,dc=net
     objectClass: top
     objectClass: groupOfNames
-    cn: tmcviewers
+    cn: tmc:member
     description: Tanzu Viewer
     member: cn=tmcviewer,ou=core,dc=tanzu,dc=net
