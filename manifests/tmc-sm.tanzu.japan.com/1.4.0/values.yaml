@@ -21,7 +21,7 @@ tmc:
 openldap:
   enabled: true
   image: index.docker.io/bitnami/openldap@sha256:d78905f12749014709bf6da54192fe74c72686c0e614bfb6e1fa935e66f91d26
-  ssl: false
+  ssl: true
   rootdn: dc=tanzu,dc=net
   adminpassword: adminpassword
   ldif: |
