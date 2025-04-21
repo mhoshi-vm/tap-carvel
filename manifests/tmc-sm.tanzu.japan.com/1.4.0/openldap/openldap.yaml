@@ -118,6 +118,8 @@ apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
 metadata:
  name: openldap-root-issuer
+ annotations:
+   kapp.k14s.io/change-group: "secrettemplate"
 spec:
  selfSigned: {}
 ---
@@ -126,6 +128,8 @@ kind: Certificate
 metadata:
  name: openldap-rootca
  namespace: openldap
+ annotations:
+   kapp.k14s.io/change-group: "secrettemplate"
 spec:
   isCA: true
   commonName: openldap-rootca
@@ -139,6 +143,8 @@ apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
 metadata:
   name: openldap-ca-issuer
+  annotations:
+    kapp.k14s.io/change-group: "secrettemplate"
 spec:
   ca:
     secretName: openldap-rootca
@@ -148,6 +154,8 @@ kind: Certificate
 metadata:
   name: openldap-cert
   namespace: openldap
+  annotations:
+    kapp.k14s.io/change-group: "secrettemplate"
 spec:
   secretName: openldap-cert
   isCA: false
@@ -165,6 +173,8 @@ kind: SecretExport
 metadata:
   name: openldap-cert
   namespace: openldap
+  annotations:
+    kapp.k14s.io/change-group: "secrettemplate"
 spec:
   toNamespace: tmc-local
 ---
@@ -173,6 +183,8 @@ kind: SecretImport
 metadata:
   name: openldap-cert
   namespace: tmc-local
+  annotations:
+    kapp.k14s.io/change-group: "secrettemplate"
 spec:
   toNamespace: openldap
 #@ end
