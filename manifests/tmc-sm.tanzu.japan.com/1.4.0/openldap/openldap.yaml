@@ -161,5 +161,21 @@ spec:
   - "openldap"
   issuerRef:
     name: openldap-ca-issuer
+---
+apiVersion: secretgen.carvel.dev/v1alpha1
+kind: SecretExport
+metadata:
+  name: openldap-cert
+  namespace: openldap
+spec:
+  toNamespace: tmc-local
+---
+apiVersion: secretgen.carvel.dev/v1alpha1
+kind: SecretImport
+metadata:
+  name: openldap-cert
+  namespace: tmc-local
+spec:
+  toNamespace: openldap
 #@ end
 #@ end
