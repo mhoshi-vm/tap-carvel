@@ -40,7 +40,7 @@ spec:
 apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
 metadata:
-  name: tmc-local-issuer
+  name: tmc-root-issuer
   annotations:
     kapp.k14s.io/change-rule: "upsert after upserting tkcrd"
 spec:
@@ -50,27 +50,29 @@ apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: tmc-cert
-  namespace: tmc-local
+  namespace: cert-manager
   annotations:
     kapp.k14s.io/change-group: "secrettemplate"
 spec:
   isCA: true
   commonName: #@ "tmc-sm." + data.values.domain
   secretName: tmc-cert
-  dnsNames:
-    - localhost
-    - #@ "tmc-sm." + data.values.domain
-    - #@ "*." + data.values.domain
+  duration: 87600h
   issuerRef:
-    name: tmc-local-issuer
+    name: tmc-root-issuer
     kind: ClusterIssuer
     group: cert-manager.io
   privateKey:
     encoding: PKCS8
     size: 4096
-  usages:
-    - digital signature
-    - key encipherment
-    - cert sign
-    - server auth
+---
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: tmc-local-issuer
+  annotations:
+    kapp.k14s.io/change-rule: "upsert after upserting tkcrd"
+spec:
+  ca:
+    secretName: tmc-cert
 ---

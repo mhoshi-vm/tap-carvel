@@ -139,6 +139,7 @@ spec:
   dnsNames:
   - #@ "openldap.openldap.svc.cluster.local"
   - "openldap"
+  duration: 87600h
   issuerRef:
     name: openldap-root-issuer
     kind: ClusterIssuer
