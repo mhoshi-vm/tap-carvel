@@ -42,22 +42,26 @@ openldap:
     dn: cn=tmcviewer,ou=core,dc=tanzu,dc=net
     objectClass: inetOrgPerson
     objectClass: posixAccount
+    objectClass: shadowAccount
     cn: tmcviewer
     sn: TMC Viewer
     uid: tmcviewer
     uidNumber: 1001
     mail: tmcviewer@tanzu.net
     userPassword: tmcsm1!
+    homeDirectory: /home/tmcviewer
     
     dn: cn=tmcadmin,ou=core,dc=tanzu,dc=net
     objectClass: inetOrgPerson
     objectClass: posixAccount
+    objectClass: shadowAccount
     cn: tmcadmin
     sn: TMC Admin
     uid: tmcadmin
     uidNumber: 1000
     mail: tmcadmin@tanzu.net
     userPassword: tmcsm1!
+    homeDirectory: /home/tmcadmin
     
     dn: cn=tmc:admin,dc=tanzu,dc=net
     objectClass: top
