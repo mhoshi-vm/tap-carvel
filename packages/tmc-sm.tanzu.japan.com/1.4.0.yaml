@@ -16,117 +16,122 @@ spec:
           type: object
           additionalProperties: false
           properties:
-            domain:
-              type: string
-              default: example.com
-            certmanager:
+            enabled:
+              type: boolean
+              default: true
+            package_repo:
               type: object
               additionalProperties: false
               properties:
-                enabled:
-                  type: boolean
-                  default: true
-                package_repo:
-                  type: object
-                  additionalProperties: false
-                  properties:
-                    install:
-                      type: boolean
-                      default: false
-                    repo:
-                      type: string
-                      default: projects.registry.vmware.com/tkg/packages/standard/repo
-                    version:
-                      type: string
-                      default: v2024.8.21
-                package:
-                  type: object
-                  additionalProperties: false
-                  properties:
-                    install:
-                      type: boolean
-                      default: true
-            tmc:
-              type: object
-              additionalProperties: false
-              properties:
-                size:
-                  type: string
-                  default: xsmall
-                version:
-                  type: string
-                  default: 1.4.0
-                imageRegistry:
-                  type: object
-                  additionalProperties: false
-                  properties:
-                    server:
-                      type: string
-                      default: harbor.example.com
-                    repo:
-                      type: string
-                      default: tmc
-            openldap:
-              type: object
-              additionalProperties: false
-              properties:
-                enabled:
-                  type: boolean
-                  default: true
-                image:
-                  type: string
-                  default: index.docker.io/bitnami/openldap@sha256:d78905f12749014709bf6da54192fe74c72686c0e614bfb6e1fa935e66f91d26
-                ssl:
+                install:
                   type: boolean
                   default: false
-                rootdn:
+                repo:
                   type: string
-                  default: dc=tanzu,dc=net
-                adminpassword:
+                  default: projects.registry.vmware.com/tkg/packages/standard/repo
+                version:
                   type: string
-                  default: adminpassword
-                ldif:
+                  default: v2024.8.21
+            package:
+              type: object
+              additionalProperties: false
+              properties:
+                install:
+                  type: boolean
+                  default: true
+        tmc:
+          type: object
+          additionalProperties: false
+          properties:
+            size:
+              type: string
+              default: small
+            version:
+              type: string
+              default: 1.4.0
+            imageRegistry:
+              type: object
+              additionalProperties: false
+              properties:
+                server:
                   type: string
-                  default: |-
-                    dn: dc=tanzu,dc=net
-                    dc: tanzu
-                    objectClass: dcObject
-                    objectClass: organization
-                    o: Tanzu, Inc
-                    
-                    dn: ou=core,dc=tanzu,dc=net
-                    objectClass: organizationalUnit
-                    ou: core
-                    
-                    dn: cn=tmcviewer,ou=core,dc=tanzu,dc=net
-                    objectClass: inetOrgPerson
-                    cn: tmcviewer
-                    sn: TMC Viewer
-                    uid: tmcviewer
-                    mail: tmcviewer@tanzu.net
-                    userPassword: tmcsm1!
-                    
-                    dn: cn=tmcadmin,ou=core,dc=tanzu,dc=net
-                    objectClass: inetOrgPerson
-                    cn: tmcadmin
-                    sn: TMC Admin
-                    uid: tmcadmin
-                    mail: tmcadmin@tanzu.net
-                    userPassword: tmcsm1!
-                    
-                    dn: cn=tmcadmins,dc=tanzu,dc=net
-                    objectClass: top
-                    objectClass: groupOfNames
-                    cn: tmcadmins
-                    description: Tanzu Admins
-                    member: cn=tmcadmin,ou=core,dc=tanzu,dc=net
-                    
-                    dn: cn=tmcviewers,dc=tanzu,dc=net
-                    objectClass: top
-                    objectClass: groupOfNames
-                    cn: tmcviewers
-                    description: Tanzu Viewer
-                    member: cn=tmcviewer,ou=core,dc=tanzu,dc=net
+                  default: harbor.example.com
+                repo:
+                  type: string
+                  default: tmc
+        openldap:
+          type: object
+          additionalProperties: false
+          properties:
+            enabled:
+              type: boolean
+              default: true
+            image:
+              type: string
+              default: index.docker.io/bitnami/openldap@sha256:d78905f12749014709bf6da54192fe74c72686c0e614bfb6e1fa935e66f91d26
+            ssl:
+              type: boolean
+              default: true
+            rootdn:
+              type: string
+              default: dc=tanzu,dc=net
+            userBaseDN:
+              type: string
+              default: ou=core,dc=tanzu,dc=net
+            groupBaseDN:
+              type: string
+              default: dc=tanzu,dc=net
+            adminUserDN:
+              type: string
+              default: cn=admin,dc=tanzu,dc=net
+            userSearchFilter:
+              type: string
+              default: (&(objectClass=inetOrgPerson)(uid={}))
+            groupSearchFilter:
+              type: string
+              default: (&(objectClass=group)(member={}))
+            ldif:
+              type: string
+              default: |-
+                dn: dc=tanzu,dc=net
+                dc: tanzu
+                objectClass: dcObject
+                objectClass: organization
+                o: Tanzu, Inc
+                
+                dn: ou=core,dc=tanzu,dc=net
+                objectClass: organizationalUnit
+                ou: core
+                
+                dn: cn=tmcviewer,ou=core,dc=tanzu,dc=net
+                objectClass: inetOrgPerson
+                cn: tmcviewer
+                sn: TMC Viewer
+                uid: tmcviewer
+                mail: tmcviewer@tanzu.net
+                userPassword: tmcsm1!
+                
+                dn: cn=tmcadmin,ou=core,dc=tanzu,dc=net
+                objectClass: inetOrgPerson
+                cn: tmcadmin
+                sn: TMC Admin
+                uid: tmcadmin
+                mail: tmcadmin@tanzu.net
+                userPassword: tmcsm1!
+                
+                dn: cn=tmc:admin,dc=tanzu,dc=net
+                objectClass: top
+                objectClass: groupOfNames
+                cn: tmc:admin
+                description: Tanzu Admins
+                member: cn=tmcadmin,ou=core,dc=tanzu,dc=net
+                
+                dn: cn=tmc:member,dc=tanzu,dc=net
+                objectClass: top
+                objectClass: groupOfNames
+                cn: tmc:member
+                description: Tanzu Viewer
+                member: cn=tmcviewer,ou=core,dc=tanzu,dc=net
   template:
     spec:
       fetch:

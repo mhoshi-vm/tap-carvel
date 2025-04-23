@@ -19,11 +19,12 @@ oidc:
 ldap:
   type: "ldap"
   host: "openldap.openldap.svc.cluster.local:636"
-  username: "cn=admin,dc=tanzu,dc=net"
-  password: #@ data.values.openldap.adminpassword
+  username: #@ data.values.openldap.adminUserDN
   domainName: "in-cluster-openldap"
-  userBaseDN: "dc=tanzu,dc=net"
-  groupBaseDN: "dc=tanzu,dc=net"
+  userBaseDN: #@ data.values.openldap.userBaseDN
+  userSearchFilter: #@ data.values.openldap.userSearchFilter
+  groupBaseDN: #@ data.values.openldap.groupBaseDN
+  groupSearchFilter: #@ data.values.openldap.groupSearchFilter
 minio:
   username: admin
 #@ end

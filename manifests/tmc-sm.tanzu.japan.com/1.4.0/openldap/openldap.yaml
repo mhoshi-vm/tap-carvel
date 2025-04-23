@@ -95,13 +95,20 @@ spec:
     app.kubernetes.io/name: openldap
   type: ClusterIP
 ---
-apiVersion: v1
-data:
-  adminpassword: #@ base64.encode(data.values.openldap.adminpassword)
-kind: Secret
+apiVersion: secretgen.k14s.io/v1alpha1
+kind: Password
 metadata:
   name: openldap
   namespace: openldap
+spec:
+  length: 20
+  digits: 5
+  uppercaseLetters: 5
+  lowercaseLetters: 10
+  secretTemplate:
+    type: Opaque
+    stringData:
+      adminpassword: $(value)
 ---
 apiVersion: v1
 data:
