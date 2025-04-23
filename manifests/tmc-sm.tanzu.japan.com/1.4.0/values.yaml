@@ -27,7 +27,7 @@ openldap:
   groupBaseDN: "dc=tanzu,dc=net"
   adminUserDN: "cn=admin,dc=tanzu,dc=net"
   userSearchFilter: "(&(objectClass=inetOrgPerson)(uid={}))"
-  groupSearchFilter: "(&(objectClass=group)(member={}))"
+  groupSearchFilter: "(&(objectClass=groupOfNames)(member={}))"
   ldif: |
     dn: dc=tanzu,dc=net
     dc: tanzu
