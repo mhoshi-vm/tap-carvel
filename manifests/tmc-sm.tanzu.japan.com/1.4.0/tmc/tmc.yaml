@@ -51,6 +51,8 @@ metadata:
   annotations:
     ext.packaging.carvel.dev/ytt-paths-from-secret-name.0: tmc-values
     ext.packaging.carvel.dev/ytt-paths-from-secret-name.1: tmc-values-generated-secrets
+    #@ if/end data.values.tmc.hack.xsmall:
+    ext.packaging.carvel.dev/ytt-paths-from-secret-name.2: make-tmc-xsmall-pkgi
     kapp.k14s.io/change-rule: "upsert after upserting tmcpkgr"
 spec:
   serviceAccountName: kapp-sa

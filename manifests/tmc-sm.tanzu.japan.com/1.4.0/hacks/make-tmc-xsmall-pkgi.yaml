@@ -1,0 +1,18 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: make-tmc-xsmall-pkgi
+  namespace: tmc-local
+stringData:
+  make-tmc-xsmall-pkgi.yaml: |
+    #@ load("@ytt:overlay", "overlay")
+    
+    #@overlay/match by=overlay.subset({"kind": "PackageInstall"}), expects="1+"
+    ---
+    metadata:
+      #@overlay/match missing_ok=True
+      annotations:
+        #@overlay/match missing_ok=True
+        ext.packaging.carvel.dev/ytt-paths-from-secret-name.9: make-tmc-xsmall-secret

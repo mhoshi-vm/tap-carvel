@@ -46,6 +46,13 @@ spec:
             size:
               type: string
               default: small
+            hack:
+              type: object
+              additionalProperties: false
+              properties:
+                xsmall:
+                  type: boolean
+                  default: true
             version:
               type: string
               default: 1.4.0
@@ -89,7 +96,7 @@ spec:
               default: (&(objectClass=inetOrgPerson)(uid={}))
             groupSearchFilter:
               type: string
-              default: (&(objectClass=group)(member={}))
+              default: (&(objectClass=groupOfNames)(member={}))
             ldif:
               type: string
               default: |-
@@ -105,19 +112,29 @@ spec:
                 
                 dn: cn=tmcviewer,ou=core,dc=tanzu,dc=net
                 objectClass: inetOrgPerson
+                objectClass: posixAccount
+                objectClass: shadowAccount
                 cn: tmcviewer
                 sn: TMC Viewer
                 uid: tmcviewer
+                uidNumber: 1001
+                gidNumber: 1001
                 mail: tmcviewer@tanzu.net
                 userPassword: tmcsm1!
+                homeDirectory: /home/tmcviewer
                 
                 dn: cn=tmcadmin,ou=core,dc=tanzu,dc=net
                 objectClass: inetOrgPerson
+                objectClass: posixAccount
+                objectClass: shadowAccount
                 cn: tmcadmin
                 sn: TMC Admin
                 uid: tmcadmin
+                uidNumber: 1000
+                gidNumber: 1000
                 mail: tmcadmin@tanzu.net
                 userPassword: tmcsm1!
+                homeDirectory: /home/tmcadmin
                 
                 dn: cn=tmc:admin,dc=tanzu,dc=net
                 objectClass: top

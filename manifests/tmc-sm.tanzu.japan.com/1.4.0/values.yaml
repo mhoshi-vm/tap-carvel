@@ -13,6 +13,8 @@ certmanager:
 
 tmc:
   size: small
+  hack:
+    xsmall: true
   version: 1.4.0
   imageRegistry:
     server: harbor.example.com
