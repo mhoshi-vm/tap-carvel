@@ -47,6 +47,7 @@ openldap:
     sn: TMC Viewer
     uid: tmcviewer
     uidNumber: 1001
+    gidNumber: 1001
     mail: tmcviewer@tanzu.net
     userPassword: tmcsm1!
     homeDirectory: /home/tmcviewer
@@ -59,6 +60,7 @@ openldap:
     sn: TMC Admin
     uid: tmcadmin
     uidNumber: 1000
+    gidNumber: 1000
     mail: tmcadmin@tanzu.net
     userPassword: tmcsm1!
     homeDirectory: /home/tmcadmin
