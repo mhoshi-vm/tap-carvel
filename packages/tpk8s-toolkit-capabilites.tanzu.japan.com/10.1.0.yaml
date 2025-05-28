@@ -23,142 +23,142 @@ spec:
   valuesSchema:
     openAPIv3:
       title: tpk8s-toolkit-cp.tanzu-jp values schema
-    properties:
-      certmanager:
-        type: object
-        additionalProperties: false
-        properties:
-          enabled:
-            type: boolean
-            default: true
-          package_repo:
-            type: object
-            additionalProperties: false
-            properties:
-              install:
-                type: boolean
-                default: false
-              repo:
-                type: string
-                default: projects.registry.vmware.com/tkg/packages/standard/repo
-              version:
-                type: string
-                default: v2024.8.21
-          package:
-            type: object
-            additionalProperties: false
-            properties:
-              install:
-                type: boolean
-                default: true
-      rabbitmq:
-        type: object
-        additionalProperties: false
-        description: Rabbitmq starter
-        properties:
-          package:
-            type: object
-            additionalProperties: false
-            description: package installation
-            properties:
-              install:
-                type: boolean
-                description: install via carvel
-                default: true
-              repo:
-                type: object
-                additionalProperties: false
-                description: install repo
-                properties:
-                  url:
-                    type: string
-                    default: rabbitmq-kubernetes.packages.broadcom.com/tanzu-rabbitmq-package-repo
-                  user:
-                    type: string
-                    default: ""
-                  password:
-                    type: string
-                    default: ""
-              version:
-                type: string
-                description: install version
-                default: 4.0.5
-              operator_version:
-                type: string
-                description: operator version
-                default: 4.0.5
-      postgres:
-        type: object
-        additionalProperties: false
-        description: Postgres starter
-        properties:
-          package:
-            type: object
-            additionalProperties: false
-            description: package installation
-            properties:
-              install:
-                type: boolean
-                description: install via carvel
-                default: true
-              repo:
-                type: object
-                additionalProperties: false
-                description: install repo
-                properties:
-                  url:
-                    type: string
-                    default: tanzu-sql-postgres.packages.broadcom.com/tds-packages
-                  user:
-                    type: string
-                    default: ""
-                  password:
-                    type: string
-                    default: ""
-              version:
-                type: string
-                description: install version
-                default: 1.14.0
-              operator_version:
-                type: string
-                description: operator version
-                default: 3.0.0
-      gemfire:
-        type: object
-        additionalProperties: false
-        description: Gemfire starter
-        properties:
-          package:
-            type: object
-            additionalProperties: false
-            description: package installation
-            properties:
-              install:
-                type: boolean
-                description: install via carvel
-                default: true
-              repo:
-                type: object
-                additionalProperties: false
-                description: install repo
-                properties:
-                  url:
-                    type: string
-                    default: registry.packages.broadcom.com/tanzu-gemfire-for-kubernetes/gemfire-for-kubernetes-carvel-bundle
-                  user:
-                    type: string
-                    default: ""
-                  password:
-                    type: string
-                    default: ""
-              repo_password:
-                type: string
-                description: install repo password
-                default: ""
-              version:
-                type: string
-                description: install version
-                default: 2.4.0
+      properties:
+        certmanager:
+          type: object
+          additionalProperties: false
+          properties:
+            enabled:
+              type: boolean
+              default: true
+            package_repo:
+              type: object
+              additionalProperties: false
+              properties:
+                install:
+                  type: boolean
+                  default: false
+                repo:
+                  type: string
+                  default: projects.registry.vmware.com/tkg/packages/standard/repo
+                version:
+                  type: string
+                  default: v2024.8.21
+            package:
+              type: object
+              additionalProperties: false
+              properties:
+                install:
+                  type: boolean
+                  default: true
+        rabbitmq:
+          type: object
+          additionalProperties: false
+          description: Rabbitmq starter
+          properties:
+            package:
+              type: object
+              additionalProperties: false
+              description: package installation
+              properties:
+                install:
+                  type: boolean
+                  description: install via carvel
+                  default: true
+                repo:
+                  type: object
+                  additionalProperties: false
+                  description: install repo
+                  properties:
+                    url:
+                      type: string
+                      default: rabbitmq-kubernetes.packages.broadcom.com/tanzu-rabbitmq-package-repo
+                    user:
+                      type: string
+                      default: ""
+                    password:
+                      type: string
+                      default: ""
+                version:
+                  type: string
+                  description: install version
+                  default: 4.0.5
+                operator_version:
+                  type: string
+                  description: operator version
+                  default: 4.0.5
+        postgres:
+          type: object
+          additionalProperties: false
+          description: Postgres starter
+          properties:
+            package:
+              type: object
+              additionalProperties: false
+              description: package installation
+              properties:
+                install:
+                  type: boolean
+                  description: install via carvel
+                  default: true
+                repo:
+                  type: object
+                  additionalProperties: false
+                  description: install repo
+                  properties:
+                    url:
+                      type: string
+                      default: tanzu-sql-postgres.packages.broadcom.com/tds-packages
+                    user:
+                      type: string
+                      default: ""
+                    password:
+                      type: string
+                      default: ""
+                version:
+                  type: string
+                  description: install version
+                  default: 1.14.0
+                operator_version:
+                  type: string
+                  description: operator version
+                  default: 3.0.0
+        gemfire:
+          type: object
+          additionalProperties: false
+          description: Gemfire starter
+          properties:
+            package:
+              type: object
+              additionalProperties: false
+              description: package installation
+              properties:
+                install:
+                  type: boolean
+                  description: install via carvel
+                  default: true
+                repo:
+                  type: object
+                  additionalProperties: false
+                  description: install repo
+                  properties:
+                    url:
+                      type: string
+                      default: registry.packages.broadcom.com/tanzu-gemfire-for-kubernetes/gemfire-for-kubernetes-carvel-bundle
+                    user:
+                      type: string
+                      default: ""
+                    password:
+                      type: string
+                      default: ""
+                repo_password:
+                  type: string
+                  description: install repo password
+                  default: ""
+                version:
+                  type: string
+                  description: install version
+                  default: 2.4.0
   template:
     spec:
       fetch:
