@@ -58,7 +58,7 @@ spec:
           name: tap-registry
   template:
     - helmTemplate:
-        path: /
+        path: vmware-sql-postgres-operator/
         valuesFrom:
           - secretRef:
               name: change-default-reg-secret
