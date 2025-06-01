@@ -33,7 +33,7 @@ postgres:
     install: true
     #@schema/desc "install repo"
     repo:
-      url: tanzu-sql-postgres.packages.broadcom.com/tds-packages
+      url: tanzu-sql-postgres.packages.broadcom.com/postgres-operator
       user: ""
       password: ""
     #@schema/desc "install version"

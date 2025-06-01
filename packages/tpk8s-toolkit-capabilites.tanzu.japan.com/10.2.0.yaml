@@ -108,7 +108,7 @@ spec:
                   properties:
                     url:
                       type: string
-                      default: tanzu-sql-postgres.packages.broadcom.com/tds-packages
+                      default: tanzu-sql-postgres.packages.broadcom.com/postgres-operator
                     user:
                       type: string
                       default: ""
