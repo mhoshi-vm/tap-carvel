@@ -56,9 +56,10 @@ spec:
         url:  #@ data.values.postgres.package.repo.url + ":" + data.values.postgres.package.version
         secretRef:
           name: tap-registry
+      path: postgres/
   template:
     - helmTemplate:
-        path: vmware-sql-postgres-operator/
+        path: postgres/vmware-sql-postgres-operator/
         valuesFrom:
           - secretRef:
               name: change-default-reg-secret
