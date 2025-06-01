@@ -47,7 +47,7 @@ roleRef:
 apiVersion: kappctrl.k14s.io/v1alpha1
 kind: App
 metadata:
-  name: postgres
+  name: postgres-helm
   namespace: postgres-install
 spec:
   serviceAccountName: kapp-sa
