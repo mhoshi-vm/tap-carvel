@@ -58,7 +58,6 @@ spec:
           name: tap-registry
   template:
     - helmTemplate:
-        # path to chart (optional; v0.13.0+)
         path: /
         valuesFrom:
           - secretRef:
