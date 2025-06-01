@@ -52,8 +52,8 @@ metadata:
 spec:
   serviceAccountName: kapp-sa
   fetch:
-    - imgpkgBundle:
-        image:  #@ data.values.postgres.package.repo.url + ":" + data.values.postgres.package.version
+    - image:
+        url:  #@ data.values.postgres.package.repo.url + ":" + data.values.postgres.package.version
         secretRef:
           name: tap-registry
   template:
