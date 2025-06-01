@@ -56,6 +56,7 @@ spec:
         url:  #@ data.values.postgres.package.repo.url + ":" + data.values.postgres.package.version
         secretRef:
           name: tap-registry
+        subPath: vmware-sql-postgres-operator/
       path: postgres/
   template:
     - helmTemplate:
