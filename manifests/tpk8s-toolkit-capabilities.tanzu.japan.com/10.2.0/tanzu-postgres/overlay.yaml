@@ -69,9 +69,7 @@ metadata:
   name: change-default-reg-secret
   namespace: postgres-install
 stringData:
-  change-default-reg-secret.yml: |
-    #@data/values-schema
-    ---    
+  change-default-reg-secret.yml: | 
     dockerRegistrySecretName: tap-registry
 #@ end
 
