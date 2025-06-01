@@ -33,7 +33,7 @@ postgres:
     install: true
     #@schema/desc "install repo"
     repo:
-      url: tanzu-sql-postgres.packages.broadcom.com/postgres-operator
+      url: tanzu-sql-postgres.packages.broadcom.com/vmware-sql-postgres-operator
       user: ""
       password: ""
     #@schema/desc "install version"
