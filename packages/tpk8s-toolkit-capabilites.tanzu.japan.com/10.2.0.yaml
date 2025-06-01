@@ -82,11 +82,11 @@ spec:
                 version:
                   type: string
                   description: install version
-                  default: v4.1.0
+                  default: 4.1.0
                 operator_version:
                   type: string
                   description: operator version
-                  default: v4.1.0
+                  default: 4.1.0
         postgres:
           type: object
           additionalProperties: false

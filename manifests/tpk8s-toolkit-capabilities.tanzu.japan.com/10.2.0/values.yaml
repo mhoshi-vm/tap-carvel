@@ -21,9 +21,9 @@ rabbitmq:
       user: ""
       password: ""
     #@schema/desc "install version"
-    version: v4.1.0
+    version: 4.1.0
     #@schema/desc "operator version"
-    operator_version: v4.1.0
+    operator_version: 4.1.0
 
 #@schema/desc "Postgres starter"
 postgres:
