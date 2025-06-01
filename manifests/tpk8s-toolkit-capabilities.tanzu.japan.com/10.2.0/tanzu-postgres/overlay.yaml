@@ -63,6 +63,8 @@ spec:
         valuesFrom:
           - secretRef:
               name: change-default-reg-secret
+  deploy:
+    - kapp: {}
 ---
 apiVersion: v1
 kind: Secret
