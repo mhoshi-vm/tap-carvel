@@ -67,6 +67,11 @@ spec:
         secretRef:
           name: gpss-registry
       path: gpss/
+    - helmChart:
+        name: etcd
+        repository:
+          url: oci://registry-1.docker.io/bitnamicharts/etcd
+      path: etcd/
     - inline:
         paths:
           kbld.yaml: #@ yaml.encode(kbld())
@@ -77,6 +82,8 @@ spec:
         valuesFrom:
           - secretRef:
               name: gpss-helm-values
+    - helmTemplate:
+        path: etcd/
     - kbld:
         paths:
           - "-"
