@@ -72,7 +72,7 @@ spec:
       path: kbld/
   template:
     - helmTemplate:
-        path: gpss/vmware-sql-gpss-operator/
+        path: gpss/gpss-operator/
         valuesFrom:
           - secretRef:
               name: gpss-helm-values
