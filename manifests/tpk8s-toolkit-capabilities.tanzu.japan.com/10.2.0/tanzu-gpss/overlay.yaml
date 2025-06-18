@@ -9,6 +9,9 @@ overrides:
   - image: controller:latest
     newImage: #@ data.values.gpss.package.controller.repo.url + ":" + data.values.gpss.package.controller.version
     preresolved: true
+  - image: quay.io/coreos/etcd:v3.5.21
+    newImage: #@ data.values.gpss.package.etcd.repo.url + ":" + data.values.gpss.package.etcd.version
+    preresolved: true
 #@ end
 ---
 #@ if data.values.gpss.package.install:
