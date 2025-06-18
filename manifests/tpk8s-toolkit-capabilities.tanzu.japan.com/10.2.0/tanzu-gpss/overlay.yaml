@@ -81,7 +81,7 @@ spec:
           - secretRef:
               name: gpss-helm-values
     - helmTemplate:
-        path: etcd/
+        path: etcd/etcd/
     - kbld:
         paths:
           - "-"
