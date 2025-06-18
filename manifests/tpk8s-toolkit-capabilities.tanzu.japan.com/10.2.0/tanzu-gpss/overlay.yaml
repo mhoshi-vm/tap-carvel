@@ -8,6 +8,7 @@ kind: Config
 overrides:
   - image: controller:latest
     newImage: #@ data.values.gpss.package.controller.repo.url + ":" + data.values.gpss.package.controller.version
+    preresolved: true
 #@ end
 ---
 #@ if data.values.gpss.package.install:
