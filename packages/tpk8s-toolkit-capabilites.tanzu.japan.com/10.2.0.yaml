@@ -155,6 +155,54 @@ spec:
                   type: string
                   description: install version
                   default: 2.5.0
+        gpss:
+          type: object
+          additionalProperties: false
+          properties:
+            package:
+              type: object
+              additionalProperties: false
+              properties:
+                install:
+                  type: boolean
+                  description: install via carvel
+                  default: true
+                repo:
+                  type: object
+                  additionalProperties: false
+                  description: install repo
+                  properties:
+                    url:
+                      type: string
+                      default: helm-gpss-operator
+                    user:
+                      type: string
+                      default: ""
+                    password:
+                      type: string
+                      default: ""
+                repo_password:
+                  type: string
+                  description: install repo password
+                  default: ""
+                version:
+                  type: string
+                  description: install version
+                  default: 1.0.0
+                controller:
+                  type: object
+                  additionalProperties: false
+                  properties:
+                    repo:
+                      type: object
+                      additionalProperties: false
+                      properties:
+                        url:
+                          type: string
+                          default: controller
+                    version:
+                      type: string
+                      default: 1.0.0
   template:
     spec:
       fetch:

@@ -55,5 +55,22 @@ gemfire:
     #@schema/desc "install version"
     version: 2.5.0
 
+gpss:
+  package:
+    #@schema/desc "install via carvel"
+    install: true
+    #@schema/desc "install repo"
+    repo:
+      url: helm-gpss-operator
+      user: ""
+      password: ""
+    #@schema/desc "install repo password"
+    repo_password: ""
+    #@schema/desc "install version"
+    version: 1.0.0
+    controller:
+      repo:
+        url: controller
+      version: 1.0.0
 
 

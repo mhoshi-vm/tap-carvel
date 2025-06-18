@@ -1,0 +1,97 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:overlay", "overlay")
+#@ load("@ytt:yaml", "yaml")
+
+#@ def kbld():
+apiVersion: kbld.k14s.io/v1alpha1
+kind: Config
+overrides:
+  - image: controller:latest
+    newImage: #@ data.values.gpss.package.controller.repo.url + ":" + data.values.gpss.package.controller.version
+#@ end
+---
+#@ if data.values.gpss.package.install:
+apiVersion: v1
+kind: Namespace
+metadata:
+  labels:
+    pod-security.kubernetes.io/enforce: baseline
+  name: gpss-install
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: gpss-registry
+  namespace: gpss-install
+  annotations:
+    secretgen.carvel.dev/image-pull-secret: ""
+type: kubernetes.io/dockerconfigjson
+data:
+  .dockerconfigjson: e30K
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: kapp-sa
+  namespace: gpss-install
+secrets:
+  - name: gpss-registry
+imagePullSecrets:
+  - name: gpss-registry
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: gpss-kapp-role-binding
+  namespace: gpss-install
+subjects:
+- kind: ServiceAccount
+  name: kapp-sa
+  namespace: gpss-install
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+---
+apiVersion: kappctrl.k14s.io/v1alpha1
+kind: App
+metadata:
+  name: gpss-helm
+  namespace: gpss-install
+spec:
+  serviceAccountName: kapp-sa
+  fetch:
+    - image:
+        url:  #@ data.values.gpss.package.repo.url + ":" + data.values.gpss.package.version
+        secretRef:
+          name: gpss-registry
+      path: gpss/
+    - inline:
+        paths:
+          kbld.yaml: #@ yaml.encode(kbld())
+      path: kbld/
+  template:
+    - helmTemplate:
+        path: gpss/vmware-sql-gpss-operator/
+        valuesFrom:
+          - secretRef:
+              name: gpss-helm-values
+    - kbld:
+        paths:
+          - gpss/
+          - kbld/
+  deploy:
+    - kapp: {}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: gpss-helm-values
+  namespace: gpss-install
+stringData:
+  gpss-helm-values.yml: |
+    imagePullSecrets:
+    - name: "gpss-registry"
+#@ end
+
+
