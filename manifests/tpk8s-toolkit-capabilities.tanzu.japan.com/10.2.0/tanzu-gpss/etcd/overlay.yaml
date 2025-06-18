@@ -8,4 +8,18 @@ metadata:
 #@overlay/match by=overlay.subset({"kind":"StatefulSet", "metadata":{"name":"etcd"}}), expects="1+"
 ---
 spec:
-  replicas: 1
+  template:
+    spec:
+      #@overlay/match missing_ok=True
+      affinity:
+        podAntiAffinity:
+          #@overlay/remove
+          requiredDuringSchedulingIgnoredDuringExecution:
+          #@overlay/match missing_ok=True
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app: etcd
+                topologyKey: kubernetes.io/hostname
+              weight: 100
