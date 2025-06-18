@@ -4,3 +4,8 @@
 ---
 metadata:
   namespace: gpss-install
+
+#@overlay/match by=overlay.subset({"kind":"StatefulSet", "metadata":{"name":"etcd"}}), expects="1+"
+---
+spec:
+  replicas: 1
