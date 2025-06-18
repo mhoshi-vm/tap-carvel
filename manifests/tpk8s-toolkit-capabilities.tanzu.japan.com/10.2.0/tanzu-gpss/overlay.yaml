@@ -82,6 +82,9 @@ spec:
               name: gpss-helm-values
     - helmTemplate:
         path: etcd/etcd/
+        valuesFrom:
+          - secretRef:
+              name: etcd-helm-values
     - kbld:
         paths:
           - "-"
@@ -98,6 +101,21 @@ stringData:
   gpss-helm-values.yml: |
     imagePullSecrets:
     - name: "gpss-registry"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: etcd-helm-values
+  namespace: gpss-install
+stringData:
+  etcd-helm-values.yml: |
+    readinessProbe:
+      enabled: true
+      initialDelaySeconds: 60
+      periodSeconds: 30
+      timeoutSeconds: 5
+      successThreshold: 1
+      failureThreshold: 5
 #@ end
 
 
