@@ -78,8 +78,8 @@ spec:
               name: gpss-helm-values
     - kbld:
         paths:
-          - gpss/
-          - kbld/
+          - "-"
+          - kbld/kbld.yaml
   deploy:
     - kapp: {}
 ---
