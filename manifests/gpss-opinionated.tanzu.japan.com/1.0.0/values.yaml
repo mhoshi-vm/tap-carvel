@@ -16,7 +16,7 @@ resource:
     cpu: "0.3"
     memory: 256Mi
 
-namespace: default
+namespace: gpss
 tls:
   enabled: false
 rabbitmq:
