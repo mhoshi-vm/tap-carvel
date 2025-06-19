@@ -59,5 +59,27 @@ spec:
           secretName: etcd-server-tls
           optional: false
       #@ end
-
 ---
+
+#@ def add_name(left):
+#@ if ( "volumeClaimTemplates" in left ):
+volumeClaimTemplates:
+  #@ for i in range(len(left["volumeClaimTemplates"])):
+  #@overlay/match by=overlay.index(i)
+  #@overlay/match-child-defaults missing_ok=True
+  - metadata:
+      annotations:
+        kapp.k14s.io/owned-for-deletion: ""
+        #@ if ( "metadata" not in left["volumeClaimTemplates"][i] ) or ("name" not in left["volumeClaimTemplates"][i]["metadata"]):
+        name: #@ "data-{}".format(i)
+        #@ end
+      #@ end
+    #@ end
+#@ end
+
+
+#@overlay/match by=overlay.subset({"kind": "StatefulSet"}), expects="0+"
+---
+#@overlay/match missing_ok=True
+#@overlay/replace via=lambda left, right: overlay.apply(left, add_name(left))
+spec:
