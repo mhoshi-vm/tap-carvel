@@ -67,7 +67,7 @@ metadata:
   name: stream1
   namespace: #@ data.values.namespace
 spec:
-  name: stream1 # name of the queue
+  name: stream1
   type: stream
   arguments:
     x-max-length-bytes: 1000000000
@@ -81,9 +81,9 @@ metadata:
   name: stream-binding
   namespace: #@ data.values.namespace
 spec:
-  source: collector # an existing exchange
+  source: collector
   destination: stream1
-  destinationType: queue # can be 'queue' or 'exchange'
+  destinationType: queue
   rabbitmqClusterReference:
     name: rmq01
 ---
@@ -94,8 +94,8 @@ metadata:
   namespace: #@ data.values.namespace
 type: Opaque
 stringData:
-  username: gpss-user # Note that Messaging Topology Operator does not watch this secret. Updating this secret object won't update actual user credentials.
-  password: verysecurepw # As a workaround, you can add a label or annotation to the User object to trigger a Reconile loop and credentials will be updated.
+  username: gpss-user
+  password: verysecurepw
 ---
 apiVersion: rabbitmq.com/v1beta1
 kind: User
@@ -115,7 +115,7 @@ metadata:
   namespace: #@ data.values.namespace
 spec:
   vhost: "/"
-  user: "gpss-user" # name corresponds to the username we provided in "test-user-credentials" secret
+  user: "gpss-user"
   permissions:
     read: ".*"
   rabbitmqClusterReference:
