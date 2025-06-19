@@ -1,0 +1,41 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: Package
+metadata:
+  name: postgres.tanzu.japan.com.4.1.0
+spec:
+  refName: postgres.tanzu.japan.com
+  version: 4.1.0
+  valuesSchema:
+    openAPIv3:
+      title: postgres.tanzu-jp values schema
+      properties:
+        namespace:
+          type: string
+          default: postgres-install
+        repo:
+          type: object
+          additionalProperties: false
+          properties:
+            url:
+              type: string
+              default: tanzu-sql-postgres.packages.broadcom.com/vmware-sql-postgres-operator
+            user:
+              type: string
+              default: ""
+            password:
+              type: string
+              default: ""
+        version:
+          type: string
+          default: v4.1.0
+  template:
+    spec:
+      fetch:
+      - git:
+          url: https://github.com/mhoshi-vm/tap-carvel
+          ref: origin/pkgr
+          subPath: manifests/postgres.tanzu.japan.com/4.1.0
+      template:
+      - ytt: {}
+      deploy:
+      - kapp: {}

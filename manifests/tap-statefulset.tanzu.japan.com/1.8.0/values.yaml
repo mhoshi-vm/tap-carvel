@@ -1,4 +1,0 @@
-#@data/values
----
-excluded_templates: []
-label_propagation_exclusions: ["kapp.k14s.io/app", "kapp.k14s.io/association"]

@@ -1,0 +1,61 @@
+#@data/values-schema
+---
+namespace: default
+
+certmanager:
+  enabled: true
+  package_repo:
+    install: false
+    repo: projects.registry.vmware.com/tkg/packages/standard/repo
+    version: v2024.8.21
+  package:
+    install: true
+
+rabbitmq:
+  install: true
+  package:
+    repo:
+      url: rabbitmq-kubernetes.packages.broadcom.com/tanzu-rabbitmq-package-repo
+      user: ""
+      password: ""
+    version: 4.1.0
+    operator_version: 4.1.0
+
+postgres:
+  install: true
+  package:
+    repo:
+      url: tanzu-sql-postgres.packages.broadcom.com/vmware-sql-postgres-operator
+      user: ""
+      password: ""
+    version: v4.1.0
+
+
+gemfire:
+  install: true
+  package:
+    repo:
+      url: registry.packages.broadcom.com/tanzu-gemfire-for-kubernetes/gemfire-for-kubernetes-carvel-bundle
+      user: ""
+      password: ""
+    version: 2.5.0
+    gmc:
+      install: true
+      repo:
+        url: registry.packages.broadcom.com/gemfire-management-console/gemfire-management-console
+      version: 1.3.0
+
+gpss:
+  install: true
+  package:
+    repo:
+      url: helm-gpss-operator
+      user: ""
+      password: ""
+    version: 1.0.0
+    controller:
+      repo:
+        url: controller
+      version: 1.0.0
+
+
