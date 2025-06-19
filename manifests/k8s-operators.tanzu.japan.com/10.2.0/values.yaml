@@ -21,7 +21,7 @@ contour:
 
 rabbitmq:
   install: true
-  ref_suffix: tanzu.vmware.com
+  ref_suffix: tanzu.japan.com
   package:
     repo:
       url: rabbitmq-kubernetes.packages.broadcom.com/tanzu-rabbitmq-package-repo
