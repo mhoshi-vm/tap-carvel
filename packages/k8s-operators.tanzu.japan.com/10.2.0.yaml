@@ -1,13 +1,13 @@
 apiVersion: data.packaging.carvel.dev/v1alpha1
 kind: Package
 metadata:
-  name: tanzu-k8s-operators.tanzu.japan.com.10.2.0
+  name: k8s-operators.tanzu.japan.com.10.2.0
 spec:
-  refName: tanzu-k8s-operators.tanzu.japan.com
+  refName: k8s-operators.tanzu.japan.com
   version: 10.2.0
   valuesSchema:
     openAPIv3:
-      title: tanzu-k8s-operators.tanzu-jp values schema
+      title: k8s-operators.tanzu-jp values schema
       properties:
         namespace:
           type: string
@@ -188,7 +188,7 @@ spec:
       - git:
           url: https://github.com/mhoshi-vm/tap-carvel
           ref: origin/pkgr
-          subPath: manifests/tanzu-k8s-operators.tanzu.japan.com/10.2.0
+          subPath: manifests/k8s-operators.tanzu.japan.com/10.2.0
       template:
       - ytt:
         　valuesFrom:

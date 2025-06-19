@@ -1,7 +1,7 @@
 apiVersion: data.packaging.carvel.dev/v1alpha1
 kind: PackageMetadata
 metadata:
-  name: tanzu-k8s-operators.tanzu.japan.com
+  name: k8s-operators.tanzu.japan.com
 spec:
   displayName: "Tanzu K8s Operators"
   shortDescription: "Tanzu K8s Operators"
