@@ -1,0 +1,123 @@
+#@ load("@ytt:data", "data")
+
+#@ if data.values.rabbitmq.enabled:
+---
+apiVersion: rabbitmq.com/v1beta1
+kind: RabbitmqCluster
+metadata:
+  name: rmq01
+  namespace: #@ data.values.namespace
+spec:
+  override:
+    statefulSet:
+      spec:
+        template:
+          spec:
+            containers:
+              - name: rabbitmq
+                securityContext:
+                  allowPrivilegeEscalation: false
+                  capabilities:
+                    drop: [ "ALL" ]
+            initContainers:
+              - name: setup-container
+                securityContext:
+                  allowPrivilegeEscalation: false
+                  capabilities:
+                    drop: [ "ALL" ]
+            securityContext:
+              runAsNonRoot: true
+              seccompProfile:
+                type: RuntimeDefault
+    service:
+      spec:
+        ports:
+          - port: 5552
+            targetPort: 5552
+            name: stream
+  imagePullSecrets:
+    - name: regsecret
+  service:
+    type: LoadBalancer
+  rabbitmq:
+    additionalPlugins:
+      - rabbitmq_management
+      - rabbitmq_prometheus
+      - rabbitmq_stream
+      - rabbitmq_stream_management
+      - rabbitmq_peer_discovery_k8s
+      - rabbitmq_shovel
+      - rabbitmq_shovel_management
+---
+apiVersion: rabbitmq.com/v1beta1
+kind: Exchange
+metadata:
+  name: collector
+  namespace: #@ data.values.namespace
+spec:
+  name: collector
+  type: fanout
+  durable: true
+  rabbitmqClusterReference:
+    name: rmq01
+---
+apiVersion: rabbitmq.com/v1beta1
+kind: Queue
+metadata:
+  name: stream1
+  namespace: #@ data.values.namespace
+spec:
+  name: stream1 # name of the queue
+  type: stream
+  arguments:
+    x-max-length-bytes: 1000000000
+  durable: true
+  rabbitmqClusterReference:
+    name: rmq01
+---
+apiVersion: rabbitmq.com/v1beta1
+kind: Binding
+metadata:
+  name: stream-binding
+  namespace: #@ data.values.namespace
+spec:
+  source: collector # an existing exchange
+  destination: stream1
+  destinationType: queue # can be 'queue' or 'exchange'
+  rabbitmqClusterReference:
+    name: rmq01
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: gpss-user-credentials
+  namespace: #@ data.values.namespace
+type: Opaque
+stringData:
+  username: gpss-user # Note that Messaging Topology Operator does not watch this secret. Updating this secret object won't update actual user credentials.
+  password: verysecurepw # As a workaround, you can add a label or annotation to the User object to trigger a Reconile loop and credentials will be updated.
+---
+apiVersion: rabbitmq.com/v1beta1
+kind: User
+metadata:
+  name: gpss-user
+  namespace: #@ data.values.namespace
+spec:
+  rabbitmqClusterReference:
+    name: rmq01
+  importCredentialsSecret:
+    name: gpss-user-credentials
+---
+apiVersion: rabbitmq.com/v1beta1
+kind: Permission
+metadata:
+  name: gpss-user-permission
+  namespace: #@ data.values.namespace
+spec:
+  vhost: "/"
+  user: "gpss-user" # name corresponds to the username we provided in "test-user-credentials" secret
+  permissions:
+    read: ".*"
+  rabbitmqClusterReference:
+    name: rmq01
+#@ end

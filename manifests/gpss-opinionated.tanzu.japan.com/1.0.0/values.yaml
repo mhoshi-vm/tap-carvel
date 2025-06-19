@@ -19,3 +19,5 @@ resource:
 namespace: default
 tls:
   enabled: false
+rabbitmq:
+  enabled: true

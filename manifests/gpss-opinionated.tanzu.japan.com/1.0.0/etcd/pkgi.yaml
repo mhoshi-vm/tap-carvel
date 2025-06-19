@@ -11,7 +11,7 @@ spec:
     versionSelection:
       constraints: ">0.0.0"
   values:
-    secretRef:
+  - secretRef:
       name: etcd-values
       key: values.yml
 ---
