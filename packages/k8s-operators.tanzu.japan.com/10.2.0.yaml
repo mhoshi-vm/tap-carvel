@@ -191,10 +191,10 @@ spec:
           subPath: manifests/k8s-operators.tanzu.japan.com/10.2.0
       template:
       - ytt:
-        　valuesFrom:
-          - downwardAPI:
-              items:
-                - name: namespace
-                  fieldPath: metadata.namespace
+          valuesFrom:
+            - downwardAPI:
+                items:
+                  - name: namespace
+                    fieldPath: metadata.namespace
       deploy:
-      - kapp: {}
+        - kapp: {}
