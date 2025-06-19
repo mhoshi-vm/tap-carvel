@@ -2,17 +2,26 @@
 ---
 namespace: default
 
-certmanager:
-  enabled: true
+
+standard:
   package_repo:
     install: false
     repo: projects.registry.vmware.com/tkg/packages/standard/repo
-    version: v2024.8.21
-  package:
-    install: true
+    version: v2025.6.17
+
+cert-manager:
+  install: true
+  ref_suffix: tanzu.vmware.com
+  package: {}
+
+contour:
+  install: true
+  ref_suffix: tanzu.vmware.com
+  package: {}
 
 rabbitmq:
   install: true
+  ref_suffix: tanzu.vmware.com
   package:
     repo:
       url: rabbitmq-kubernetes.packages.broadcom.com/tanzu-rabbitmq-package-repo
@@ -23,6 +32,7 @@ rabbitmq:
 
 postgres:
   install: true
+  ref_suffix: tanzu.japan.com
   package:
     repo:
       url: tanzu-sql-postgres.packages.broadcom.com/vmware-sql-postgres-operator
@@ -33,6 +43,7 @@ postgres:
 
 gemfire:
   install: true
+  ref_suffix: tanzu.japan.com
   package:
     repo:
       url: registry.packages.broadcom.com/tanzu-gemfire-for-kubernetes/gemfire-for-kubernetes-carvel-bundle
@@ -47,6 +58,7 @@ gemfire:
 
 gpss:
   install: true
+  ref_suffix: tanzu.japan.com
   package:
     repo:
       url: helm-gpss-operator

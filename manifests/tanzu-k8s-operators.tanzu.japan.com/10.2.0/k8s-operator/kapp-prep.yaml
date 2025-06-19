@@ -22,7 +22,7 @@ roleRef:
   kind: ClusterRole
   name: cluster-admin
 ---
-#@ for pkg in ["gemfire", "gpss", "postgres", "rabbitmq"]:
+#@ for pkg in ["cert-manager", "contour", "gemfire", "gpss", "postgres", "rabbitmq"]:
   #@ if data.values[pkg].install:
 ---
 apiVersion: packaging.carvel.dev/v1alpha1
@@ -33,7 +33,7 @@ metadata:
 spec:
   serviceAccountName: kapp-sa
   packageRef:
-    refName: #@ "{}.tanzu.japan.com".format(pkg)
+    refName: #@ "{}.{}".format(pkg, data.values[pkg].ref_suffix)
     versionSelection:
       constraints: ">0.0.0"
   values:
