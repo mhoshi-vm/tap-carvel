@@ -25,12 +25,21 @@ spec:
                     app: etcd
                 topologyKey: kubernetes.io/hostname
               weight: 100
-
-      #@ if data.values.tls.enabled:
+      #@overlay/match missing_ok=True
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         #@overlay/match by="name"
         - name: etcd
+          #@overlay/match missing_ok=True
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: [ "ALL" ]
           image: #@ data.values.image
+      #@ if data.values.tls.enabled:
           args:
           - --peer-client-cert-auth
           - --peer-trusted-ca-file=/etc/etcd/certs/server/ca.crt
