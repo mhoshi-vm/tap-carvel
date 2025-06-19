@@ -75,6 +75,7 @@ spec:
           subPath: manifests/gpss-opinionated.tanzu.japan.com/1.0.0
       template:
       - ytt:
+          ignoreUnknownComments: true
           valuesFrom:
             - downwardAPI:
                 items:
