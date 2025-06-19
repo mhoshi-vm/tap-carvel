@@ -1,0 +1,28 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:overlay", "overlay")
+
+---
+apiVersion: kappctrl.k14s.io/v1alpha1
+kind: App
+metadata:
+  name: scdf-install
+  namespace: #@ data.values.namespace
+  annotations:
+    ext.packaging.carvel.dev/ytt-paths-from-secret-name.0: scdf-values
+    ext.packaging.carvel.dev/ytt-paths-from-secret-name.1: scdf-values-generated-secrets
+spec:
+  serviceAccountName: kapp-sa
+  fetch:
+    - imgpkgBundle:
+        image: #@ data.values.repo.url + "/scdf-pro-package:" + data.values.version
+        secretRef:
+          name: repo-secret
+  template:
+    - ytt:
+        ignoreUnknownComments: true
+        paths:
+          - config/
+  deploy:
+    - kapp:
+        rawOptions:
+          - --wait-timeout=10m

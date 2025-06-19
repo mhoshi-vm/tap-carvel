@@ -1,0 +1,42 @@
+#@data/values-schema
+---
+namespace: default
+
+k8soperator:
+  package:
+    cert-manager:
+      install: true
+    contour:
+      install: false
+    gemfire:
+      install: false
+    gpss:
+      install: false
+    postgres:
+      install: true
+      repo:
+        user: ""
+        password: ""
+    rabbitmq:
+      install: true
+      repo:
+        user: ""
+        password: ""
+
+postgres:
+  count: 1
+  storage_class: default
+  instance_version: 14
+
+rabbitmq:
+  count: 1
+
+repo:
+  url: registry.packages.broadcom.com/p-scdf-for-kubernetes
+  user: ""
+  password: ""
+version: 1.6.5
+digest:
+  server: sha256:7c644386c0d134295bc6266fedfe87b5fb688ffd463a40090d4fd43a3117bd3f
+  skipper: sha256:4e0a8bf0eec418aec532d3f0ddc6383e92a7692819476f6f1d56cc6f491732f0
+  ctr: sha256:5dac95f68f545632e6d4a9bc6ed7b112acacba24b297ce72383c31454bb71c9e

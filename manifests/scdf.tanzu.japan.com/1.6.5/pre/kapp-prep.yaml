@@ -1,0 +1,77 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:base64", "base64")
+#@ load("@ytt:json", "json")
+
+#@ def dockerhub_config_fragment(user, password):
+username: #@ user
+password: #@ password
+#@ end
+
+#@ def dockerhub_config(url, user, password):
+#@ docker_config = { url.partition("/")[0] : dockerhub_config_fragment(user, password)}
+auths: #@ docker_config
+#@ end
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: #@ data.values.namespace
+  labels:
+    pod-security.kubernetes.io/enforce: baseline
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: scdf-secret
+  namespace: #@ data.values.namespace
+type: kubernetes.io/dockerconfigjson
+#@ repo = data.values.repo
+data:
+  #@ url = repo.url
+  #@ user = repo.user
+  #@ password = repo.password
+  .dockerconfigjson: #@ base64.encode(json.encode(dockerhub_config(url, user, password)))
+---
+apiVersion: secretgen.carvel.dev/v1alpha1
+kind: SecretExport
+metadata:
+  name: scdf-secret
+  namespace: #@ data.values.namespace
+spec:
+  toNamespaces:
+    - "*"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: repo-secret
+  namespace: #@ data.values.namespace
+  annotations:
+    secretgen.carvel.dev/image-pull-secret: ""
+type: kubernetes.io/dockerconfigjson
+data:
+  .dockerconfigjson: e30K
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: kapp-sa
+  namespace: #@ data.values.namespace
+secrets:
+  - name: repo-secret
+imagePullSecrets:
+  - name: repo-secret
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: #@ "{}-kapp-role-binding".format(data.values.namespace)
+  namespace: #@ data.values.namespace
+subjects:
+  - kind: ServiceAccount
+    name: kapp-sa
+    namespace: #@ data.values.namespace
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
