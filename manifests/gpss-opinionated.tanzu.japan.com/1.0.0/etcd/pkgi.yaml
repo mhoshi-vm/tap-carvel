@@ -1,0 +1,26 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: packaging.carvel.dev/v1alpha1
+kind: PackageInstall
+metadata:
+  name: etcd
+  namespace: #@ data.values.namespace
+spec:
+  packageRef:
+    refName: etcd.tanzu.japan.com
+    versionSelection:
+      constraints: ">0.0.0"
+  values:
+    secretRef:
+      name: etcd-values
+      key: values.yml
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: etcd-values
+  namespace: #@ data.values.namespace
+stringData:
+  values.yml: |
+    tls:
+      enabled: false

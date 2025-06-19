@@ -1,0 +1,53 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:base64", "base64")
+
+#@ if data.values.etcd.tls.enabled:
+  #@ if data.values.etcd.tls.cluster_issuer:
+    #@ kind = "ClusterIssuer"
+  #@ else:
+    #@ kind = "Issuer"
+  #@ end
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: etcd-client
+  namespace: #@ data.values.namespace
+spec:
+  secretName: etcd-client-tls
+  issuerRef:
+    name: etcd-root-issuer
+    kind: #@ kind
+  commonName: etcd-client
+  dnsNames:
+    - #@ "*".format()
+    - #@ "*.{}".format(data.values.namespace)
+    - #@ "*.{}.svc.cluster.local".format(data.values.namespace)
+---
+#@ end
+#@ if data.values.tls.enabled:
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: gpss-root-issuer
+  namespace: #@ data.values.namespace
+spec:
+  selfSigned: {}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: gpss-server
+  namespace: #@ data.values.namespace
+spec:
+  secretName: gpss-server-tls
+  issuerRef:
+    name: gpss-root-issuer
+    kind: Issuer
+  commonName: gpss
+  dnsNames:
+  - #@ "{}-{}-gpss-service".format(data.values.namespace, data.values.name)
+  - #@ "{}-{}-gpss-service.{}".format(data.values.namespace, data.values.name, data.values.namespace)
+  - #@ "{}-{}-gpss-service.{}.svc.cluster.local".format(data.values.namespace, data.values.name, data.values.namespace)
+---
+#@ end

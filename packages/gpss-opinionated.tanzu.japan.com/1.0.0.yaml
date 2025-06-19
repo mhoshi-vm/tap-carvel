@@ -1,0 +1,84 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: Package
+metadata:
+  name: gpss-opinionated.tanzu.japan.com.1.0.0
+spec:
+  refName: gpss-opinionated.tanzu.japan.com
+  version: 1.0.0
+  valuesSchema:
+    openAPIv3:
+      title: gpss-opinionated.tanzu-jp values schema
+      properties:
+        name:
+          type: string
+          default: gpfdist
+        etcd:
+          type: object
+          additionalProperties: false
+          properties:
+            tls:
+              type: object
+              additionalProperties: false
+              properties:
+                enabled:
+                  type: boolean
+                  default: true
+                cluster_issuer:
+                  type: boolean
+                  default: false
+        image:
+          type: string
+          default: harbor.tp.aws.lespaulstudioplus.info/gpss/gp-stream-server-instance-gpdb7:2.0.1
+        replicas:
+          type: integer
+          default: 3
+        resource:
+          type: object
+          additionalProperties: false
+          properties:
+            limits:
+              type: object
+              additionalProperties: false
+              properties:
+                cpu:
+                  type: string
+                  default: "1"
+                memory:
+                  type: string
+                  default: 1Gi
+            requests:
+              type: object
+              additionalProperties: false
+              properties:
+                cpu:
+                  type: string
+                  default: "0.3"
+                memory:
+                  type: string
+                  default: 256Mi
+        namespace:
+          type: string
+          default: default
+        tls:
+          type: object
+          additionalProperties: false
+          properties:
+            enabled:
+              type: boolean
+              default: false
+  template:
+    spec:
+      fetch:
+      - git:
+          url: https://github.com/mhoshi-vm/tap-carvel
+          ref: origin/pkgr
+          subPath: manifests/gpss-opinionated.tanzu.japan.com/1.0.0
+      template:
+      - ytt:
+          valuesFrom:
+            - downwardAPI:
+                items:
+                  - name: namespace
+                    fieldPath: metadata.namespace
+      deploy:
+      - kapp: {}

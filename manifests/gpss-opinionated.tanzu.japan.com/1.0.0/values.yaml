@@ -1,0 +1,21 @@
+#@data/values-schema
+---
+name: gpfdist
+etcd:
+  tls:
+    enabled: true
+    cluster_issuer: false
+
+image: harbor.tp.aws.lespaulstudioplus.info/gpss/gp-stream-server-instance-gpdb7:2.0.1
+replicas: 3
+resource:
+  limits:
+    cpu: "1"
+    memory: 1Gi
+  requests:
+    cpu: "0.3"
+    memory: 256Mi
+
+namespace: default
+tls:
+  enabled: false

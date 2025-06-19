@@ -1,0 +1,11 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: PackageMetadata
+metadata:
+  name: gpss-opinionated.tanzu.japan.com
+spec:
+  displayName: "GPSS Opinionated"
+  shortDescription: "GPSS Opinionated"
+  supportDescription: "https://carvel.dev/"
+  providerName: "Broadcom"
+  maintainers:
+  - name: "Machi Hoshino"
