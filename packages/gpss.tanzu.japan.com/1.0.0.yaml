@@ -1,0 +1,58 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: Package
+metadata:
+  name: gpss.tanzu.japan.com.1.0.0
+spec:
+  refName: gpss.tanzu.japan.com
+  version: 1.0.0
+  valuesSchema:
+    openAPIv3:
+      title: gpss.tanzu-jp values schema
+      properties:
+        namespace:
+          type: string
+          default: gpss-install
+        repo:
+          type: object
+          additionalProperties: false
+          properties:
+            url:
+              type: string
+              default: helm-gpss-operator
+            user:
+              type: string
+              default: ""
+            password:
+              type: string
+              default: ""
+        repo_password:
+          type: string
+          default: ""
+        version:
+          type: string
+          default: 1.0.0
+        controller:
+          type: object
+          additionalProperties: false
+          properties:
+            repo:
+              type: object
+              additionalProperties: false
+              properties:
+                url:
+                  type: string
+                  default: controller
+            version:
+              type: string
+              default: 1.0.0
+  template:
+    spec:
+      fetch:
+      - git:
+          url: https://github.com/mhoshi-vm/tap-carvel
+          ref: origin/pkgr
+          subPath: manifests/gpss.tanzu.japan.com/1.0.0
+      template:
+      - ytt: {}
+      deploy:
+      - kapp: {}

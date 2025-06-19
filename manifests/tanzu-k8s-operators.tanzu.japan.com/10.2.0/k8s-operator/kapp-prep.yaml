@@ -1,0 +1,52 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:yaml", "yaml")
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: kapp-sa
+  namespace: #@ data.values.namespace
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: #@ "{}-kapp-role-binding".format(data.values.namespace)
+  namespace: #@ data.values.namespace
+subjects:
+  - kind: ServiceAccount
+    name: kapp-sa
+    namespace: #@ data.values.namespace
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+---
+#@ for pkg in ["gemfire", "gpss", "postgres", "rabbitmq"]:
+  #@ if data.values[pkg].install:
+---
+apiVersion: packaging.carvel.dev/v1alpha1
+kind: PackageInstall
+metadata:
+  name: #@ "{}-pkg".format(pkg)
+  namespace: #@ data.values.namespace
+spec:
+  serviceAccountName: kapp-sa
+  packageRef:
+    refName: #@ "{}.tanzu.japan.com".format(pkg)
+    versionSelection:
+      constraints: ">0.0.0"
+  values:
+    - secretRef:
+        name: #@ "{}-values".format(pkg)
+        key: values.yml
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: #@ "{}-values".format(pkg)
+  namespace: #@ data.values.namespace
+stringData:
+  values.yml: #@ yaml.encode(data.values[pkg].package)
+  #@ end
+#@ end

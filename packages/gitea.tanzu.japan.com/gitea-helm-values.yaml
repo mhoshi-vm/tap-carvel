@@ -1,7 +1,0 @@
-service:
-  type: ClusterIP
-ingress:
-  enabled: false
-rootURL: http://gitea.url
-
-
