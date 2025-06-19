@@ -1,10 +1,10 @@
 apiVersion: data.packaging.carvel.dev/v1alpha1
 kind: PackageMetadata
 metadata:
-  name: gemfire.tanzu.japan.com
+  name: tap-swagger2url-supplychain.tanzu.japan.com
 spec:
-  displayName: "Tanzu Gemfire"
-  shortDescription: "Tanzu Gemfire"
+  displayName: "TAP Swagger2Url Supplychain"
+  shortDescription: "TAP Swagger2Url Supplychain"
   supportDescription: "https://carvel.dev/"
   providerName: "VMware"
   maintainers:

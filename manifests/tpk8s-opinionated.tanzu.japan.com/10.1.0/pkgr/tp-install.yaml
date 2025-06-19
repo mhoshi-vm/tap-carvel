@@ -1,0 +1,98 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:overlay", "overlay")
+#@ load("@ytt:base64", "base64")
+#@ load("@ytt:yaml", "yaml")
+
+#@ def dockerhub_config_fragment():
+username: #@ data.values.tp.imageRegistry.username
+password: #@ data.values.tp.imageRegistry.password
+#@ end
+
+#@ docker_config = { data.values.tp.imageRegistry.server : dockerhub_config_fragment()}
+
+#@ def dockerhub_config():
+auths: #@ docker_config
+#@ end
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: #@ data.values.tp.namespace
+  labels:
+    pod-security.kubernetes.io/enforce: privileged
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: registrysecret
+  namespace: #@ data.values.tp.namespace
+type: kubernetes.io/dockerconfigjson
+data:
+  .dockerconfigjson: #@ base64.encode("{}".format(yaml.decode(yaml.encode(dockerhub_config()))))
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: kapp-sa
+  namespace: #@ data.values.tp.namespace
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: tmc-kapp-role-binding
+  namespace: #@ data.values.tp.namespace
+subjects:
+- kind: ServiceAccount
+  name: kapp-sa
+  namespace: #@ data.values.tp.namespace
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+---
+apiVersion: packaging.carvel.dev/v1alpha1
+kind: PackageRepository
+metadata:
+  name: tanzu.vmware.com
+  namespace: #@ data.values.tp.namespace
+  annotations:
+    kapp.k14s.io/change-group: "pkgr"
+    kapp.k14s.io/change-rule: "upsert after upserting secret"
+spec:
+  fetch:
+    imgpkgBundle:
+      image: #@  data.values.tp.imageRegistry.server + "/" +  data.values.tp.imageRegistry.repo + ":" + data.values.tp.version
+      secretRef:
+        name: registrysecret
+---
+apiVersion: packaging.carvel.dev/v1alpha1
+kind: PackageInstall
+metadata:
+  name: sm
+  namespace: #@ data.values.tp.namespace
+  annotations:
+    ext.packaging.carvel.dev/ytt-paths-from-secret-name.0: tp-values
+    ext.packaging.carvel.dev/ytt-paths-from-secret-name.1: tp-values-generated-secrets
+    #@ if/end data.values.tp.hack.add_limit_to_clickhouse:
+    ext.packaging.carvel.dev/ytt-paths-from-secret-name.2: add-limit-to-clickhouse
+    #@ if data.values.tp.hack.make_tmc_xsmall:
+    ext.packaging.carvel.dev/ytt-paths-from-secret-name.3: tmc-createnamespace-false
+    ext.packaging.carvel.dev/ytt-paths-from-secret-name.4: make-tmc-xsmall
+    #@ end
+    #@ if data.values.tp.hack.reduce_kafka_replica:
+    ext.packaging.carvel.dev/ytt-paths-from-secret-name.5: reduce-kafka-replica
+    ext.packaging.carvel.dev/ytt-paths-from-secret-name.6: make-ensemble-read-single-kafka
+    #@ end
+    #@ if/end data.values.tp.hack.reduce_redis_replica:
+    ext.packaging.carvel.dev/ytt-paths-from-secret-name.7: reduce-redis-replica
+    #@ if/end data.values.tp.hack.change_pvc_orphan_delete_strategy:
+    ext.packaging.carvel.dev/ytt-paths-from-secret-name.8: change-pvc-orphan-delete-strategy
+    ext.packaging.carvel.dev/fetch-0-secret-name: registrysecret
+    kapp.k14s.io/change-rule: "upsert after upserting pkgr"
+spec:
+  serviceAccountName: kapp-sa
+  packageRef:
+    refName: sm.tanzu.vmware.com
+    versionSelection:
+      constraints: #@ data.values.tp.version
+

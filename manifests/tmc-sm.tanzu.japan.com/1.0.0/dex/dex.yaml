@@ -1,0 +1,100 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:overlay", "overlay")
+#@ load("@ytt:base64", "base64")
+#@ load("@ytt:yaml", "yaml")
+
+#@ def dex_config():
+#@overlay/match missing_ok=True
+#@overlay/match-child-defaults missing_ok=True
+domain: #@ data.values.domain
+
+namespace: tmc-sm-dex
+
+static:
+  secret: #@ data.values.oidc.secret
+  callbacks:
+  - #@ "https://pinniped-supervisor." + data.values.domain + "/provider/pinniped/callback"
+openldap:
+  enabled: true
+  rootdn: dc=tmc,dc=dev
+  group: usergroups
+  ldif: #@ data.values.openldap.ldif
+#@ end
+
+#@ if data.values.dex.enabled:
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dex-install
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: kapp-sa
+  namespace: dex-install
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: dex-kapp-role-binding
+  namespace: dex-install
+subjects:
+- kind: ServiceAccount
+  name: kapp-sa
+  namespace: dex-install
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+---
+apiVersion: packaging.carvel.dev/v1alpha1
+kind: PackageInstall
+metadata:
+  name: dex
+  namespace: dex-install
+  annotations:
+    kapp.k14s.io/change-group: "dexpkg"
+spec:
+  serviceAccountName: kapp-sa
+  packageRef:
+    refName: dex.tanzu.japan.com
+    versionSelection:
+      constraints: #@ data.values.dex.version
+  values:
+  - secretRef:
+      name: change-default-secret
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: change-default-secret
+  namespace: dex-install
+stringData:
+  change-default-reg-secret.yml: #@ yaml.encode(overlay.apply(dex_config()))
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: dex
+  annotations:
+    cert-manager.io/cluster-issuer: tmc-local-issuer
+    kapp.k14s.io/change-rule: "upsert after upserting dexpkg"
+  namespace: tmc-sm-dex
+spec:
+  ingressClassName: tmc-local
+  rules:
+  - host: #@ "dex." + data.values.domain
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: dex
+            port:
+              number: 5556
+  tls:
+  - hosts:
+    - #@ "dex." + data.values.domain
+    secretName: dex-cert
+#@ end

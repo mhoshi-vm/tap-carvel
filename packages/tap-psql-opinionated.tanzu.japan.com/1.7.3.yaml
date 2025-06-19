@@ -1,0 +1,117 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: Package
+metadata:
+  name: tap-psql-opinionated.tanzu.japan.com.1.7.3
+spec:
+  refName: tap-psql-opinionated.tanzu.japan.com
+  version: 1.7.3
+  valuesSchema:
+    openAPIv3:
+      title: tap-psql-opinionated.tanzu-jp values schema
+      properties:
+        postgres:
+          type: object
+          additionalProperties: false
+          properties:
+            package:
+              type: object
+              additionalProperties: false
+              properties:
+                install:
+                  type: boolean
+                  default: true
+                repo:
+                  type: string
+                  default: registry.tanzu.vmware.com/packages-for-vmware-tanzu-data-services/tds-packages
+                version:
+                  type: string
+                  default: 1.13.0
+                operator_version:
+                  type: string
+                  default: 2.3.0
+        tap_install:
+          type: object
+          additionalProperties: false
+          properties:
+            version:
+              type: object
+              additionalProperties: false
+              properties:
+                package_version:
+                  type: string
+                  default: 1.7.3
+                package_repo_bundle_tag:
+                  type: string
+                  default: 1.7.3
+            package_repository:
+              type: object
+              additionalProperties: false
+              properties:
+                oci_repository:
+                  type: string
+                  default: registry.tanzu.vmware.com/tanzu-application-platform/tap-packages
+            source_ranges:
+              type: array
+              items:
+                type: string
+                default: 0.0.0.0/0
+              default: []
+            profile:
+              type: string
+              default: full
+            gitops:
+              type: object
+              additionalProperties: false
+              properties:
+                enabled:
+                  type: boolean
+                  default: true
+                repository_name:
+                  type: string
+                  default: tap-psql
+                repository_owner:
+                  type: string
+                  default: mhoshi-vm
+                server_address:
+                  type: string
+                  default: https://github.com
+            dev_namespaces:
+              type: array
+              items:
+                type: object
+                additionalProperties: false
+                properties:
+                  name:
+                    type: string
+                    default: demo
+                  blank_pipeline_and_scan:
+                    type: string
+                    default: "true"
+                  psql_backup:
+                    type: string
+                    default: "true"
+                  okta:
+                    type: string
+                    default: "true"
+                  gitops:
+                    type: string
+                    default: "true"
+              default: []
+            ingress_domain:
+              type: string
+              default: example.com
+            image_registry:
+              type: string
+              default: ghcr.io/mhoshi-vm/tap
+  template:
+    spec:
+      fetch:
+      - git:
+          url: https://github.com/mhoshi-vm/tap-carvel
+          ref: origin/pkgr
+          subPath: manifests/tap-psql-opinionated.tanzu.japan.com/1.7.3/config
+      template:
+      - ytt:
+          ignoreUnknownComments: true
+      deploy:
+      - kapp: {}

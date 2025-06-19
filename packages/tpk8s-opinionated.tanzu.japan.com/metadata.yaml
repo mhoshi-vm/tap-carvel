@@ -1,11 +1,11 @@
 apiVersion: data.packaging.carvel.dev/v1alpha1
 kind: PackageMetadata
 metadata:
-  name: gemfire.tanzu.japan.com
+  name: tpk8s-opinionated.tanzu.japan.com
 spec:
-  displayName: "Tanzu Gemfire"
-  shortDescription: "Tanzu Gemfire"
+  displayName: "TP Opinionated (Unofficial)"
+  shortDescription: "TP Opinionated (Unofficial)"
   supportDescription: "https://carvel.dev/"
-  providerName: "VMware"
+  providerName: "Broadcom"
   maintainers:
   - name: "Machi Hoshino"

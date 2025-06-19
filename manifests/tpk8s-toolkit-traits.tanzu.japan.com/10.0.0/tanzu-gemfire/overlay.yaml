@@ -1,0 +1,70 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:overlay", "overlay")
+
+#@ count = data.values.gemfire.count + 1
+#@ for j in range(1,count):
+---
+apiVersion: gemfire.vmware.com/v1
+kind: GemFireCluster
+metadata:
+  name: #@ "gemfire-" + str(j)
+spec:
+  image: #@ data.values.gemfire.image.repo + ":" + data.values.gemfire.image.version
+  antiAffinityPolicy: None
+  security:
+    tls: {}
+  metrics:
+    emission: Default
+  locators:
+    replicas: 1
+    overrides:
+      statefulSet:
+        spec:
+          template:
+            spec:
+              containers:
+                - name: locator
+                  securityContext:
+                    allowPrivilegeEscalation: false
+                    capabilities:
+                      drop: [ "ALL" ]
+              initContainers:
+                - name: gemfire-init
+                  securityContext:
+                    allowPrivilegeEscalation: false
+                    capabilities:
+                      drop: [ "ALL" ]
+              securityContext:
+                runAsNonRoot: true
+                seccompProfile:
+                  type: RuntimeDefault
+    resources:
+      requests:
+        memory: 1Gi
+  servers:
+    replicas: 1
+    overrides:
+      statefulSet:
+        spec:
+          template:
+            spec:
+              containers:
+                - name: server
+                  securityContext:
+                    allowPrivilegeEscalation: false
+                    capabilities:
+                      drop: [ "ALL" ]
+              initContainers:
+                - name: gemfire-init
+                  securityContext:
+                    allowPrivilegeEscalation: false
+                    capabilities:
+                      drop: [ "ALL" ]
+              securityContext:
+                runAsNonRoot: true
+                seccompProfile:
+                  type: RuntimeDefault
+    resources:
+      requests:
+        memory: 1Gi
+#@ end

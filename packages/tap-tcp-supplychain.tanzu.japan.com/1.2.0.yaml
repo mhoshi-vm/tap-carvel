@@ -1,0 +1,403 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: Package
+metadata:
+  name: tap-tcp-supplychain.tanzu.japan.com.1.2.0
+spec:
+  refName: tap-tcp-supplychain.tanzu.japan.com
+  version: 1.2.0
+  valuesSchema:
+    openAPIv3:
+      title: tap-tcp-supplychain.tanzu-jp values schema
+      properties:
+        git_username:
+          type: string
+          description: Git username
+        git_repository:
+          type: string
+          description: Git repository
+        image_registry_path:
+          type: string
+          description: Image registry path
+        image_registry:
+          type: string
+          description: Image registry
+        config_registry_path:
+          type: string
+          description: Config registry path
+        config_registry:
+          type: string
+          description: Config registry
+  template:
+    spec:
+      fetch:
+      - inline:
+          paths:
+            config/base.yaml: |
+              apiVersion: carto.run/v1alpha1
+              kind: ClusterConfigTemplate
+              metadata:
+                name: deployment-and-service-template
+              spec:
+                configPath: .data
+                ytt: |
+                  #@ load("@ytt:data", "data")
+                  #@ load("@ytt:yaml", "yaml")
+              
+                  #@ def merge_labels(fixed_values):
+                  #@   labels = {}
+                  #@   if hasattr(data.values.workload.metadata, "labels"):
+                  #@     labels.update(data.values.workload.metadata.labels)
+                  #@   end
+                  #@   labels.update(fixed_values)
+                  #@   return labels
+                  #@ end
+              
+                  #@ def delivery():
+                  apiVersion: apps/v1
+                  kind: Deployment
+                  metadata:
+                    name: #@ data.values.workload.metadata.name
+                    annotations:
+                      kapp.k14s.io/update-strategy: "fallback-on-replace"
+                    labels: #@ merge_labels({ "app.kubernetes.io/component": "run", "carto.run/workload-name": data.values.workload.metadata.name })
+                  spec:
+                    selector:
+                      matchLabels: #@ data.values.config.metadata.labels
+                    replicas: 1
+                    strategy:
+                      type: RollingUpdate
+                      rollingUpdate:
+                        maxUnavailable: 1
+                        maxSurge: 0
+                    template: #@ data.values.config
+                  #@ end
+              
+                  #@ def merge_ports(ports_spec, containers):
+                  #@   ports = {}
+                  #@   for c in containers:
+                  #@     for p in getattr(c, "ports", []):
+                  #@       ports[p.containerPort] = {"targetPort": p.containerPort, "port": p.containerPort, "name": getattr(p, "name", str(p.containerPort))}
+                  #@     end
+                  #@   end
+                  #@   for p in ports_spec:
+                  #@     ports[p.port] = {"targetPort": getattr(p, "containerPort", p.port), "port": p.port, "name": getattr(p, "name", str(p.port))}
+                  #@   end
+                  #@   return ports.values()
+                  #@ end
+              
+              
+                  #@ def services():
+                  ---
+                  apiVersion: v1
+                  kind: Service
+                  metadata:
+                    name: #@ data.values.workload.metadata.name
+                    labels: #@ merge_labels({ "app.kubernetes.io/component": "run", "carto.run/workload-name": data.values.workload.metadata.name })
+                  spec:
+                    selector: #@ data.values.config.metadata.labels
+                    ports:
+                    #@ declared_ports = {}
+                    #@ if "ports" in data.values.params:
+                    #@   declared_ports = data.values.params.ports
+                    #@ end
+                    #@ for p in merge_ports(declared_ports, data.values.config.spec.containers):
+                    - #@ p
+                    #@ end
+                  #@ end
+              
+                  ---
+                  apiVersion: v1
+                  kind: ConfigMap
+                  metadata:
+                    name: #@ data.values.workload.metadata.name + "-base"
+                    labels: #@ merge_labels({ "app.kubernetes.io/component": "config" })
+                  data:
+                    delivery.yml: #@ yaml.encode(delivery())
+                    service.yaml: #@ yaml.encode(services())
+              ---
+              apiVersion: carto.run/v1alpha1
+              kind: ClusterConfigTemplate
+              metadata:
+                name: apply-bindings
+              spec:
+                configPath: .data
+                ytt: |
+                  #@ load("@ytt:data", "data")
+                  #@ load("@ytt:yaml", "yaml")
+                  #@ load("@ytt:json", "json")
+                  #@ load("@ytt:struct", "struct")
+              
+                  #@ def get_claims_extension():
+                  #@   claims_extension_key = "serviceclaims.supplychain.apps.x-tanzu.vmware.com/extensions"
+                  #@   if not hasattr(data.values.workload.metadata, "annotations") or not hasattr(data.values.workload.metadata.annotations, claims_extension_key):
+                  #@     return None
+                  #@   end
+                  #@
+                  #@   extension = json.decode(data.values.workload.metadata.annotations[claims_extension_key])
+                  #@
+                  #@   spec_extension = extension.get('spec')
+                  #@   if spec_extension == None:
+                  #@     return None
+                  #@   end
+                  #@
+                  #@   return spec_extension.get('serviceClaims')
+                  #@ end
+              
+                  #@ def merge_claims_extension(claim, claims_extension):
+                  #@   if claims_extension == None:
+                  #@     return claim.ref
+                  #@   end
+                  #@   extension = claims_extension.get(claim.name)
+                  #@   if extension == None:
+                  #@      return claim.ref
+                  #@   end
+                  #@   extension.update(claim.ref)
+                  #@   return extension
+                  #@ end
+              
+                  #@ def param(key):
+                  #@   if not key in data.values.params:
+                  #@     return None
+                  #@   end
+                  #@   return data.values.params[key]
+                  #@ end
+              
+                  #@ def merge_labels(fixed_values):
+                  #@   labels = {}
+                  #@   if hasattr(data.values.workload.metadata, "labels"):
+                  #@     labels.update(data.values.workload.metadata.labels)
+                  #@   end
+                  #@   labels.update(fixed_values)
+                  #@   return labels
+                  #@ end
+              
+                  #@ def merge_annotations(fixed_values):
+                  #@   annotations = {}
+                  #@   if hasattr(data.values.workload.metadata, "annotations"):
+                  #@     # DEPRECATED: remove in a future release
+                  #@     annotations.update(data.values.workload.metadata.annotations)
+                  #@   end
+                  #@   if type(param("annotations")) == "dict" or type(param("annotations")) == "struct":
+                  #@     annotations.update(param("annotations"))
+                  #@   end
+                  #@   annotations.update(fixed_values)
+                  #@   return annotations
+                  #@ end
+              
+                  #@ def claims():
+                  #@ claims_extension = get_claims_extension()
+                  #@ workload = struct.encode(yaml.decode(data.values.configs.app_def.config["delivery.yml"]))
+                  #@ for s in data.values.workload.spec.serviceClaims:
+                  #@ if claims_extension == None or claims_extension.get(s.name) == None:
+                  ---
+                  apiVersion: servicebinding.io/v1alpha3
+                  kind: ServiceBinding
+                  metadata:
+                    name: #@ data.values.workload.metadata.name + '-' + s.name
+                    annotations: #@ merge_annotations({})
+                    labels: #@ merge_labels({ "app.kubernetes.io/component": "run", "carto.run/workload-name": data.values.workload.metadata.name })
+                  spec:
+                    name: #@ s.name
+                    service: #@ s.ref
+                    workload:
+                      apiVersion: #@ workload.apiVersion
+                      kind: #@ workload.kind
+                      name: #@ workload.metadata.name
+                  #@ else:
+                  ---
+                  apiVersion: services.apps.tanzu.vmware.com/v1alpha1
+                  kind: ResourceClaim
+                  metadata:
+                    name: #@ data.values.workload.metadata.name + '-' + s.name
+                    annotations: #@ merge_annotations({})
+                    labels: #@ merge_labels({ "app.kubernetes.io/component": "run", "carto.run/workload-name": data.values.workload.metadata.name })
+                  spec:
+                    ref: #@ merge_claims_extension(s, claims_extension)
+                  ---
+                  apiVersion: servicebinding.io/v1alpha3
+                  kind: ServiceBinding
+                  metadata:
+                    name: #@ data.values.workload.metadata.name + '-' + s.name
+                    annotations: #@ merge_annotations({})
+                    labels: #@ merge_labels({ "app.kubernetes.io/component": "run", "carto.run/workload-name": data.values.workload.metadata.name })
+                  spec:
+                    name: #@ s.name
+                    service:
+                      apiVersion: services.apps.tanzu.vmware.com/v1alpha1
+                      kind: ResourceClaim
+                      name: #@ data.values.workload.metadata.name + '-' + s.name
+                    workload:
+                      apiVersion: #@ workload.apiVersion
+                      kind: #@ workload.kind
+                      name: #@ workload.metadata.name
+                  #@ end
+                  #@ end
+                  #@ end
+              
+                  #@ def add_claims():
+                  #@ if hasattr(data.values.workload.spec, "serviceClaims") and len(data.values.workload.spec.serviceClaims):
+                  #@   new_data = struct.decode(data.values.configs.app_def.config)
+                  #@   new_data.update({"serviceclaims.yml":yaml.encode(claims())})
+                  #@   return new_data
+                  #@ else:
+                  #@   return struct.decode(data.values.configs.app_def.config)
+                  #@ end
+                  #@ end
+              
+                  ---
+                  apiVersion: v1
+                  kind: ConfigMap
+                  metadata:
+                    name: #@ data.values.workload.metadata.name + "-claims"
+                    labels: #@ merge_labels({ "app.kubernetes.io/component": "config" })
+                  data: #@ add_claims()
+              
+              ---
+              apiVersion: rbac.authorization.k8s.io/v1
+              kind: ClusterRole
+              metadata:
+                name: additional-k8s-deliverable
+                labels:
+                  apps.tanzu.vmware.com/aggregate-to-deliverable: "true"
+              rules:
+              - apiGroups: [""]
+                resources: ["services"]
+                verbs: ["get", "list", "watch", "create", "patch", "update", "delete", "deletecollection"]
+              - apiGroups: ["apps"]
+                resources: ["deployments"]
+                verbs: ["get", "list", "watch", "create", "patch", "update", "delete", "deletecollection"]
+      template:
+      - ytt:
+          ignoreUnknownComments: true
+          paths:
+          - config/
+          inline:
+            paths:
+              overlay.yaml: |
+                #@ load("@ytt:data", "data")
+                #@ load("@ytt:overlay", "overlay")
+                
+                #@overlay/append
+                #@ for name in [ "tcp", "tcp-image" ]:
+                ---
+                apiVersion: carto.run/v1alpha1
+                kind: ClusterSupplyChain
+                metadata:
+                  name: #@ name
+                spec:
+                  params:
+                  #@ if name == "tcp":
+                  - name: maven_repository_url
+                    value: https://repo.maven.apache.org/maven2
+                  #@ end
+                  - default: main
+                    name: gitops_branch
+                  - default: supplychain
+                    name: gitops_user_name
+                  - default: supplychain
+                    name: gitops_user_email
+                  - default: supplychain@cluster.local
+                    name: gitops_commit_message
+                  - default: git-ssh
+                    name: gitops_ssh_secret
+                  - default: https://github.com/
+                    name: gitops_server_address
+                  - default: #@ data.values.git_username
+                    name: gitops_repository_owner
+                  - default: #@ data.values.git_repository
+                    name: gitops_repository_name
+                  resources:
+                  #@ if name == "tcp":
+                  - name: source-provider
+                    params:
+                    - name: serviceAccount
+                      value: default
+                    - name: gitImplementation
+                      value: go-git
+                    templateRef:
+                      kind: ClusterSourceTemplate
+                      name: source-template
+                  #@ end
+                  - name: deliverable
+                    params:
+                    - name: registry
+                      value:
+                        ca_cert_data: ""
+                        repository: #@ data.values.image_registry_path
+                        server: #@ data.values.image_registry
+                    templateRef:
+                      kind: ClusterTemplate
+                      name: deliverable-template
+                  #@ if name == "tcp":
+                  #@ image = "image-builder"
+                  #@ template = "kpack-template"
+                  #@ else:
+                  #@ image = "image-provider"
+                  #@ template = "image-provider-template"
+                  #@ end
+                  - name: #@ image
+                    params:
+                    - name: serviceAccount
+                      value: default
+                    #@ if name == "tcp":
+                    - name: registry
+                      value:
+                        ca_cert_data: ""
+                        repository: #@ data.values.image_registry_path
+                        server: #@ data.values.image_registry
+                    sources:
+                    - name: source
+                      resource: source-provider
+                    #@ end
+                    templateRef:
+                      kind: ClusterImageTemplate
+                      name: #@ template
+                  - images:
+                    - name: image
+                      resource: #@ image
+                    name: config-provider
+                    params:
+                    - name: serviceAccount
+                      value: default
+                    templateRef:
+                      kind: ClusterConfigTemplate
+                      name: convention-template
+                  - configs:
+                    - name: config
+                      resource: config-provider
+                    name: app-config
+                    templateRef:
+                      kind: ClusterConfigTemplate
+                      name: deployment-and-service-template
+                  - configs:
+                    - name: app_def
+                      resource: app-config
+                    name: apply-bindings
+                    templateRef:
+                      kind: ClusterConfigTemplate
+                      name: apply-bindings
+                  - configs:
+                    - name: config
+                      resource: apply-bindings
+                    name: config-writer
+                    params:
+                    - name: serviceAccount
+                      value: default
+                    - name: registry
+                      value:
+                        ca_cert_data: ""
+                        repository: #@ data.values.config_registry_path
+                        server: #@ data.values.config_registry
+                    templateRef:
+                      kind: ClusterTemplate
+                      name: config-writer-template
+                  selector:
+                    apps.tanzu.vmware.com/workload-type: tcp
+                  #@ if name == "tcp-image":
+                  selectorMatchFields:
+                    - key: spec.image
+                      operator: Exists
+                  #@ end
+                #@ end
+      deploy:
+        - kapp: {}

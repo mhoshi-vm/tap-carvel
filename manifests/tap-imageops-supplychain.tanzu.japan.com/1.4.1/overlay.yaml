@@ -1,0 +1,73 @@
+#@ load("@ytt:data", "data")
+
+#@ if data.values.supplychain.overlay:
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: add-w-kbld-supplychain 
+  namespace: tap-install
+stringData:
+  add-w-kbld-supplychain.yaml: |
+    #@ load("@ytt:data", "data")
+    #@ load("@ytt:overlay", "overlay")
+    
+    #@overlay/match by=overlay.subset({"kind": "ClusterSupplyChain"}),expects="1+"
+    ---
+    metadata:
+      #@overlay/replace via=lambda a,_: a+"-w-kbld"
+      name:
+
+    spec:
+      selectorMatchExpressions:
+      #@overlay/append
+      - key: withKbld
+        operator: Exists
+      resources:
+      #@overlay/match by=overlay.subset({"name": "config-writer"})
+      - templateRef:
+          name: config-writer-template-w-kbld
+        configs:
+        #@overlay/match by=overlay.subset({"resource": "api-descriptors"})
+        - resource: kbld-config
+      #@overlay/match by=overlay.subset({"name": "config-writer"})
+      #@overlay/insert before=True
+      - name: kbld-config
+        templateRef:
+          kind: ClusterConfigTemplate
+          name: kbld-config-template
+        configs:
+          - resource: api-descriptors
+            name: config
+        params:
+          - name: registry
+            value: #@ data.values.registry
+#@ end
+#@ if data.values.delivery.overlay:
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: add-w-kbld-delivery
+  namespace: tap-install
+stringData:
+  add-w-kbld-delivery.yaml: |
+    #@ load("@ytt:data", "data")
+    #@ load("@ytt:overlay", "overlay")
+
+    #@overlay/match by=overlay.subset({"kind": "ClusterDelivery"}),expects="1+"
+    ---
+    metadata:
+      #@overlay/replace via=lambda a,_: a+"-w-kbld"
+      name:
+
+    spec:
+      #@overlay/match missing_ok=True
+      selector:
+        #@overlay/match missing_ok=True
+        withKbld: ""        
+      resources:
+      #@overlay/match by=overlay.subset({"name": "deployer"})
+      - templateRef:
+          name: app-deploy-w-kbld
+#@ end

@@ -1,0 +1,24 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:overlay", "overlay")
+
+#@ def overlay():
+yaml: |
+  #@ load("@ytt:overlay", "overlay")
+  #@overlay/match by=overlay.subset({"kind": "Service", "metadata": {"name": "envoy"}})
+  ---
+  spec:
+    #@overlay/match missing_ok=True
+    loadBalancerSourceRanges: [ SOURCERANGES ]
+#@ end
+
+#@ if hasattr(data.values.aws_services, "source_ranges"):
+#@ overlay_file = overlay()['yaml'].replace("SOURCERANGES", ", ".join(data.values.aws_services.source_ranges))
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: contour-envoy-lb-source-ranges
+  namespace: tap-install
+stringData:
+  overlay.yaml: #@ overlay_file
+#@ end

@@ -1,0 +1,28 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: xgemfireclusters.caching.tanzu.japan.com
+spec:
+  connectionSecretKeys:
+  - type
+  - cluster.nodes
+  group: caching.tanzu.japan.com
+  names:
+    kind: XGemfireCluster
+    plural: xgemfireclusters
+  versions:
+  - name: v1alpha1
+    referenceable: true
+    served: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+          status:
+            type: object
+            properties:
+              clusterName:
+                description: Cluster Name
+                type: string

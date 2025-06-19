@@ -1,0 +1,20 @@
+#@ load("@ytt:data", "data")
+
+---
+apiVersion: packaging.carvel.dev/v1alpha1
+kind: PackageInstall
+metadata:
+  annotations:
+    ext.packaging.carvel.dev/ytt-paths-from-secret-name.0: add-w-kbld-supplychain
+  name: #@ "ootb-supply-chain-" + data.values.ootb_supplychain + "-w-kbld"
+  namespace: tap-install
+spec:
+  packageRef:
+    refName: #@ "ootb-supply-chain-" + data.values.ootb_supplychain + ".tanzu.vmware.com"
+    versionSelection:
+      constraints: 0.10.5
+      prereleases: {}
+  serviceAccountName: tap-install-sa
+  values:
+  - secretRef:
+      name: #@ data.values.ootb_values_secret

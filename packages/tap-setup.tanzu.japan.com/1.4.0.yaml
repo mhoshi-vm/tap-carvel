@@ -1,0 +1,111 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: Package
+metadata:
+  name: tap-setup.tanzu.japan.com.1.4.0
+spec:
+  refName: tap-setup.tanzu.japan.com
+  version: 1.4.0
+  valuesSchema:
+    openAPIv3:
+      title: tap-setup.tanzu-jp values schema
+      properties:
+        tls:
+          type: object
+          additionalProperties: false
+          description: TLS config
+          properties:
+            enabled:
+              type: boolean
+              default: false
+            crt:
+              type: string
+              default: dummy
+            key:
+              type: string
+              default: dummy
+        dev_namespaces:
+          type: array
+          description: Developer namespaces
+          items:
+            type: string
+            default: dev-ns1
+          default:
+          - dev-ns1
+        imageops:
+          type: object
+          additionalProperties: false
+          description: imageops credentials
+          properties:
+            enabled:
+              type: boolean
+              default: true
+            registry:
+              type: string
+              default: dummy
+            username:
+              type: string
+              default: dummy
+            password:
+              type: string
+              default: dummy
+        gitops:
+          type: object
+          additionalProperties: false
+          description: gitops credentials
+          properties:
+            enabled:
+              type: boolean
+              default: true
+            url:
+              type: string
+              default: dummy
+            username:
+              type: string
+              default: dummy
+            password:
+              type: string
+              default: dummy
+        bucketrepo:
+          type: object
+          additionalProperties: false
+          description: bucketrepo for faster download
+          properties:
+            enabled:
+              type: boolean
+              default: true
+            image:
+              type: string
+              default: jenkinsxio/bucketrepo
+        tap_gui_viewer:
+          type: object
+          additionalProperties: false
+          description: Enable TAP GUI viewer
+          properties:
+            enabled:
+              type: boolean
+              default: true
+            is_view_cluster:
+              type: boolean
+              default: false
+        blank_pipeline_and_scan:
+          type: object
+          additionalProperties: false
+          description: Place blank pipeline and scan template
+          properties:
+            enabled:
+              type: boolean
+              default: true
+            test_image:
+              type: string
+              default: alpine
+  template:
+    spec:
+      fetch:
+      - git:
+          url: https://github.com/mhoshi-vm/tap-carvel
+          ref: origin/pkgr
+          subPath: manifests/tap-setup.tanzu.japan.com/1.4.0
+      template:
+      - ytt: {}
+      deploy:
+      - kapp: {}

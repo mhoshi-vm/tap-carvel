@@ -1,0 +1,110 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ootb-templates-ecr-repo-template
+  namespace: tap-install
+type: Opaque
+stringData:
+  ecr-repo-template.yaml: |
+    apiVersion: v1
+    kind: Namespace
+    metadata:
+      name: tekton-tasks
+    ---
+    apiVersion: tekton.dev/v1beta1
+    kind: Task
+    metadata:
+      name: create-ecr-repo
+      namespace: tekton-tasks
+    spec:
+      params:
+      - name: namespace
+        type: string
+      - name: workload-name
+        type: string
+      steps:
+      - name: check
+        image: bitnami/aws-cli
+        script: |
+          #!/bin/bash
+
+          check_and_create_repository() {
+              local repository_name=$1
+              aws ecr describe-repositories --repository-names "$repository_name" > /dev/null 2>&1
+              if [ $? -eq 254 ]; then
+                  echo "Repository '$repository_name' does not exist. Creating repository..."
+                  aws ecr create-repository --repository-name "$repository_name"
+              else
+                  echo "Repository '$repository_name' already exists."
+              fi
+          }
+    
+          WORKLOAD_NAME="$(params.workload-name)"
+          NAMESPACE="$(params.namespace)"
+
+          check_and_create_repository tanzu-application-platform/${WORKLOAD_NAME}-${NAMESPACE}
+          check_and_create_repository tanzu-application-platform/${WORKLOAD_NAME}-${NAMESPACE}-bundle
+
+        securityContext:
+          runAsUser: 0
+    ---
+    #@ load("@ytt:data", "data")
+    apiVersion: carto.run/v1alpha1
+    kind: ClusterSourceTemplate
+    metadata:
+      name: ecr-repo-template
+    spec:
+      params:
+      - name: serviceAccount
+        default: default
+
+      urlPath: .spec.params[?(@.name=="source-url")].value
+      revisionPath: .spec.params[?(@.name=="source-revision")].value
+
+      lifecycle: tekton
+
+      #@ label_exclusions = "[\"" + "\", \"".join(data.values.label_propagation_exclusions) + "\"]"
+      #@yaml/text-templated-strings
+      ytt: |
+        #@ load("@ytt:data", "data")
+
+        #@ def merge_labels(fixed_values):
+        #@   labels = {}
+        #@   if hasattr(data.values.workload.metadata, "labels"):
+        #@     exclusions = (@= label_exclusions @)
+        #@     for k,v in dict(data.values.workload.metadata.labels).items():
+        #@       if k not in exclusions:
+        #@         labels[k] = v
+        #@       end
+        #@     end
+        #@   end
+        #@   labels.update(fixed_values)
+        #@   return labels
+        #@ end
+
+        ---
+        apiVersion: tekton.dev/v1beta1
+        kind: TaskRun
+        metadata:
+          generateName: #@ data.values.workload.metadata.name + "-ecr-repo-"
+          labels: #@ merge_labels({ "app.kubernetes.io/component": "ecr-repo" })
+        spec:
+          serviceAccountName: #@ data.values.params.serviceAccount
+          taskRef:
+            resolver: cluster
+            params:
+            - name: kind
+              value: task
+            - name: namespace
+              value: tekton-tasks
+            - name: name
+              value: create-ecr-repo
+          params:
+          - name: namespace
+            value: #@ data.values.workload.metadata.namespace
+          - name: workload-name
+            value: #@ data.values.workload.metadata.name
+          - name: source-url
+            value: #@ data.values.source.url
+          - name: source-revision
+            value: #@ data.values.source.revision

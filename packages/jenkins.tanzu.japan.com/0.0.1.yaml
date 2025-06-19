@@ -1,0 +1,219 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: Package
+metadata:
+  name: jenkins.tanzu.japan.com.0.0.1
+spec:
+  refName: jenkins.tanzu.japan.com
+  version: 0.0.1
+  valuesSchema:
+    openAPIv3:
+      title: jenkins.tanzu-jp values schema
+      properties:
+        namespace:
+          type: string
+          description: Namespace where jenkins will be installed.
+          default: jenkins
+          examples:
+          - jenkins
+  template:
+    spec:
+      fetch:
+      - inline:
+          paths:
+            config/base.yaml: |
+              ---
+              # Source: jenkins/templates/secrets.yaml
+              apiVersion: v1
+              kind: Secret
+              metadata:
+                name: jenkins
+                namespace: "tap-demo"
+                labels:
+                  app.kubernetes.io/name: jenkins
+                  helm.sh/chart: jenkins-11.0.7
+                  app.kubernetes.io/instance: jenkins
+                  app.kubernetes.io/managed-by: Helm
+              type: Opaque
+              data:
+                jenkins-password: "bmp4T0c4cUljYw=="
+              ---
+              # Source: jenkins/templates/pvc.yaml
+              kind: PersistentVolumeClaim
+              apiVersion: v1
+              metadata:
+                name: jenkins
+                namespace: "tap-demo"
+                labels:
+                  app.kubernetes.io/name: jenkins
+                  helm.sh/chart: jenkins-11.0.7
+                  app.kubernetes.io/instance: jenkins
+                  app.kubernetes.io/managed-by: Helm
+                annotations:
+                  volume.alpha.kubernetes.io/storage-class: default
+              spec:
+                accessModes:
+                  - "ReadWriteOnce"
+                resources:
+                  requests:
+                    storage: "8Gi"
+              ---
+              # Source: jenkins/templates/svc.yaml
+              apiVersion: v1
+              kind: Service
+              metadata:
+                name: jenkins
+                namespace: "tap-demo"
+                labels:
+                  app.kubernetes.io/name: jenkins
+                  helm.sh/chart: jenkins-11.0.7
+                  app.kubernetes.io/instance: jenkins
+                  app.kubernetes.io/managed-by: Helm
+                annotations:
+              spec:
+                type: LoadBalancer
+                externalTrafficPolicy: "Cluster"
+                sessionAffinity: None
+                ports:
+                  - name: http
+                    port: 80
+                    protocol: TCP
+                    targetPort: http
+                  - name: https
+                    port: 443
+                    protocol: TCP
+                    targetPort: https
+                selector:
+                  app.kubernetes.io/name: jenkins
+                  app.kubernetes.io/instance: jenkins
+              ---
+              # Source: jenkins/templates/deployment.yaml
+              apiVersion: apps/v1
+              kind: Deployment
+              metadata:
+                name: jenkins
+                namespace: "tap-demo"
+                labels:
+                  app.kubernetes.io/name: jenkins
+                  helm.sh/chart: jenkins-11.0.7
+                  app.kubernetes.io/instance: jenkins
+                  app.kubernetes.io/managed-by: Helm
+              spec:
+                selector:
+                  matchLabels:
+                    app.kubernetes.io/name: jenkins
+                    app.kubernetes.io/instance: jenkins
+                strategy:
+                  type: RollingUpdate
+                template:
+                  metadata:
+                    labels:
+                      app.kubernetes.io/name: jenkins
+                      helm.sh/chart: jenkins-11.0.7
+                      app.kubernetes.io/instance: jenkins
+                      app.kubernetes.io/managed-by: Helm
+                    annotations:
+                      checksum/secrets: 2b33e5552cf530c477c1bd4a24da0ab334d86a3fb165114c7cb5616c902f575d
+                  spec:
+                    serviceAccountName: default
+              
+                    affinity:
+                      podAffinity:
+              
+                      podAntiAffinity:
+                        preferredDuringSchedulingIgnoredDuringExecution:
+                          - podAffinityTerm:
+                              labelSelector:
+                                matchLabels:
+                                  app.kubernetes.io/name: jenkins
+                                  app.kubernetes.io/instance: jenkins
+                              topologyKey: kubernetes.io/hostname
+                            weight: 1
+                      nodeAffinity:
+              
+                    securityContext:
+                      fsGroup: 1001
+                    containers:
+                      - name: jenkins
+                        image: docker.io/bitnami/jenkins:2.361.3-debian-11-r0
+                        imagePullPolicy: "IfNotPresent"
+                        securityContext:
+                          runAsNonRoot: true
+                          runAsUser: 1001
+                        env:
+                          - name: JENKINS_USERNAME
+                            value: "user"
+                          - name: JENKINS_PASSWORD
+                            valueFrom:
+                              secretKeyRef:
+                                name: jenkins
+                                key: jenkins-password
+                          - name: JENKINS_HOME
+                            value: "/bitnami/jenkins/home"
+                          - name: DISABLE_JENKINS_INITIALIZATION
+                            value: "no"
+                          - name: JENKINS_HOST
+                            value: ""
+                          - name: JENKINS_EXTERNAL_HTTP_PORT_NUMBER
+                            value: "80"
+                          - name: JENKINS_EXTERNAL_HTTPS_PORT_NUMBER
+                            value: "443"
+                        ports:
+                          - name: http
+                            containerPort: 8080
+                            protocol: TCP
+                          - name: https
+                            containerPort: 8443
+                            protocol: TCP
+                        livenessProbe:
+                          httpGet:
+                            path: /login
+                            port: http
+                          initialDelaySeconds: 180
+                          periodSeconds: 10
+                          timeoutSeconds: 5
+                          failureThreshold: 6
+                          successThreshold: 1
+                        readinessProbe:
+                          httpGet:
+                            path: /login
+                            port: http
+                          initialDelaySeconds: 30
+                          periodSeconds: 5
+                          timeoutSeconds: 3
+                          failureThreshold: 3
+                          successThreshold: 1
+                        resources:
+                          limits: {}
+                          requests:
+                            cpu: 300m
+                            memory: 512Mi
+                        volumeMounts:
+                          - name: jenkins-data
+                            mountPath: /bitnami/jenkins
+                    volumes:
+                      - name: jenkins-data
+                        persistentVolumeClaim:
+                          claimName: jenkins
+        path: config/
+      template:
+      - ytt:
+          ignoreUnknownComments: true
+          paths:
+          - config/
+          inline:
+            paths:
+              overlay.yaml: |
+                #@overlay/match by=overlay.all, expects="1+"
+                ---
+                metadata:
+                  #@overlay/match missing_ok=True
+                  namespace: #@ data.values.namespace
+
+                #@overlay/append
+                ---
+                apiVersion: v1
+                kind: Namespace
+                metadata:
+                  name: #@ data.values.namespace
+      deploy:
+        - kapp: {}

@@ -1,10 +1,10 @@
 apiVersion: data.packaging.carvel.dev/v1alpha1
 kind: PackageMetadata
 metadata:
-  name: gemfire.tanzu.japan.com
+  name: tap-psql-opinionated.tanzu.japan.com
 spec:
-  displayName: "Tanzu Gemfire"
-  shortDescription: "Tanzu Gemfire"
+  displayName: "Opinionated TAP PSQL deploy"
+  shortDescription: "Opinionated TAP PSQL deploy"
   supportDescription: "https://carvel.dev/"
   providerName: "VMware"
   maintainers:

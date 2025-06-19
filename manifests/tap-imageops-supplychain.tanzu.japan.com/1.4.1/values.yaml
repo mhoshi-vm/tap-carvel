@@ -1,0 +1,21 @@
+#@data/values-schema
+---
+kubernetes_distribution: ""
+excluded_templates: [""]
+iaas_auth: false
+
+#@schema/desc "image reference used for cluster task"
+kbld_image: kpack/kp
+#@schema/desc "target ootb to update"
+ootb_supplychain: basic
+
+ootb_supplychain_version: 0.11.1
+
+supplychain:
+  #@schema/type any=True
+  values: {}
+  overlay: true
+
+delivery:
+  overlay: true
+

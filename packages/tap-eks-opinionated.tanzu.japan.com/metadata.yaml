@@ -1,10 +1,10 @@
 apiVersion: data.packaging.carvel.dev/v1alpha1
 kind: PackageMetadata
 metadata:
-  name: gemfire.tanzu.japan.com
+  name: tap-eks-opinionated.tanzu.japan.com
 spec:
-  displayName: "Tanzu Gemfire"
-  shortDescription: "Tanzu Gemfire"
+  displayName: "Opinionated TAP EKS deploy"
+  shortDescription: "Opinionated TAP EKS deploy"
   supportDescription: "https://carvel.dev/"
   providerName: "VMware"
   maintainers:

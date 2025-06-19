@@ -1,0 +1,112 @@
+#@data/values
+
+---
+params:
+  accountId: ""
+  roleName: "tap-apprunner"
+  region: us-west-1
+
+workload:
+  metadata:
+    labels:
+      apis.apps.tanzu.vmware.com/register-api: "true"
+      app.kubernetes.io/part-of: wordcloud
+      apps.tanzu.vmware.com/has-tests: "true"
+      apps.tanzu.vmware.com/workload-type: web
+    name: wordcloud
+    namespace: twitter-demo
+  spec:
+    build:
+      env:
+        - name: BP_MAVEN_BUILT_MODULE
+          value: wordcloud
+        - name: BP_MAVEN_BUILD_ARGUMENTS
+          value: -pl wordcloud -am -P modelviewcontroller package
+        - name: BP_JVM_VERSION
+          value: "17"
+    env:
+      - name: SERVICE_NAME
+        value: mvc
+      - name: JAVA_TOOL_OPTIONS
+        value: -Dmanagement.health.probes.enabled='false'
+      - name: APP_NAME
+        valueFrom:
+          configMapKeyRef:
+            key: APP_NAME
+            name: wordcloud-cm
+    params:
+      - name: annotations
+        value:
+          autoscaling.knative.dev/minScale: "1"
+      - name: clusterBuilder
+        value: base-jammy
+
+
+config:
+  metadata:
+    annotations:
+      apps.tanzu.vmware.com/correlationid: https://github.com/mhoshi-vm/social-wordcloud?sub_path=/
+      autoscaling.knative.dev/minScale: "1"
+      boot.spring.io/version: 3.1.5
+      conventions.carto.run/applied-conventions: |-
+        appliveview-sample/app-live-view-appflavour-check
+        spring-boot-convention/auto-configure-actuators-check
+        spring-boot-convention/spring-boot
+        spring-boot-convention/spring-boot-graceful-shutdown
+        spring-boot-convention/spring-boot-web
+        spring-boot-convention/spring-boot-actuator
+        spring-boot-convention/app-live-view-appflavour-check
+        spring-boot-convention/app-live-view-connector-boot
+        spring-boot-convention/app-live-view-appflavours-boot
+        spring-boot-convention/service-intent-postgres
+        spring-boot-convention/service-intent-rabbitmq
+      developer.conventions/target-containers: workload
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"carto.run/v1alpha1","kind":"Workload","metadata":{"annotations":{},"labels":{"apis.apps.tanzu.vmware.com/register-api":"true","app.kubernetes.io/part-of":"wordcloud","apps.tanzu.vmware.com/has-tests":"true","apps.tanzu.vmware.com/workload-type":"web"},"name":"wordcloud","namespace":"twitter-demo"},"spec":{"build":{"env":[{"name":"BP_MAVEN_BUILT_MODULE","value":"wordcloud"},{"name":"BP_MAVEN_BUILD_ARGUMENTS","value":"-pl wordcloud -am -P modelviewcontroller package"},{"name":"BP_JVM_VERSION","value":"17"}]},"env":[{"name":"SERVICE_NAME","value":"mvc"},{"name":"JAVA_TOOL_OPTIONS","value":"-Dmanagement.health.probes.enabled='false'"},{"name":"APP_NAME","valueFrom":{"configMapKeyRef":{"key":"APP_NAME","name":"wordcloud-cm"}}}],"params":[{"name":"annotations","value":{"autoscaling.knative.dev/minScale":"1"}},{"name":"clusterBuilder","value":"base-jammy"},{"name":"api_descriptor","value":{"description":"Twitter Wordcloud","location":{"path":"/v3/api-docs"},"owner":"demo","system":"dev","type":"openapi"}}],"serviceClaims":[{"name":"sso","ref":{"apiVersion":"services.apps.tanzu.vmware.com/v1alpha1","kind":"ResourceClaim","name":"sso-claim"}},{"name":"postgres","ref":{"apiVersion":"services.apps.tanzu.vmware.com/v1alpha1","kind":"ResourceClaim","name":"greenplum-claim"}},{"name":"rabbitmq","ref":{"apiVersion":"services.apps.tanzu.vmware.com/v1alpha1","kind":"ClassClaim","name":"rmq-claim"}},{"name":"redis","ref":{"apiVersion":"services.apps.tanzu.vmware.com/v1alpha1","kind":"ClassClaim","name":"gemfire-claim"}},{"name":"wavefront","ref":{"apiVersion":"services.apps.tanzu.vmware.com/v1alpha1","kind":"ResourceClaim","name":"wavefront-claim"}},{"name":"openai","ref":{"apiVersion":"services.apps.tanzu.vmware.com/v1alpha1","kind":"ResourceClaim","name":"openai-claim"}}],"source":{"git":{"ref":{"branch":"main"},"url":"https://github.com/mhoshi-vm/social-wordcloud"}}}}
+      services.conventions.carto.run/postgres: postgresql/42.6.0
+      services.conventions.carto.run/rabbitmq: amqp-client/5.17.1
+    labels:
+      apis.apps.tanzu.vmware.com/register-api: "true"
+      app.kubernetes.io/component: run
+      app.kubernetes.io/part-of: wordcloud
+      apps.tanzu.vmware.com/auto-configure-actuators: "false"
+      apps.tanzu.vmware.com/has-tests: "true"
+      apps.tanzu.vmware.com/workload-type: web
+      carto.run/workload-name: wordcloud
+      conventions.carto.run/framework: spring-boot
+      services.conventions.carto.run/postgres: workload
+      services.conventions.carto.run/rabbitmq: workload
+      tanzu.app.live.view: "true"
+      tanzu.app.live.view.application.actuator.path: actuator
+      tanzu.app.live.view.application.actuator.port: "8080"
+      tanzu.app.live.view.application.flavours: spring-boot
+      tanzu.app.live.view.application.name: wordcloud
+  spec:
+    containers:
+      - env:
+          - name: SERVICE_NAME
+            value: mvc
+          - name: JAVA_TOOL_OPTIONS
+            value: -Dmanagement.health.probes.enabled="'false'" -Dserver.port="8080"
+              -Dserver.shutdown.grace-period="24s"
+          - name: APP_NAME
+            valueFrom:
+              configMapKeyRef:
+                key: APP_NAME
+                name: wordcloud-cm
+        image: harbor.cl01.lespaulstudioplus.info/tap/supply-chain/wordcloud-twitter-demo@sha256:9f24113d67c1a51d06bc2c0f219e644cf104cc0b70a8748fe8a8d824b95df589
+        name: workload
+        ports:
+          - containerPort: 8080
+            protocol: TCP
+        resources: {}
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+          runAsNonRoot: true
+          runAsUser: 1000
+          seccompProfile:
+            type: RuntimeDefault
+    serviceAccountName: default

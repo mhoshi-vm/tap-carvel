@@ -1,0 +1,164 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:struct", "struct")
+
+#@ domain = data.values.tap_install.ingress_domain
+#@ ecr = data.values.aws_services.account_id + ".dkr.ecr." + data.values.aws_services.region + ".amazonaws.com"
+#@ role = "arn:aws:iam::" + data.values.aws_services.account_id + ":role"
+
+#@ def supported_workloads():
+workloads:
+- cluster_config_template_name: config-template
+  type: web
+- cluster_config_template_name: server-template
+  type: server
+- cluster_config_template_name: worker-template
+  type: worker
+#@ end
+
+#@ for workload in supported_workloads():
+#@ var = workload
+#@ end
+
+#@ def tap_values():
+shared:
+  #@ if/end data.values.aws_services.acm.enabled:
+  ingress_issuer: ""
+  ingress_domain: #@ domain
+
+ceip_policy_disclosed: true
+
+profile: full
+
+package_overlays:
+  #@ if hasattr(data.values.aws_services, "source_ranges"):
+  - name: contour
+    secrets:
+      - name: contour-envoy-lb-source-ranges
+      #@ if/end data.values.aws_services.acm.enabled:
+      - name: overlay-contour-acm
+  #@ end
+
+supply_chain: testing_scanning
+
+ootb_supply_chain_testing_scanning:
+  supported_workloads:
+    #@ for/end workload in supported_workloads()["workloads"]:
+    - cluster_config_template_name: #@ workload["cluster_config_template_name"]
+      type: #@ workload["type"]
+    #@ for/end workload in data.values.tap_install.supported_workloads:
+    - cluster_config_template_name: #@ workload["cluster_config_template_name"]
+      type: #@ workload["type"]
+  registry:
+    server: #@ ecr
+    repository: tanzu-application-platform
+
+contour:
+  infrastructure_provider: aws
+  envoy:
+    workload:
+      type: Deployment
+      replicas: 3
+    service:
+      #@ if data.values.aws_services.acm.enabled:
+      annotations:
+        service.beta.kubernetes.io/aws-load-balancer-ssl-cert: #@ data.values.aws_services.acm.arn
+        service.beta.kubernetes.io/aws-load-balancer-backend-protocol: http
+      #@ end
+      type: LoadBalancer
+      aws:
+        LBType: nlb
+  contour:
+    replicas: 1
+    configFileContents:
+      accesslog-format: json
+
+buildservice:
+  kp_default_repository: #@ ecr + "/tap-build-service"
+  kp_default_repository_aws_iam_role_arn: #@ role + "/tap-build-service"
+  exclude_dependencies: #@ data.values.full_deps.enabled
+
+local_source_proxy:
+  repository: #@ ecr + "/tap-lsp"
+  push_secret:
+    aws_iam_role_arn: #@ role + "/tap-local-source-proxy"
+
+ootb_templates:
+  iaas_auth: true
+
+springboot_conventions:
+  autoConfigureActuators: true
+
+tap_gui:
+  #@ if data.values.aws_services.acm.enabled:
+  app:
+    baseUrl: #@ "https://tap-gui." + domain
+  backend:
+    baseUrl: #@ "https://tap-gui." + domain
+    cors:
+      origin: #@ "https://tap-gui." + domain
+    reading:
+      allow:
+        - host: #@ "*." + domain
+  #@ end
+  app_config:
+
+    auth:
+      allowGuestAccess: true
+    customize:
+      features:
+        supplyChain:
+          enableTriageUI: true
+
+metadata_store:
+  ns_for_export_app_cert: "*"
+  app_service_type: ClusterIP
+  pg_req_cpu: "200m"
+  pg_req_memory: "200Mi"
+
+namespace_provisioner:
+  aws_iam_role_arn: #@ role + "/tap-workload"
+  additional_sources:
+    - git:
+        ref: origin/pkgr
+        subPath: #@ "manifests/tap-eks-opinionated.tanzu.japan.com/" + data.values.tap_install.version.package_version + "/namespace"
+        url: https://github.com/mhoshi-vm/tap-carvel
+      path: _ytt_lib/gitops
+  #@ if data.values.tap_install.gitops.enabled:
+  default_parameters:
+    supply_chain_service_account:
+      secrets:
+        - git-ssh
+  #@ end
+  parameter_prefixes:
+    - tap-setup.tanzu.japan.com
+
+cnrs:
+  #@ if data.values.aws_services.acm.enabled:
+  default_external_scheme: "https"
+  domain_template: "{{.Name}}-{{.Namespace}}.{{.Domain}}"
+  #@ end
+  lite:
+    enable: true
+  pdb:
+    enable: false
+cartographer:
+  cartographer:
+    resources:
+      requests:
+        cpu: 100m
+        memory: 200Mi
+crossplane:
+  resourcesCrossplane:
+    requests:
+      cpu: 100m
+      memory: 200Mi
+  resourcesRBACManager:
+    requests:
+      cpu: 100m
+      memory: 200Mi
+
+excluded_packages:
+  - policy.apps.tanzu.vmware.com
+  - sso.apps.tanzu.vmware.com
+  - api-portal.tanzu.vmware.com
+#@ end

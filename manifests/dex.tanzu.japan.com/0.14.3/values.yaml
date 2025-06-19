@@ -1,0 +1,18 @@
+#@data/values-schema
+---
+domain: example.com
+
+namespace: dex
+
+static:
+  secret: some-secret
+  callbacks: 
+  - example.foo.com
+
+openldap:
+  enabled: true
+  ssl: true
+  rootdn: dc=example,dc=org
+  group: users
+  adminpassword: adminpassword
+  ldif: ""

@@ -1,0 +1,234 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: Package
+metadata:
+  annotations:
+    capability.tanzu.vmware.com/provides: |
+      [{ "name": "tpk8s-toolkit-capabilities.tanzu.japan.com",
+         "displayName": "TPk8s Toolkit",
+         "vendor": "VMware Tanzu",
+         "description": "Allows using Tanzu Postgres, RabbitMQ, Gemfire for k8s",
+         "tags":["Services & Data Services"],
+         "groupVersionKinds": [
+            { "apiVersion": "v1", "kind": "Service" },
+            { "apiVersion": "sql.tanzu.vmware.com/v1", "kind": "Postgres" },
+            { "apiVersion": "gemfire.vmware.com/v1", "kind": "GemFireCluster" },
+            { "apiVersion": "rabbitmq.com/v1beta1", "kind": "RabbitmqCluster" }
+          ]
+       }
+      ]
+  name: tpk8s-toolkit-capabilities.tanzu.japan.com.10.2.0
+spec:
+  refName: tpk8s-toolkit-capabilities.tanzu.japan.com
+  version: 10.2.0
+  valuesSchema:
+    openAPIv3:
+      title: tpk8s-toolkit-cp.tanzu-jp values schema
+      properties:
+        certmanager:
+          type: object
+          additionalProperties: false
+          properties:
+            enabled:
+              type: boolean
+              default: true
+            package_repo:
+              type: object
+              additionalProperties: false
+              properties:
+                install:
+                  type: boolean
+                  default: false
+                repo:
+                  type: string
+                  default: projects.registry.vmware.com/tkg/packages/standard/repo
+                version:
+                  type: string
+                  default: v2024.8.21
+            package:
+              type: object
+              additionalProperties: false
+              properties:
+                install:
+                  type: boolean
+                  default: true
+        rabbitmq:
+          type: object
+          additionalProperties: false
+          description: Rabbitmq starter
+          properties:
+            package:
+              type: object
+              additionalProperties: false
+              description: package installation
+              properties:
+                install:
+                  type: boolean
+                  description: install via carvel
+                  default: true
+                repo:
+                  type: object
+                  additionalProperties: false
+                  description: install repo
+                  properties:
+                    url:
+                      type: string
+                      default: rabbitmq-kubernetes.packages.broadcom.com/tanzu-rabbitmq-package-repo
+                    user:
+                      type: string
+                      default: ""
+                    password:
+                      type: string
+                      default: ""
+                version:
+                  type: string
+                  description: install version
+                  default: 4.1.0
+                operator_version:
+                  type: string
+                  description: operator version
+                  default: 4.1.0
+        postgres:
+          type: object
+          additionalProperties: false
+          description: Postgres starter
+          properties:
+            package:
+              type: object
+              additionalProperties: false
+              description: package installation
+              properties:
+                install:
+                  type: boolean
+                  description: install via carvel
+                  default: true
+                repo:
+                  type: object
+                  additionalProperties: false
+                  description: install repo
+                  properties:
+                    url:
+                      type: string
+                      default: tanzu-sql-postgres.packages.broadcom.com/vmware-sql-postgres-operator
+                    user:
+                      type: string
+                      default: ""
+                    password:
+                      type: string
+                      default: ""
+                version:
+                  type: string
+                  description: install version
+                  default: v4.1.0
+        gemfire:
+          type: object
+          additionalProperties: false
+          description: Gemfire starter
+          properties:
+            package:
+              type: object
+              additionalProperties: false
+              description: package installation
+              properties:
+                gmc:
+                  type: object
+                  additionalProperties: false
+                  properties:
+                    install:
+                      type: boolean
+                      default: true
+                    repo:
+                      type: object
+                      additionalProperties: false
+                      properties:
+                        url:
+                          type: string
+                          default: registry.packages.broadcom.com/gemfire-management-console/gemfire-management-console
+                    version:
+                      type: string
+                      default: 1.3.0
+                install:
+                  type: boolean
+                  description: install via carvel
+                  default: true
+                repo:
+                  type: object
+                  additionalProperties: false
+                  description: install repo
+                  properties:
+                    url:
+                      type: string
+                      default: registry.packages.broadcom.com/tanzu-gemfire-for-kubernetes/gemfire-for-kubernetes-carvel-bundle
+                    user:
+                      type: string
+                      default: ""
+                    password:
+                      type: string
+                      default: ""
+                repo_password:
+                  type: string
+                  description: install repo password
+                  default: ""
+                version:
+                  type: string
+                  description: install version
+                  default: 2.5.0
+        gpss:
+          type: object
+          additionalProperties: false
+          properties:
+            package:
+              type: object
+              additionalProperties: false
+              properties:
+                install:
+                  type: boolean
+                  description: install via carvel
+                  default: true
+                repo:
+                  type: object
+                  additionalProperties: false
+                  description: install repo
+                  properties:
+                    url:
+                      type: string
+                      default: helm-gpss-operator
+                    user:
+                      type: string
+                      default: ""
+                    password:
+                      type: string
+                      default: ""
+                repo_password:
+                  type: string
+                  description: install repo password
+                  default: ""
+                version:
+                  type: string
+                  description: install version
+                  default: 1.0.0
+                controller:
+                  type: object
+                  additionalProperties: false
+                  properties:
+                    repo:
+                      type: object
+                      additionalProperties: false
+                      properties:
+                        url:
+                          type: string
+                          default: controller
+                    version:
+                      type: string
+                      default: 1.0.0
+
+  template:
+    spec:
+      fetch:
+      - git:
+          url: https://github.com/mhoshi-vm/tap-carvel
+          ref: origin/pkgr
+          subPath: manifests/tpk8s-toolkit-capabilities.tanzu.japan.com/10.2.0
+      template:
+      - ytt: {}
+      deploy:
+      - kapp: {}

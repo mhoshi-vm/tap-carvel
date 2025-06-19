@@ -1,0 +1,74 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: Package
+metadata:
+  name: tpk8s-toolkit-traits.tanzu.japan.com.10.0.0
+  annotations:
+    capability.tanzu.vmware.com/requires: |
+      [{
+        "name": "tpk8s-toolkit-capabilities.tanzu.japan.com"
+      }]
+  labels:
+    spaces.tanzu.vmware.com/trait-package: "true"
+spec:
+  refName: tpk8s-toolkit-traits.tanzu.japan.com
+  version: 10.0.0
+  valuesSchema:
+    openAPIv3:
+      title: tpk8s-toolkit-traits.tanzu-jp values schema
+      properties:
+        rabbitmq:
+          type: object
+          additionalProperties: false
+          description: Rabbitmq starter
+          properties:
+            count:
+              type: integer
+              description: instance count
+              default: 1
+        postgres:
+          type: object
+          additionalProperties: false
+          description: Postgres starter
+          properties:
+            count:
+              type: integer
+              description: instance count
+              default: 1
+            storage_class:
+              type: string
+              description: storage class
+              default: default
+            instance_version:
+              type: string
+              description: instance version
+              default: postgres-14
+        gemfire:
+          type: object
+          additionalProperties: false
+          description: Gemfire starter
+          properties:
+            count:
+              type: integer
+              default: 1
+            image:
+              type: object
+              additionalProperties: false
+              description: gemfire image
+              properties:
+                repo:
+                  type: string
+                  default: registry.tanzu.vmware.com/pivotal-gemfire/vmware-gemfire
+                version:
+                  type: string
+                  default: "10.1"
+  template:
+    spec:
+      fetch:
+      - git:
+          url: https://github.com/mhoshi-vm/tap-carvel
+          ref: origin/pkgr
+          subPath: manifests/tpk8s-toolkit-traits.tanzu.japan.com/10.0.0
+      template:
+      - ytt: {}
+      deploy:
+      - kapp: {}

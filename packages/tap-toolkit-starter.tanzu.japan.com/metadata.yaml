@@ -1,10 +1,10 @@
 apiVersion: data.packaging.carvel.dev/v1alpha1
 kind: PackageMetadata
 metadata:
-  name: gemfire.tanzu.japan.com
+  name: tap-toolkit-starter.tanzu.japan.com
 spec:
-  displayName: "Tanzu Gemfire"
-  shortDescription: "Tanzu Gemfire"
+  displayName: "TAP Toolkit Starter"
+  shortDescription: "TAP Toolkit Starter"
   supportDescription: "https://carvel.dev/"
   providerName: "VMware"
   maintainers:

@@ -1,0 +1,34 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: pkg.crossplane.io/v1
+kind: Provider
+metadata:
+  annotations:
+    kapp.k14s.io/change-group: "crd"
+  name: upbound-provider-aws-ecs
+spec:
+  package: #@ data.values.crossplane.ecs.repo + ":" + data.values.crossplane.tag 
+  controllerConfigRef:
+    name: upbound-provider-aws
+---
+apiVersion: pkg.crossplane.io/v1
+kind: Provider
+metadata:
+  annotations:
+    kapp.k14s.io/change-group: "crd"
+  name: upbound-provider-aws-ec2
+spec:
+  package: #@ data.values.crossplane.ec2.repo + ":" + data.values.crossplane.tag
+  controllerConfigRef:
+    name: upbound-provider-aws
+---
+apiVersion: pkg.crossplane.io/v1
+kind: Provider
+metadata:
+  annotations:
+    kapp.k14s.io/change-group: "crd"
+  name: upbound-provider-aws-elbv2
+spec:
+  package: #@ data.values.crossplane.elbv2.repo + ":" + data.values.crossplane.tag
+  controllerConfigRef:
+    name: upbound-provider-aws

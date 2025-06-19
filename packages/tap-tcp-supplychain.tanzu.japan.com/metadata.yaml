@@ -1,10 +1,10 @@
 apiVersion: data.packaging.carvel.dev/v1alpha1
 kind: PackageMetadata
 metadata:
-  name: gemfire.tanzu.japan.com
+  name: tap-tcp-supplychain.tanzu.japan.com
 spec:
-  displayName: "Tanzu Gemfire"
-  shortDescription: "Tanzu Gemfire"
+  displayName: "TAP TCP Supplychain"
+  shortDescription: "TAP TCP Supplychain"
   supportDescription: "https://carvel.dev/"
   providerName: "VMware"
   maintainers:

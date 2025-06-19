@@ -1,0 +1,24 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:overlay", "overlay")
+
+#@ if data.values.tap_install.gitops.enabled:
+#@overlay/append
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: git-ssh-import
+  namespace: tap-install
+stringData:
+  username: #@ data.values.tap_install.gitops.username
+  password: #@ data.values.tap_install.gitops.password
+---
+apiVersion: secretgen.carvel.dev/v1alpha1
+kind: SecretExport
+metadata:
+  name: git-ssh-import
+  namespace: tap-install
+spec:
+  toNamespaces:
+  - "*"
+#@ end

@@ -1,0 +1,96 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:overlay", "overlay")
+
+#@ if data.values.gemfire.package.gmc.install:
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: gemfire-management-console
+  labels:
+    name: gemfire-management-console
+    pod-security.kubernetes.io/enforce: baseline
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: image-pull-secret
+  namespace: gemfire-management-console
+  annotations:
+    secretgen.carvel.dev/image-pull-secret: ""
+type: kubernetes.io/dockerconfigjson
+data:
+  .dockerconfigjson: e30K
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: gmc-sa
+  namespace: gemfire-management-console
+secrets:
+  - name: image-pull-secret
+imagePullSecrets:
+  - name: image-pull-secret
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gmc-service
+  namespace: gemfire-management-console
+spec:
+  selector:
+    app: gmc
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+      protocol: TCP
+  type: LoadBalancer
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: gmc
+  namespace: gemfire-management-console
+spec:
+  selector:
+    matchLabels:
+      app: gmc
+  serviceName: "gmc-service"
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: gmc
+    spec:
+      terminationGracePeriodSeconds: 10
+      serviceAccountName: gmc-sa
+      securityContext:
+        fsGroup: 1000
+      containers:
+        - name: gmc
+          image: #@ data.values.gemfire.package.gmc.repo.url + ":" + data.values.gemfire.package.gmc.version
+          ports:
+            - containerPort: 8080
+              name: gmc
+          volumeMounts:
+            - name: gmc
+              mountPath: /opt/gemfire/VMware_GemFire_Management_Console
+          env:
+            - name: server.port
+              value: "8080"
+            - name: GMC_WEBSOCKET_SENDBUFFERSIZELIMIT
+              value: "5120000"
+            - name: PROMETHEUS_SCRAPE_INTERVAL
+              value: "2s"
+
+  volumeClaimTemplates:
+    - metadata:
+        name: gmc
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        storageClassName:
+        resources:
+          requests:
+            storage: 4Gi
+#@ end

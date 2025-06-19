@@ -1,0 +1,129 @@
+#@ load("@ytt:data", "data")
+
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: xgemfireclusters.caching.tanzu.japan.com
+spec:
+  compositeTypeRef:
+    apiVersion: caching.tanzu.japan.com/v1alpha1
+    kind: XGemfireCluster
+  resources:
+  - name: gemfire-redis
+    base:
+      apiVersion: kubernetes.crossplane.io/v1alpha1
+      kind: Object
+      spec:
+        forProvider:
+          manifest:
+            apiVersion: gemfire.vmware.com/v1
+            kind: GemFireCluster
+            metadata:
+              namespace: service-instances
+            spec:
+              image: #@ data.values.gemfire.image.repo + ":" + data.values.gemfire.image.version
+              antiAffinityPolicy: None
+              security:
+                tls: {}
+              metrics:
+                emission: Default
+              locators:
+                replicas: 1
+                resources:
+                  requests:
+                    memory: 1Gi
+              servers:
+                replicas: 1
+                resources:
+                    memory: 1Gi
+                libraries:
+                  - name: gemfire-for-redis-apps
+                    container:
+                      image: #@ data.values.gemfire.redis_adapter.repo + ":" + data.values.gemfire.redis_adapter.version
+                      path: "/gemfire-for-redis-apps/*"
+                      imagePullSecretRef:
+                        name: image-pull-secret
+                overrides:
+                  jvmOptions: ["-Dgemfire-for-redis-enabled=true"]
+    patches:
+      - fromFieldPath: metadata.name
+        toFieldPath: spec.forProvider.manifest.metadata.name
+        type: FromCompositeFieldPath
+      - type: ToCompositeFieldPath
+        fromFieldPath: spec.forProvider.manifest.metadata.name
+        toFieldPath: status.clusterName
+    readinessChecks:
+      - type: MatchString
+        fieldPath: status.atProvider.manifest.status.servers
+        matchString: "1/1"
+  - name: secret-redis
+    base:
+      apiVersion: kubernetes.crossplane.io/v1alpha1
+      kind: Object
+      spec:
+        forProvider:
+          manifest:
+            apiVersion: v1
+            kind: Secret
+            metadata:
+              namespace: service-instances
+            type: servicebinding.io/redis
+            stringData:
+              type: redis
+        connectionDetails:
+        - apiVersion: v1
+          kind: Secret
+          namespace: service-instances
+          fieldPath: data.type
+          toConnectionSecretKey: type
+        - apiVersion: v1
+          kind: Secret
+          namespace: service-instances
+          fieldPath: data[cluster.nodes]
+          toConnectionSecretKey: "cluster.nodes"
+        writeConnectionSecretToRef:
+          namespace: service-instances
+    connectionDetails:
+    - fromConnectionSecretKey: type
+    - fromConnectionSecretKey: cluster.nodes
+    patches:
+      - fromFieldPath: status.clusterName
+        toFieldPath: spec.forProvider.manifest.stringData[cluster.nodes]
+        transforms:
+        - string:
+            fmt: '%[1]s-server-0.%[1]s-server.service-instances:6379'
+            type: Format
+          type: string
+        type: FromCompositeFieldPath
+      - fromFieldPath: metadata.name
+        toFieldPath: spec.forProvider.manifest.metadata.name
+        transforms:
+        - string:
+            fmt: '%s-gemfire-redis'
+            type: Format
+          type: string
+        type: FromCompositeFieldPath
+      - fromFieldPath: metadata.name
+        toFieldPath: spec.writeConnectionSecretToRef.name
+        transforms:
+        - string:
+            fmt: '%s-gemfired-redis'
+            type: Format
+          type: string
+        type: FromCompositeFieldPath
+      - fromFieldPath: metadata.name
+        toFieldPath: spec.connectionDetails[0].name
+        transforms:
+        - string:
+            fmt: '%s-gemfire-redis'
+            type: Format
+          type: string
+        type: FromCompositeFieldPath
+      - fromFieldPath: metadata.name
+        toFieldPath: spec.connectionDetails[1].name
+        transforms:
+        - string:
+            fmt: '%s-gemfire-redis'
+            type: Format
+          type: string
+        type: FromCompositeFieldPath

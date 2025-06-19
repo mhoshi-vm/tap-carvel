@@ -1,0 +1,37 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:overlay", "overlay")
+#@ load("@ytt:base64", "base64")
+#@ load("@ytt:yaml", "yaml")
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ldap-overlay-secret
+  namespace: tmc-local
+stringData:
+  addscope.yaml: |
+    #@ load("@ytt:data", "data")
+    #@ load("@ytt:overlay", "overlay")
+    ---
+    #@overlay/match by=overlay.subset({"kind":"OIDCIdentityProvider", "metadata": {"name": "pinniped-upstream"}})
+    ---
+    spec:
+      authorizationConfig:
+        additionalScopes:
+        - groups
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: tmc-overlay-override
+  namespace: tmc-local
+stringData:
+  patch-oidc.yaml: |
+    #@ load("@ytt:overlay", "overlay")
+    #@overlay/match by=overlay.subset({"kind":"PackageInstall", "metadata": {"name": "tmc-local-stack"}})
+    ---
+    metadata:
+      annotations:
+        #@overlay/match missing_ok=True
+        ext.packaging.carvel.dev/ytt-paths-from-secret-name.0: ldap-overlay-secret

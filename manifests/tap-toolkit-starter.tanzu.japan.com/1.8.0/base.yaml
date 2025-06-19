@@ -1,0 +1,66 @@
+---
+apiVersion: services.apps.tanzu.vmware.com/v1alpha1
+kind: ClusterInstanceClass
+metadata:
+  name: secrets
+spec:
+  description:
+    short: It's a set of Secrets!
+  pool:
+    kind: Secret
+    labelSelector:
+      matchLabels:
+        claimable: "true"
+---
+apiVersion: services.apps.tanzu.vmware.com/v1alpha1
+kind: ResourceClaimPolicy
+metadata:
+  name: secrets-cross-namespace
+  namespace: service-instances
+spec:
+  consumingNamespaces:
+  - '*'
+  subject:
+    kind: Secret
+    group: ""
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: service-instances
+  labels:
+    pod-security.kubernetes.io/enforce: baseline
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: tap-registry
+  namespace: service-instances
+  annotations:
+    secretgen.carvel.dev/image-pull-secret: ""
+type: kubernetes.io/dockerconfigjson
+data:
+  .dockerconfigjson: e30K
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: default
+  namespace: service-instances
+  annotations:
+    kapp.k14s.io/create-strategy: fallback-on-update  
+secrets:
+  - name: tap-registry
+imagePullSecrets:
+  - name: tap-registry
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: resource-claims-secret
+  labels:
+    servicebinding.io/controller: "true"
+rules:
+- apiGroups: [""]
+  resources: ["secrets"]
+  verbs: ["get", "list", "watch"]
