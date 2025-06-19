@@ -70,7 +70,7 @@ spec:
   name: stream1
   type: stream
   arguments:
-    x-max-length-bytes: 1000000000
+    x-max-length-bytes: 100000000
   durable: true
   rabbitmqClusterReference:
     name: rmq01
@@ -87,15 +87,21 @@ spec:
   rabbitmqClusterReference:
     name: rmq01
 ---
-apiVersion: v1
-kind: Secret
+apiVersion: secretgen.k14s.io/v1alpha1
+kind: Password
 metadata:
   name: gpss-user-credentials
   namespace: #@ data.values.namespace
-type: Opaque
-stringData:
-  username: gpss-user
-  password: verysecurepw
+spec:
+  length: 20
+  digits: 5
+  uppercaseLetters: 5
+  lowercaseLetters: 10
+  secretTemplate:
+    type: Opaque
+    stringData:
+      username: gpss-user
+      password: $(value)
 ---
 apiVersion: rabbitmq.com/v1beta1
 kind: User
