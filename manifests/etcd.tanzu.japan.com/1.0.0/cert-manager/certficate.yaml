@@ -1,0 +1,37 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:base64", "base64")
+
+#@ def list_etcd_dns():
+- etcd
+- #@ "etcd.{}".format(data.values.namespace)
+- #@ "etcd.{}.svc.cluster.local".format(data.values.namespace)
+  #@ for j in range(0,data.values.replicas):
+- #@ "etcd-{}".format(j)
+- #@ "etcd-{}.{}".format(j, data.values.namespace)
+- #@ "etcd-{}.{}.svc.cluster.local".format(j, data.values.namespace)
+  #@ end
+#@ end
+
+#@ if data.values.tls:
+---
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: etcd-root-issuer
+spec:
+  selfSigned: {}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: etcd-server
+  namespace: #@ data.values.namespace
+spec:
+  secretName: etcd-server-tls
+  issuerRef:
+    name: etcd-root-issuer
+    kind: ClusterIssuer
+  commonName: etcd
+  dnsNames: #@ list_etcd_dns()
+---
+#@ end

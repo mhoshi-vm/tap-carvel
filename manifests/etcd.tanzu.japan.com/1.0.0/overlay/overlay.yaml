@@ -1,0 +1,51 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:overlay", "overlay")
+
+#@overlay/match by=overlay.subset({"metadata":{"name":"etcd"}}), expects="2+"
+---
+metadata:
+  namespace: #@ data.values.namespace
+
+#@overlay/match by=overlay.subset({"kind":"StatefulSet", "metadata":{"name":"etcd"}}), expects="1+"
+---
+spec:
+  replicas: #@ data.values.replicas
+  template:
+    spec:
+      #@overlay/match missing_ok=True
+      affinity:
+        podAntiAffinity:
+          #@overlay/remove
+          requiredDuringSchedulingIgnoredDuringExecution:
+          #@overlay/match missing_ok=True
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app: etcd
+                topologyKey: kubernetes.io/hostname
+              weight: 100
+
+      #@ if data.values.tls:
+      containers:
+        #@overlay/match by="name"
+        - name: etcd
+          image: #@ data.values.image
+          args:
+          - --peer-client-cert-auth
+          - --peer-trusted-ca-file=/etc/etcd/certs/server/ca.crt
+          - --peer-cert-file=/etc/etcd/certs/server/tls.crt
+          - --peer-key-file=/etc/etcd/certs/server/tls.key
+          volumeMounts:
+          - name: etcd-server-tls
+            mountPath: "/etc/etcd/certs/server"
+            readOnly: true
+      #@overlay/match missing_ok=True
+      volumes:
+      - name: etcd-server-tls
+        secret:
+          secretName: etcd-server-tls
+          optional: false
+      #@ end
+
+---

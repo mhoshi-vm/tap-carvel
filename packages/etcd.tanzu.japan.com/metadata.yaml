@@ -1,0 +1,11 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: PackageMetadata
+metadata:
+  name: etcd.tanzu.japan.com
+spec:
+  displayName: "ETCD"
+  shortDescription: "ETCD"
+  supportDescription: "https://carvel.dev/"
+  providerName: "Broadcom"
+  maintainers:
+  - name: "Machi Hoshino"
