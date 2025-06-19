@@ -12,12 +12,18 @@
   #@ end
 #@ end
 
-#@ if data.values.tls:
+#@ if data.values.tls.enabled:
+  #@ if data.values.tls.cluster_issuer:
+    #@ kind = "ClusterIssuer"
+  #@ else:
+    #@ kind = "Issuer"
+  #@ end
 ---
 apiVersion: cert-manager.io/v1
-kind: ClusterIssuer
+kind: #@ kind
 metadata:
   name: etcd-root-issuer
+  namespace: #@ data.values.namespace
 spec:
   selfSigned: {}
 ---
@@ -30,7 +36,7 @@ spec:
   secretName: etcd-server-tls
   issuerRef:
     name: etcd-root-issuer
-    kind: ClusterIssuer
+    kind: #@ kind
   commonName: etcd
   dnsNames: #@ list_etcd_dns()
 ---

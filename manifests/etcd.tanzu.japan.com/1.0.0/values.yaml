@@ -3,4 +3,6 @@
 image: quay.io/coreos/etcd:v3.5.21
 replicas: 3
 namespace: default
-tls: true
+tls:
+  enabled: true
+  cluster_issuer: false

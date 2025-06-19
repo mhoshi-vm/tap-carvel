@@ -77,9 +77,5 @@ gpss:
       repo:
         url: controller
       version: 1.0.0
-    etcd:
-      repo:
-        url: quay.io/coreos/etcd
-      version: v3.5.21
 
 

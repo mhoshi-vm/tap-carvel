@@ -26,7 +26,7 @@ spec:
                 topologyKey: kubernetes.io/hostname
               weight: 100
 
-      #@ if data.values.tls:
+      #@ if data.values.tls.enabled:
       containers:
         #@overlay/match by="name"
         - name: etcd
