@@ -67,8 +67,8 @@ spec:
 
   volumeClaimTemplates:
     - metadata:
+        name: gmc
         annotations:
-          name: gmc
           kapp.k14s.io/owned-for-deletion: ""
       spec:
         accessModes: [ "ReadWriteOnce" ]

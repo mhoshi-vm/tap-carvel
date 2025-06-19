@@ -190,6 +190,11 @@ spec:
           ref: origin/pkgr
           subPath: manifests/tanzu-k8s-operators.tanzu.japan.com/10.2.0
       template:
-      - ytt: {}
+      - ytt:
+        　valuesFrom:
+          - downwardAPI:
+              items:
+                - name: namespace
+                  fieldPath: metadata.namespace
       deploy:
       - kapp: {}
