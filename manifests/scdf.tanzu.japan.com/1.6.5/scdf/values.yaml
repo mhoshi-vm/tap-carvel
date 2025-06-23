@@ -33,7 +33,7 @@ scdf:
       - name: SPRING_CLOUD_DATAFLOW_FEATURES_SCHEDULES_ENABLED
         value: "true"
     database:
-      url: jdbc:postgresql://postgres-11.scdf:5432/postgres-11
+      url: jdbc:postgresql://postgres-11:5432/postgres-11
       driverClassName: org.postgresql.Driver
       secretName: postgres-11-app-user-db-secret
       secretUsernameKey: username
