@@ -16,12 +16,12 @@ spec:
               name: scdf-values
           - secretRef:
               name: scdf-values-generated-secrets
-        path: values/
+      path: values/
     - imgpkgBundle:
         image: #@ data.values.repo.url + "/scdf-pro-package:" + data.values.version
         secretRef:
           name: repo-secret
-        path: scdf
+      path: scdf
   template:
     - ytt:
         ignoreUnknownComments: true
