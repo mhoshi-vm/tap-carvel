@@ -14,14 +14,16 @@ k8soperator:
       install: false
     postgres:
       install: true
-      repo:
-        user: ""
-        password: ""
+      package:
+        repo:
+          user: ""
+          password: ""
     rabbitmq:
       install: true
-      repo:
-        user: ""
-        password: ""
+      package:
+        repo:
+          user: ""
+          password: ""
 
 postgres:
   count: 1
