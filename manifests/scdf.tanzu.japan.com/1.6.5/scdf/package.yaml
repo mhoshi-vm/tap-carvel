@@ -11,7 +11,7 @@ metadata:
     ext.packaging.carvel.dev/ytt-paths-from-secret-name.0: scdf-values
     ext.packaging.carvel.dev/ytt-paths-from-secret-name.1: scdf-values-generated-secrets
 spec:
-  serviceAccountName: kapp-sa
+  serviceAccountName: scdf-kapp-sa
   fetch:
     - imgpkgBundle:
         image: #@ data.values.repo.url + "/scdf-pro-package:" + data.values.version
