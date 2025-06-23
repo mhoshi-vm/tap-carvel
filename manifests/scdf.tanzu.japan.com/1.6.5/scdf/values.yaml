@@ -73,7 +73,7 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: scdf-values
-  namespace: scdf
+  namespace: #@ data.values.namespace
 stringData:
   #@yaml/text-templated-strings
   data-values.yaml: |
