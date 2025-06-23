@@ -16,17 +16,19 @@ spec:
               name: scdf-values
           - secretRef:
               name: scdf-values-generated-secrets
+        path: values/
     - imgpkgBundle:
         image: #@ data.values.repo.url + "/scdf-pro-package:" + data.values.version
         secretRef:
           name: repo-secret
+        path: scdf
   template:
     - ytt:
         ignoreUnknownComments: true
         paths:
-          - config/
-          - data-values.yaml
-          - secret-values.yaml
+          - scdf/config/
+          - values/data-values.yaml
+          - values/secret-values.yaml
   deploy:
     - kapp:
         rawOptions:
