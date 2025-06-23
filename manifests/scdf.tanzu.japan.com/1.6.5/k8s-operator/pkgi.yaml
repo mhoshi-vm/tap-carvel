@@ -5,7 +5,7 @@
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: kapp-sa
+  name: scdf-kapp-sa
   namespace: #@ data.values.namespace
 ---
 kind: ClusterRoleBinding
@@ -15,7 +15,7 @@ metadata:
   namespace: #@ data.values.namespace
 subjects:
   - kind: ServiceAccount
-    name: kapp-sa
+    name: scdf-kapp-sa
     namespace: #@ data.values.namespace
 roleRef:
   apiGroup: rbac.authorization.k8s.io
@@ -28,7 +28,7 @@ metadata:
   name: k8s-operators
   namespace: #@ data.values.namespace
 spec:
-  serviceAccountName: kapp-sa
+  serviceAccountName: scdf-kapp-sa
   packageRef:
     refName: k8s-operators.tanzu.japan.com
     versionSelection:
