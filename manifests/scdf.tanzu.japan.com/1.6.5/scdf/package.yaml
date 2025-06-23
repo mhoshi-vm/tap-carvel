@@ -7,9 +7,6 @@ kind: App
 metadata:
   name: scdf-install
   namespace: #@ data.values.namespace
-  annotations:
-    ext.packaging.carvel.dev/ytt-paths-from-secret-name.0: scdf-values
-    ext.packaging.carvel.dev/ytt-paths-from-secret-name.1: scdf-values-generated-secrets
 spec:
   serviceAccountName: scdf-kapp-sa
   fetch:
@@ -20,8 +17,17 @@ spec:
   template:
     - ytt:
         ignoreUnknownComments: true
+        inline:
+          pathsFrom:
+            - secretRef:
+                name: scdf-values
+                directoryPath: values/
+            - secretRef:
+                name: scdf-values-generated-secrets
+                directoryPath: values/
         paths:
           - config/
+          - values/
   deploy:
     - kapp:
         rawOptions:
