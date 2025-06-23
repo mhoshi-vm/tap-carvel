@@ -25,23 +25,23 @@ roleRef:
 apiVersion: packaging.carvel.dev/v1alpha1
 kind: PackageInstall
 metadata:
-  name: k8s-operator
+  name: k8s-operators
   namespace: #@ data.values.namespace
 spec:
   serviceAccountName: kapp-sa
   packageRef:
-    refName: k8s-operator.tanzu.japan.com
+    refName: k8s-operators.tanzu.japan.com
     versionSelection:
       constraints: ">0.0.0"
   values:
     - secretRef:
-        name: k8s-operator-values
+        name: k8s-operators-values
         key: values.yml
 ---
 apiVersion: v1
 kind: Secret
 metadata:
-  name: k8s-operator-values
+  name: k8s-operators-values
   namespace: #@ data.values.namespace
 stringData:
   values.yml: #@ yaml.encode(data.values.k8soperator.package)
