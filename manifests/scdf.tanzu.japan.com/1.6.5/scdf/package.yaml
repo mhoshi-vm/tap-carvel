@@ -21,13 +21,12 @@ spec:
           pathsFrom:
             - secretRef:
                 name: scdf-values
-                directoryPath: values/
             - secretRef:
                 name: scdf-values-generated-secrets
-                directoryPath: values/
         paths:
           - config/
-          - values/
+          - data-values.yaml
+          - secret-values.yaml
   deploy:
     - kapp:
         rawOptions:
