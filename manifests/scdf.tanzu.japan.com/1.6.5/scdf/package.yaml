@@ -10,6 +10,12 @@ metadata:
 spec:
   serviceAccountName: scdf-kapp-sa
   fetch:
+    - inline:
+        pathsFrom:
+          - secretRef:
+              name: scdf-values
+          - secretRef:
+              name: scdf-values-generated-secrets
     - imgpkgBundle:
         image: #@ data.values.repo.url + "/scdf-pro-package:" + data.values.version
         secretRef:
@@ -17,12 +23,6 @@ spec:
   template:
     - ytt:
         ignoreUnknownComments: true
-        inline:
-          pathsFrom:
-            - secretRef:
-                name: scdf-values
-            - secretRef:
-                name: scdf-values-generated-secrets
         paths:
           - config/
           - data-values.yaml
