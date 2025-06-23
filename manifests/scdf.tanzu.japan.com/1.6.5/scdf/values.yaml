@@ -59,7 +59,7 @@ scdf:
       repository: #@ data.values.repo.url + "/scdf-pro-skipper"
       digest: #@ data.values.digest.skipper
     database:
-      url: jdbc:postgresql://postgres-11.scdf:5432/postgres-11
+      url: jdbc:postgresql://postgres-11:5432/postgres-11
       driverClassName: org.postgresql.Driver
       secretName: postgres-11-app-user-db-secret
       secretUsernameKey: username
