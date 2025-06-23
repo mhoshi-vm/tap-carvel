@@ -26,7 +26,7 @@ k8soperator:
 postgres:
   count: 1
   storage_class: default
-  instance_version: "14"
+  instance_version: "postgres-17"
 
 rabbitmq:
   count: 1
