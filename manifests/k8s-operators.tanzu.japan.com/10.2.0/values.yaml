@@ -6,8 +6,8 @@ namespace: default
 standard:
   package_repo:
     install: false
-    repo: projects.registry.vmware.com/tkg/packages/standard/repo
-    version: v2025.6.17
+    repo: projects.packages.broadcom.com/tkg/packages/standard/repo
+    version: v2025.6.18
 
 cert-manager:
   install: true
@@ -18,6 +18,13 @@ contour:
   install: true
   ref_suffix: tanzu.vmware.com
   package: {}
+
+harbor:
+  install: true
+  ref_suffix: tanzu.japan.com
+  package:
+    domain: example.com
+    storageClass: tkg-ds
 
 rabbitmq:
   install: true
@@ -39,7 +46,6 @@ postgres:
       user: ""
       password: ""
     version: v4.1.0
-
 
 gemfire:
   install: true

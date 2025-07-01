@@ -1,0 +1,47 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:yaml", "yaml")
+---
+#@ def harbor_values():
+hostname: #@ "harbor.{}".format(data.values.domain)
+persistence:
+  persistentVolumeClaim:
+    registry:
+      storageClass: #@ data.values.storageClass
+      subPath: ""
+      accessMode: ReadWriteOnce
+      size: 200Gi
+    jobservice:
+      storageClass: #@ data.values.storageClass
+      subPath: ""
+      accessMode: ReadWriteOnce
+      size: 1Gi
+    database:
+      storageClass: #@ data.values.storageClass
+      subPath: ""
+      accessMode: ReadWriteOnce
+      size: 1Gi
+    redis:
+      storageClass: #@ data.values.storageClass
+      subPath: ""
+      accessMode: ReadWriteOnce
+      size: 1Gi
+    trivy:
+      storageClass: #@ data.values.storageClass
+      subPath: ""
+      accessMode: ReadWriteOnce
+      size: 5Gi
+#@ if/end data.values.tlsCertificate != {}:
+tlsCertificate: #@ data.values.tlsCertificate
+#@ end
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: harbor-values
+  namespace: #@ data.values.namespace
+stringData:
+  #@yaml/text-templated-strings
+  data-values.yaml: |
+    #@data/values
+    ---
+    (@= yaml.encode(harbor_values())@)

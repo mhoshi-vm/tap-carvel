@@ -1,0 +1,27 @@
+DATABASE: test
+USER: wcadmin
+PASSWORD: wcadmin
+HOST: 192.168.251.129
+PORT: 5432
+VERSION: 2
+RABBITMQ:
+  INPUT:
+    SOURCE:
+      SERVER: gpss-user:verysecurepw@rmq01:5672
+      QUEUE: hoge
+      VIRTUALHOST: /
+    DATA:
+      COLUMNS:
+        - NAME: item
+          TYPE: json
+      FORMAT: json
+    ERROR_LIMIT: 25
+  OUTPUT:
+    TABLE: cars
+    MODE: INSERT
+    # https://www.postgresql.org/docs/12/functions-json.html
+    MAPPING:
+      - NAME: brand
+        EXPRESSION: (item->>'brand')::text
+      - NAME: model
+        EXPRESSION: (item->>'model')::text
