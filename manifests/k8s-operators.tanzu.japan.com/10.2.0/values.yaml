@@ -22,9 +22,36 @@ contour:
 harbor:
   install: true
   ref_suffix: tanzu.japan.com
+  secrets_template: true
   package:
-    domain: example.com
-    storageClass: tkg-ds
+    hostname: harbor.example.com
+    persistence:
+      persistentVolumeClaim:
+        registry:
+          storageClass: tkg-ds
+          subPath: ""
+          accessMode: ReadWriteOnce
+          size: 200Gi
+        jobservice:
+          storageClass: tkg-ds
+          subPath: ""
+          accessMode: ReadWriteOnce
+          size: 1Gi
+        database:
+          storageClass: tkg-ds
+          subPath: ""
+          accessMode: ReadWriteOnce
+          size: 1Gi
+        redis:
+          storageClass: tkg-ds
+          subPath: ""
+          accessMode: ReadWriteOnce
+          size: 1Gi
+        trivy:
+          storageClass: tkg-ds
+          subPath: ""
+          accessMode: ReadWriteOnce
+          size: 5Gi
 
 rabbitmq:
   install: true
