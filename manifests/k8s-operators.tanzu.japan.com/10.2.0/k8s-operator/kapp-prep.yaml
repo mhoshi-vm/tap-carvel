@@ -22,7 +22,7 @@ roleRef:
   kind: ClusterRole
   name: cluster-admin
 ---
-#@ for pkg in ["cert-manager", "contour", "gemfire", "gpss", "postgres", "rabbitmq"]:
+#@ for pkg in ["cert-manager", "contour", "harbor", "gemfire", "gpss", "postgres", "rabbitmq"]:
   #@ if data.values[pkg].install:
 ---
 apiVersion: packaging.carvel.dev/v1alpha1
@@ -30,6 +30,21 @@ kind: PackageInstall
 metadata:
   name: #@ "{}-pkg".format(pkg)
   namespace: #@ data.values.namespace
+  annotations:
+    #@ change_group=""
+    #@ change_rule=""
+    #@ if pkg == "cert-manager":
+    #@  change_group="cert-manager"
+    #@ elif pkg == "contour":
+    #@  change_group="contour"
+    #@  change_rule="upsert after upserting cert-manager"
+    #@ else:
+    #@  change_rule="upsert after upserting contour"
+    #@ end
+    #@ if/end change_group != "":
+    kapp.k14s.io/change-group: #@ change_group
+    #@ if/end change_rule != "":
+    kapp.k14s.io/change-rule: #@ change_rule
 spec:
   serviceAccountName: kapp-sa
   packageRef:

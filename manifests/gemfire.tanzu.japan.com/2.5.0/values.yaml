@@ -12,7 +12,7 @@ version: 2.5.0
 gmc:
   install: true
   ingress:
-    enabled: false
+    enabled: true
     domain: example.com
   repo:
     url: registry.packages.broadcom.com/gemfire-management-console/gemfire-management-console
