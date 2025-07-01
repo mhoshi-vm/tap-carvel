@@ -35,4 +35,4 @@ spec:
   packageRef:
     refName: harbor.tanzu.vmware.com
     versionSelection:
-      constraints: #@ data.values.version
+      constraints: ">0.0.0"

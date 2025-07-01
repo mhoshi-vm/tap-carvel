@@ -12,6 +12,4 @@ standard:
 
 storageClass: default
 
-version: v2.13.1_vmware.1-tkg.1
-
 tlsCertificate: {}
