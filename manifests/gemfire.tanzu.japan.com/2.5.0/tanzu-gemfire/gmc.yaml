@@ -37,7 +37,7 @@ metadata:
   namespace: #@ data.values.namespace
 spec:
   rules:
-    - host: #@ "gmc.{}".format(data.values.gmc.domain)
+    - host: #@ "gmc.{}".format(data.values.gmc.ingress.domain)
       http:
         paths:
           - path: /
