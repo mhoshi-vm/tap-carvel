@@ -1,0 +1,55 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: Package
+metadata:
+  name: harbor.tanzu.japan.com.v2.13.1_vmware.1-tkg.1
+spec:
+  refName: harbor.tanzu.japan.com
+  version: v2.13.1_vmware.1-tkg.1
+  valuesSchema:
+    openAPIv3:
+      title: harbor.tanzu-jp values schema
+      properties:
+        namespace:
+          type: string
+          default: harbor-install
+        domain:
+          type: string
+          default: example.com
+        standard:
+          type: object
+          additionalProperties: false
+          properties:
+            package_repo:
+              type: object
+              additionalProperties: false
+              properties:
+                install:
+                  type: boolean
+                  default: false
+                repo:
+                  type: string
+                  default: projects.packages.broadcom.com/tkg/packages/standard/repo
+                version:
+                  type: string
+                  default: v2025.6.18
+        storageClass:
+          type: string
+          default: default
+        version:
+          type: string
+          default: v2.13.1_vmware.1-tkg.1
+        tlsCertificate:
+          type: object
+          additionalProperties: false
+          properties: { }
+  template:
+    spec:
+      fetch:
+      - git:
+          url: https://github.com/mhoshi-vm/tap-carvel
+          ref: origin/pkgr
+          subPath: manifests/harbor.tanzu.japan.com/v2.13.1_vmware.1-tkg.1
+      template:
+      - ytt: {}
+      deploy:
+      - kapp: {}
