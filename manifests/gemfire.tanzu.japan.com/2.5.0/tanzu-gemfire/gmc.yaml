@@ -26,7 +26,7 @@ spec:
       port: 8080
       targetPort: 8080
       protocol: TCP
-  #@ if/end not data.values.ingress.enabled:
+  #@ if/end not data.values.gmc.ingress.enabled:
   type: LoadBalancer
 ---
 #@ if not data.values.gmc.ingress.enabled:
