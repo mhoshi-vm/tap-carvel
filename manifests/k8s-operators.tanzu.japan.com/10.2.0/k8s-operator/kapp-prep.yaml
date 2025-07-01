@@ -22,6 +22,7 @@ roleRef:
   kind: ClusterRole
   name: cluster-admin
 ---
+#@ last_change_group=""
 #@ for pkg in ["cert-manager", "contour", "harbor", "gemfire", "gpss", "postgres", "rabbitmq"]:
   #@ if data.values[pkg].install:
 ---
@@ -37,18 +38,19 @@ metadata:
     #@ change_group=""
     #@ change_rule=""
     #@ if pkg == "cert-manager":
-    #@  change_group="cert-manager"
+    #@  change_group=pkg
+    #@  last_change_group=pkg
     #@  if data.values.standard.package_repo.install:
     #@  change_rule="upsert after upserting standard-pack"
     #@  end
-    #@ elif pkg == "contour":
-    #@  change_group="contour"
-    #@  change_rule="upsert after upserting cert-manager"
-    #@ elif pkg == "harbor":
-    #@  change_group="harbor"
-    #@  change_rule="upsert after upserting contour"
+    #@ elif pkg == "contour" or pkg == "harbor":
+    #@  change_group=pkg
+    #@  change_rule="upsert after upserting {}".format(last_change_group)
+    #@  last_change_group=pkg
     #@ else:
-    #@  change_rule="upsert after upserting harbor"
+    #@  if last_change_group != "":
+    #@  change_rule="upsert after upserting {}".format(last_change_group)
+    #@  end
     #@ end
     #@ if/end change_group != "":
     kapp.k14s.io/change-group: #@ change_group
