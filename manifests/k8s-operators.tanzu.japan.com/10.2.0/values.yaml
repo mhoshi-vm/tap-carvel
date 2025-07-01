@@ -29,28 +29,19 @@ harbor:
       persistentVolumeClaim:
         registry:
           storageClass: tkg-ds
-          subPath: ""
-          accessMode: ReadWriteOnce
           size: 200Gi
         jobservice:
-          storageClass: tkg-ds
-          subPath: ""
-          accessMode: ReadWriteOnce
-          size: 1Gi
+          jobLog:
+            storageClass: tkg-ds
+            size: 1Gi
         database:
           storageClass: tkg-ds
-          subPath: ""
-          accessMode: ReadWriteOnce
           size: 1Gi
         redis:
           storageClass: tkg-ds
-          subPath: ""
-          accessMode: ReadWriteOnce
           size: 1Gi
         trivy:
           storageClass: tkg-ds
-          subPath: ""
-          accessMode: ReadWriteOnce
           size: 5Gi
 
 rabbitmq:
