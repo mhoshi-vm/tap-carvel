@@ -33,7 +33,7 @@ metadata:
   annotations:
     ext.packaging.carvel.dev/ytt-paths-from-secret-name.0: #@ "{}-values".format(pkg)
     #@ if/end hasattr(data.values[pkg], "secrets_template") and data.values[pkg].secrets_template:
-    ext.packaging.carvel.dev/ytt-paths-from-secret-name.1: #@ "{}-values-secret".format(pkg)
+    ext.packaging.carvel.dev/ytt-paths-from-secret-name.1: #@ "{}-values-secrets".format(pkg)
     #@ change_group=""
     #@ change_rule=""
     #@ if pkg == "cert-manager":
