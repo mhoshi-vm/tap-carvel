@@ -44,8 +44,11 @@ metadata:
     #@ elif pkg == "contour":
     #@  change_group="contour"
     #@  change_rule="upsert after upserting cert-manager"
-    #@ else:
+    #@ elif pkg == "harbor":
+    #@  change_group="harbor"
     #@  change_rule="upsert after upserting contour"
+    #@ else:
+    #@  change_rule="upsert after upserting harbor"
     #@ end
     #@ if/end change_group != "":
     kapp.k14s.io/change-group: #@ change_group
