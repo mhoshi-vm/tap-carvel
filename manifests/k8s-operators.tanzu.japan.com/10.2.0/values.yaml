@@ -5,7 +5,7 @@ namespace: default
 
 standard:
   package_repo:
-    install: false
+    install: true
     repo: projects.packages.broadcom.com/tkg/packages/standard/repo
     version: v2025.6.18
 
