@@ -35,6 +35,9 @@ metadata:
     #@ change_rule=""
     #@ if pkg == "cert-manager":
     #@  change_group="cert-manager"
+    #@  if data.values.standard.package_repo.install:
+    #@  change_rule="upsert after upserting standard-pack"
+    #@  end
     #@ elif pkg == "contour":
     #@  change_group="contour"
     #@  change_rule="upsert after upserting cert-manager"

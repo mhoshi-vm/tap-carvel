@@ -7,6 +7,8 @@ kind: PackageRepository
 metadata:
   name: standard-pack
   namespace: #@ data.values.namespace
+  annotations:
+    kapp.k14s.io/change-group: "standard-pack"
 spec:
   fetch:
     imgpkgBundle:
