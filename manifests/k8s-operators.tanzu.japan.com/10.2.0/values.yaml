@@ -21,7 +21,7 @@ contour:
 
 harbor:
   install: true
-  ref_suffix: tanzu.japan.com
+  ref_suffix: tanzu.vmware.com
   secrets_template: true
   package:
     hostname: harbor.example.com
