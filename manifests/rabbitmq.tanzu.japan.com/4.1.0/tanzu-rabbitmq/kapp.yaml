@@ -19,7 +19,8 @@ metadata:
   name: rabbitmq
   namespace: #@ data.values.namespace
   annotations:
-    kapp.k14s.io/change-rule: "upsert after upserting pkgr"
+    kapp.k14s.io/change-rule.upsert: "upsert after upserting pkgr"
+    kapp.k14s.io/change-rule.delete: "delete before deleting pkgr"
     ext.packaging.carvel.dev/ytt-paths-from-secret-name.0: "namespace-overlay"
 spec:
   serviceAccountName: kapp-sa 
