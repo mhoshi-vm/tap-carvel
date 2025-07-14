@@ -29,11 +29,6 @@ spec:
           ref: origin/pkgr
           subPath: manifests/etcd.tanzu.japan.com/1.0.0
       template:
-      - ytt:
-          valuesFrom:
-            - downwardAPI:
-                items:
-                  - name: namespace
-                    fieldPath: metadata.namespace
+      - ytt: {}
       deploy:
       - kapp: {}
