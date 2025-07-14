@@ -12,11 +12,13 @@ standard:
 cert-manager:
   install: true
   ref_suffix: tanzu.vmware.com
+  #@schema/type any=True
   package: {}
 
 contour:
   install: true
   ref_suffix: tanzu.vmware.com
+  #@schema/type any=True
   package:
     envoy:
       service:
@@ -26,6 +28,7 @@ harbor:
   install: true
   ref_suffix: tanzu.vmware.com
   secrets_template: true
+  #@schema/type any=True
   package:
     hostname: harbor.example.com
     persistence:
@@ -50,6 +53,7 @@ harbor:
 rabbitmq:
   install: true
   ref_suffix: tanzu.japan.com
+  #@schema/type any=True
   package:
     repo:
       url: rabbitmq-kubernetes.packages.broadcom.com/tanzu-rabbitmq-package-repo
@@ -61,6 +65,7 @@ rabbitmq:
 postgres:
   install: true
   ref_suffix: tanzu.japan.com
+  #@schema/type any=True
   package:
     repo:
       url: tanzu-sql-postgres.packages.broadcom.com/vmware-sql-postgres-operator
@@ -71,6 +76,7 @@ postgres:
 gemfire:
   install: true
   ref_suffix: tanzu.japan.com
+  #@schema/type any=True
   package:
     repo:
       url: registry.packages.broadcom.com/tanzu-gemfire-for-kubernetes/gemfire-for-kubernetes-carvel-bundle
@@ -86,6 +92,7 @@ gemfire:
 gpss:
   install: true
   ref_suffix: tanzu.japan.com
+  #@schema/type any=True
   package:
     repo:
       url: helm-gpss-operator
