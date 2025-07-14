@@ -1,10 +1,6 @@
 #@data/values-schema
 ---
 name: gpfdist
-etcd:
-  tls:
-    enabled: true
-    cluster_issuer: false
 
 image: harbor.tp.aws.lespaulstudioplus.info/gpss/gp-stream-server-instance-gpdb7:2.0.1
 replicas: 3
