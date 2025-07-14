@@ -15,7 +15,7 @@ Cluster:
   Port: 5001
   etcd:
     Endpoints:
-     - etcd:2379
+     - etcd.etcd:2379
 #@ end
 
 ---
