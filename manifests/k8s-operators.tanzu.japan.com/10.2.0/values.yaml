@@ -17,7 +17,10 @@ cert-manager:
 contour:
   install: true
   ref_suffix: tanzu.vmware.com
-  package: {}
+  package:
+    envoy:
+      service:
+        type: loadBalancer
 
 harbor:
   install: true
