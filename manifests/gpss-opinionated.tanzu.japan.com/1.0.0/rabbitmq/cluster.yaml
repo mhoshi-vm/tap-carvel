@@ -46,28 +46,25 @@ spec:
       - rabbitmq_peer_discovery_k8s
       - rabbitmq_shovel
       - rabbitmq_shovel_management
+---
 #@ if data.values.rabbitmq.contour.enabled:
+  #@ for config in [ [ "amqp", 5672 ], [ "console", 15672], ["stream", 5552] ]:
 ---
 apiVersion: projectcontour.io/v1
 kind: HTTPProxy
 metadata:
-  name: rmq01
+  name: #@ "rmq01-{}".format(config[0])
   namespace: #@ data.values.namespace
 spec:
   virtualhost:
-    fqdn: #@ "rmq01.{}".format(data.values.rabbitmq.contour.domain)
+    fqdn: #@ "rmq01-{}.{}".format(config[0], data.values.rabbitmq.contour.domain)
     tls:
       passthrough: true
   tcpproxy:
     services:
       - name: rmq01
-        port: 5672
-      - name: rmq01
-        port: 15672
-      - name: rmq01
-        port: 5552
-      - name: rmq01
-        port: 15692
+        port: #@ config[1]
+  #@ end
 #@ end
 ---
 apiVersion: rabbitmq.com/v1beta1
