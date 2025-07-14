@@ -48,7 +48,7 @@ spec:
       - rabbitmq_shovel_management
 ---
 #@ if data.values.rabbitmq.contour.enabled:
-  #@ for config in [ [ "amqp", 5672 ], [ "console", 15672], ["stream", 5552] ]:
+  #@ for config in [ [ "amqp", "tcp", 5672 ], [ "console", "http", 15672], ["stream", "tcp", 5552] ]:
 ---
 apiVersion: projectcontour.io/v1
 kind: HTTPProxy
@@ -60,10 +60,17 @@ spec:
     fqdn: #@ "rmq01-{}.{}".format(config[0], data.values.rabbitmq.contour.domain)
     tls:
       passthrough: true
+    #@ if config[1] == "http":
+  routes:
+   - services:
+       - name: rmq01
+         port: #@ config[2]
+    #@ else:
   tcpproxy:
     services:
       - name: rmq01
-        port: #@ config[1]
+        port: #@ config[2]
+    #@ end
   #@ end
 #@ end
 ---
