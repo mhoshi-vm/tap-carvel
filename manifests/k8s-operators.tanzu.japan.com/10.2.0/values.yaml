@@ -20,7 +20,7 @@ contour:
   package:
     envoy:
       service:
-        type: loadBalancer
+        type: LoadBalancer
 
 harbor:
   install: true
