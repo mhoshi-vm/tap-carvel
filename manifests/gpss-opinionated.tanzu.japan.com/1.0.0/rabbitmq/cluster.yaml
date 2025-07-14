@@ -56,6 +56,8 @@ metadata:
 spec:
   virtualhost:
     fqdn: #@ "rmq01.{}".format(data.values.rabbitmq.contour.domain)
+    tls:
+      passthrough: true
   tcpproxy:
     services:
       - name: rmq01
