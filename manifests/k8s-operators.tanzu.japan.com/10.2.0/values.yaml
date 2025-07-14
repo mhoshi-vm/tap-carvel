@@ -109,4 +109,4 @@ etcd:
   ref_suffix: tanzu.japan.com
   #@schema/type any=True
   package:
-    namespace: etcd
+    namespace: gpss-etcd
