@@ -175,6 +175,20 @@ spec:
                   repo:
                     url: controller
                   version: 1.0.0
+        etcd:
+          type: object
+          additionalProperties: false
+          properties:
+            install:
+              type: boolean
+              default: true
+            ref_suffix:
+              type: string
+              default: tanzu.japan.com
+            package:
+              nullable: true
+              default:
+                namespace: etcd
   template:
     spec:
       fetch:

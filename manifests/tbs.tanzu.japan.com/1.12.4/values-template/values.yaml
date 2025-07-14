@@ -1,0 +1,32 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:yaml", "yaml")
+
+#@ def tap_values():
+buildservice:
+  dependency_updates:
+    allow: true
+    exclude_packages:
+      - ""
+    include_packages:
+      - ""
+    scope: all
+ceip_policy_disclosed: true
+profile: buildservice
+shared:
+  #@ if data.values.internal_harbor.enabled:
+  image_registry:
+    project_path: #@ "harbor.{}".format(data.values.internal_harbor.domain)
+  #@ end
+#@ end
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: tmc-values
+  namespace: tmc-local
+stringData:
+  #@yaml/text-templated-strings
+  data-values.yaml: |
+    #@data/values
+    ---
+    (@= yaml.encode(tap_values())@)
