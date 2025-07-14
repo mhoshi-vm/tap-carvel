@@ -104,4 +104,9 @@ gpss:
         url: controller
       version: 1.0.0
 
-
+etcd:
+  install: true
+  ref_suffix: tanzu.japan.com
+  #@schema/type any=True
+  package:
+    namespace: etcd
