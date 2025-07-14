@@ -21,3 +21,6 @@ tls:
   enabled: false
 rabbitmq:
   enabled: true
+  contour:
+    enabled: true
+    domain: example.com

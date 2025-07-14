@@ -37,8 +37,6 @@ spec:
             name: stream
   imagePullSecrets:
     - name: regsecret
-  service:
-    type: LoadBalancer
   rabbitmq:
     additionalPlugins:
       - rabbitmq_management
@@ -48,6 +46,27 @@ spec:
       - rabbitmq_peer_discovery_k8s
       - rabbitmq_shovel
       - rabbitmq_shovel_management
+#@ if data.values.rabbitmq.contour.enabled:
+---
+apiVersion: projectcontour.io/v1
+kind: HTTPProxy
+metadata:
+  name: rmq01
+  namespace: #@ data.values.namespace
+spec:
+  virtualhost:
+    fqdn: #@ "rmq01.{}".format(data.values.rabbitmq.contour.domain)
+  tcpproxy:
+    services:
+      - name: rmq01
+        port: 5672
+      - name: rmq01
+        port: 15672
+      - name: rmq01
+        port: 5552
+      - name: rmq01
+        port: 15692
+#@ end
 ---
 apiVersion: rabbitmq.com/v1beta1
 kind: Exchange
