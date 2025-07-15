@@ -5,9 +5,11 @@
 apiVersion: rabbitmq.com/v1beta1
 kind: RabbitmqCluster
 metadata:
+  annotations: {}
   name: rmq01
   namespace: #@ data.values.namespace
 spec:
+  delayStartSeconds: 30
   override:
     statefulSet:
       spec:
@@ -15,12 +17,14 @@ spec:
           spec:
             containers:
               - name: rabbitmq
+                resources: {}
                 securityContext:
                   allowPrivilegeEscalation: false
                   capabilities:
                     drop: [ "ALL" ]
             initContainers:
               - name: setup-container
+                resources: {}
                 securityContext:
                   allowPrivilegeEscalation: false
                   capabilities:
@@ -34,7 +38,10 @@ spec:
         ports:
           - port: 5552
             targetPort: 5552
+            protocol: TCP
             name: stream
+  persistence:
+    storage: 10Gi
   imagePullSecrets:
     - name: regsecret
   rabbitmq:
@@ -46,6 +53,21 @@ spec:
       - rabbitmq_peer_discovery_k8s
       - rabbitmq_shovel
       - rabbitmq_shovel_management
+  replicas: 1
+  resources:
+    limits:
+      cpu: "2"
+      memory: 2Gi
+    requests:
+      cpu: "1"
+      memory: 2Gi
+  secretBackend:
+    externalSecret:
+      name: ""
+  service:
+    type: ClusterIP
+  terminationGracePeriodSeconds: 604800
+  tls: {}
 ---
 #@ if data.values.rabbitmq.contour.enabled:
   #@ for config in [ [ "amqp", "tcp", 5672 ], [ "console", "http", 15672], ["stream", "tcp", 5552] ]:

@@ -33,9 +33,13 @@ data:
 apiVersion: gpss.gpdb.io/v1
 kind: GpssCluster
 metadata:
+  annotations: {}
   name: #@ data.values.name
   namespace: #@ data.values.namespace
 spec:
+  service:
+    gpfdist: LoadBalancer
+    gpss: LoadBalancer
   size: #@ data.values.replicas
   image: #@ data.values.image
   resources: #@ data.values.resource

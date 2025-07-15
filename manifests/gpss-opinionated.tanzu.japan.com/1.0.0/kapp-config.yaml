@@ -1,0 +1,42 @@
+apiVersion: kapp.k14s.io/v1alpha1
+kind: Config
+rebaseRules:
+  - path:
+    - metadata
+    - labels
+    - app.kubernetes.io/role
+    type: copy
+    sources: [existing]
+    resourceMatchers:
+      - apiVersionKindMatcher:
+          apiVersion: gpss.gpdb.io/v1
+          kind: GpssCluster
+  - path:
+      - metadata
+      - labels
+      - app.kubernetes.io/role_binding
+    type: copy
+    sources: [existing]
+    resourceMatchers:
+      - apiVersionKindMatcher:
+          apiVersion: gpss.gpdb.io/v1
+          kind: GpssCluster
+  - path:
+      - metadata
+      - labels
+      - app.kubernetes.io/service_account
+    type: copy
+    sources: [ existing ]
+    resourceMatchers:
+      - apiVersionKindMatcher:
+          apiVersion: gpss.gpdb.io/v1
+          kind: GpssCluster
+  - path:
+      - spec
+      - image
+    type: copy
+    sources: [ existing ]
+    resourceMatchers:
+      - apiVersionKindMatcher:
+          apiVersion: rabbitmq.com/v1beta1
+          kind: RabbitmqCluster
