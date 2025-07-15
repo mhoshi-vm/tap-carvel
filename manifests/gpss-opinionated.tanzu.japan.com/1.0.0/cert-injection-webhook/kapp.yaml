@@ -1,0 +1,21 @@
+#@ load("@ytt:data", "data")
+
+#@ if data.values.cert_injection_webhook.enabled:
+---
+apiVersion: kappctrl.k14s.io/v1alpha1
+kind: App
+metadata:
+  name: cert-injection-webhook
+  namespace: #@ data.values.namespace
+spec:
+  fetch:
+  - http:
+      url:  #@ data.values.cert_injection_webhook.url
+  template:
+  - ytt:
+      ignoreUnknownComments: true
+      paths:
+      - config/
+  deploy:
+    - kapp: {}
+#@ end
