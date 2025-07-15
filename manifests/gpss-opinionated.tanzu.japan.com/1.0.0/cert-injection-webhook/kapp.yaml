@@ -29,14 +29,6 @@ metadata:
 spec:
   serviceAccountName: kapp-sa
   fetch:
-  - path: values/
-    inline:
-      paths:
-        values.yaml: |
-          #@data/values
-          ---
-          labels:
-            - "app.kubernetes.io/cluster=gpfdist"
   - imgpkgBundle:
       image:  #@ data.values.cert_injection_webhook.repo + ":" + data.values.cert_injection_webhook.version
   template:
@@ -44,7 +36,13 @@ spec:
       ignoreUnknownComments: true
       paths:
       - config/
-      - values/
+      inline:
+        paths:
+          values.yaml: |
+            #@data/values
+            ---
+            labels:
+              - "app.kubernetes.io/cluster=gpfdist"
   deploy:
     - kapp: {}
 #@ end
