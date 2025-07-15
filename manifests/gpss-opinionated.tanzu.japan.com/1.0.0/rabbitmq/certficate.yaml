@@ -1,0 +1,28 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:base64", "base64")
+
+---
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: rmq-root-issuer
+  namespace: #@ data.values.namespace
+spec:
+  selfSigned: {}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: rmq01
+  namespace: #@ data.values.namespace
+spec:
+  secretName: rmq01-tls
+  issuerRef:
+    name: rmq-root-issuer
+    kind: Issuer
+  commonName: rmq01
+  dnsNames:
+  - #@ "rmq01".format(data.values.namespace, data.values.name)
+  - #@ "rmq01.{}".format(data.values.namespace, data.values.name, data.values.namespace)
+  - #@ "rmq01.{}.svc.cluster.local".format(data.values.namespace, data.values.name, data.values.namespace)
+  - #@ "*.rmq01-nodes.{}.svc.cluster.local".format(data.values.namespace, data.values.name, data.values.namespace)

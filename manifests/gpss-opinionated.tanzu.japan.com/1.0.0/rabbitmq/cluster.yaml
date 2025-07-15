@@ -37,6 +37,8 @@ spec:
             name: stream
   imagePullSecrets:
     - name: regsecret
+  tls:
+    secretName: rmq01-tls
   rabbitmq:
     additionalPlugins:
       - rabbitmq_management
