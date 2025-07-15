@@ -22,7 +22,6 @@ spec:
     kind: Issuer
   commonName: rmq01
   dnsNames:
-  - #@ "rmq01".format(data.values.namespace, data.values.name)
-  - #@ "rmq01.{}".format(data.values.namespace, data.values.name, data.values.namespace)
-  - #@ "rmq01.{}.svc.cluster.local".format(data.values.namespace, data.values.name, data.values.namespace)
-  - #@ "*.rmq01-nodes.{}.svc.cluster.local".format(data.values.namespace, data.values.name, data.values.namespace)
+  #@ for config in [ [ "amqp", "tcp", 5672 ], [ "console", "http", 15672], ["stream", "tcp", 5552] ]:
+  - #@ "rmq01-{}.{}".format(config[0], data.values.rabbitmq.contour.domain)
+  #@ end

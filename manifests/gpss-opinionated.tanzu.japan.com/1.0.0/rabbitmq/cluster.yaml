@@ -37,8 +37,6 @@ spec:
             name: stream
   imagePullSecrets:
     - name: regsecret
-  tls:
-    secretName: rmq01-tls
   rabbitmq:
     additionalPlugins:
       - rabbitmq_management
@@ -60,9 +58,9 @@ metadata:
 spec:
   virtualhost:
     fqdn: #@ "rmq01-{}.{}".format(config[0], data.values.rabbitmq.contour.domain)
-    #@ if config[1] == "tcp":
     tls:
-      passthrough: true
+      secretName: rmq01-tls
+    #@ if config[1] == "tcp":
   tcpproxy:
     services:
       - name: rmq01
