@@ -25,3 +25,7 @@ rabbitmq:
   contour:
     enabled: true
     domain: example.com
+
+cert_injection_webhook:
+  enabled: true
+  url: https://github.com/vmware-tanzu/cert-injection-webhook/releases/download/v0.6.3/config.tar.gz
