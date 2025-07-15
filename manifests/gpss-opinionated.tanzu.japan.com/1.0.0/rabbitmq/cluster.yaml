@@ -58,18 +58,18 @@ metadata:
 spec:
   virtualhost:
     fqdn: #@ "rmq01-{}.{}".format(config[0], data.values.rabbitmq.contour.domain)
+    #@ if config[1] == "tcp":
     tls:
       passthrough: true
-    #@ if config[1] == "http":
-  routes:
-   - services:
-       - name: rmq01
-         port: #@ config[2]
-    #@ else:
   tcpproxy:
     services:
       - name: rmq01
         port: #@ config[2]
+    #@ else:
+  routes:
+   - services:
+       - name: rmq01
+         port: #@ config[2]
     #@ end
   #@ end
 #@ end
