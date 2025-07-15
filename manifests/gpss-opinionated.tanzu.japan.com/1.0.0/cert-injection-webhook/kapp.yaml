@@ -9,8 +9,8 @@ metadata:
   namespace: #@ data.values.namespace
 spec:
   fetch:
-  - http:
-      url:  #@ data.values.cert_injection_webhook.url
+  - imgpkgBundle:
+      image:  #@ data.values.cert_injection_webhook.repo + ":" + data.values.cert_injection_webhook.version
   template:
   - ytt:
       ignoreUnknownComments: true
