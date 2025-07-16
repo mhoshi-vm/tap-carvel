@@ -26,7 +26,8 @@ rabbitmq:
     enabled: true
     domain: example.com
 
+#! does not work
 cert_injection_webhook:
-  enabled: true
+  enabled: false
   repo: ghcr.io/vmware-tanzu/cert-injection-webhook/bundle
   version: 0.6.4

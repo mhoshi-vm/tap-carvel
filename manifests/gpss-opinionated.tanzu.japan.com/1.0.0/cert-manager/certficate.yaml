@@ -31,6 +31,8 @@ kind: Issuer
 metadata:
   name: gpss-root-issuer
   namespace: #@ data.values.namespace
+  annotations:
+    kapp.k14s.io/change-group: "certificate"
 spec:
   selfSigned: {}
 ---
@@ -39,6 +41,8 @@ kind: Certificate
 metadata:
   name: gpss-server
   namespace: #@ data.values.namespace
+  annotations:
+    kapp.k14s.io/change-group: "certificate"
 spec:
   secretName: gpss-server-tls
   issuerRef:

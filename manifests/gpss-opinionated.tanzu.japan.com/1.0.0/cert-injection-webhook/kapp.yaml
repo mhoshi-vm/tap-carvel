@@ -42,7 +42,10 @@ spec:
             #@data/values
             ---
             labels:
-              - "app.kubernetes.io/cluster=gpfdist"
+              - "app.kubernetes.io/cluster"
+        pathsFrom:
+          - secretRef:
+              name: cert-injection-webhook-values-secrets
   deploy:
     - kapp: {}
 #@ end
