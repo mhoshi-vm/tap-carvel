@@ -28,6 +28,29 @@ metadata:
 spec:
   imagePullSecrets:
     - name: repo-secret
+  override:
+    statefulSet:
+      spec:
+        template:
+          spec:
+            containers:
+              - name: rabbitmq
+                resources: { }
+                securityContext:
+                  allowPrivilegeEscalation: false
+                  capabilities:
+                    drop: [ "ALL" ]
+            initContainers:
+              - name: setup-container
+                resources: { }
+                securityContext:
+                  allowPrivilegeEscalation: false
+                  capabilities:
+                    drop: [ "ALL" ]
+            securityContext:
+              runAsNonRoot: true
+              seccompProfile:
+                type: RuntimeDefault
   resources:
     limits:
       cpu: 500m
