@@ -1,0 +1,72 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:struct", "struct")
+#@ load("@ytt:yaml", "yaml")
+
+#@ def scdf_values():
+scdf:
+  binder:
+    type: rabbit
+  server:
+    config:
+      spring:
+        cloud:
+          dataflow:
+            container:
+              registry-configurations:
+                ghcr:
+                  registry-host: ghcr.io
+                  authorization-type: dockeroauth2
+    service:
+      type: LoadBalancer
+    env:
+      - name: SPRING_CLOUD_DATAFLOW_FEATURES_STREAMS_ENABLED
+        value: "true"
+      - name: SPRING_CLOUD_DATAFLOW_FEATURES_TASKS_ENABLED
+        value: "true"
+      - name: SPRING_CLOUD_DATAFLOW_FEATURES_SCHEDULES_ENABLED
+        value: "true"
+    database:
+      url: jdbc:postgresql://postgres-11:5432/postgres-11
+      driverClassName: org.postgresql.Driver
+      secretName: postgres-11-app-user-db-secret
+      secretUsernameKey: username
+      secretPasswordKey: password
+  skipper:
+    config:
+      spring:
+        cloud:
+          skipper:
+            server:
+              platform:
+                kubernetes:
+                  accounts:
+                    default:
+                      imagePullPolicy: Always
+                      requests:
+                        cpu: 100m
+                        memory: 256Mi
+                      limits:
+                        cpu: 2000m
+                        memory: 4096Mi
+    database:
+      url: jdbc:postgresql://postgres-11:5432/postgres-11
+      driverClassName: org.postgresql.Driver
+      secretName: postgres-11-app-user-db-secret
+      secretUsernameKey: username
+      secretPasswordKey: password
+  registry:
+    secret:
+      ref: "repo-secret"
+#@ end
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: scdf-values
+  namespace: #@ data.values.namespace
+stringData:
+  #@yaml/text-templated-strings
+  data-values.yaml: |
+    #@data/values
+    ---
+    (@= yaml.encode(scdf_values())@)

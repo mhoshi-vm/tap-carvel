@@ -1,0 +1,57 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:yaml", "yaml")
+#@ load("@ytt:overlay", "overlay")
+
+#@ def kbld():
+apiVersion: kbld.k14s.io/v1alpha1
+kind: Config
+overrides:
+  - image: #@ "{}:{}".format("spring-scdf-docker-prod-local.usw1.packages.broadcom.com/p-scdf-for-kubernetes/scdf-pro-server", data.values.version)
+    newImage: #@ "{}:{}".format(data.values.repo.url + "/p-scdf-for-kubernetes/scdf-pro-server", data.values.version)
+    preresolved: true
+  - image: #@ "{}:{}".format("spring-scdf-docker-prod-local.usw1.packages.broadcom.com/springcloud/spring-cloud-dataflow-composed-task-runner", data.values.task_runner_version)
+    newImage: #@ "{}:{}".format(data.values.repo.url + "/springcloud/spring-cloud-dataflow-composed-task-runner", data.values.task_runner_version)
+    preresolved: true
+  - image: #@ "{}:{}".format("spring-scdf-docker-prod-local.usw1.packages.broadcom.com/p-scdf-for-kubernetes/scdf-pro-skipper", data.values.version)
+    newImage: #@ "{}:{}".format(data.values.repo.url + "/p-scdf-for-kubernetes/scdf-pro-skipper", data.values.version)
+    preresolved: true
+#@ end
+---
+apiVersion: kappctrl.k14s.io/v1alpha1
+kind: App
+metadata:
+  name: scdf-install
+  namespace: #@ data.values.namespace
+spec:
+  serviceAccountName: scdf-kapp-sa
+  fetch:
+    - inline:
+        pathsFrom:
+          - secretRef:
+              name: scdf-values
+          - secretRef:
+              name: scdf-values-generated-secrets
+      path: values/
+    - imgpkgBundle:
+        image: #@ data.values.repo.url + "/p-scdf-for-kubernetes/scdf-pro-package:" + data.values.version
+        secretRef:
+          name: repo-secret
+    - inline:
+        paths:
+          kbld.yaml: #@ yaml.encode(kbld())
+      path: scdf
+  template:
+    - ytt:
+        ignoreUnknownComments: true
+        paths:
+          - scdf/config/
+          - values/data-values.yaml
+          - values/secret-values.yaml
+    - kbld:
+        paths:
+          - "-"
+          - kbld/kbld.yaml
+  deploy:
+    - kapp:
+        rawOptions:
+          - --wait-timeout=10m

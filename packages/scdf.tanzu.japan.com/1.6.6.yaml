@@ -1,0 +1,205 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: Package
+metadata:
+  name: scdf.tanzu.japan.com.1.6.6
+spec:
+  refName: scdf.tanzu.japan.com
+  version: 1.6.6
+  valuesSchema:
+    openAPIv3:
+      title: scdf.tanzu-jp values schema
+      properties:
+        namespace:
+          type: string
+          default: default
+        k8soperator:
+          type: object
+          additionalProperties: false
+          properties:
+            namespace:
+              type: string
+              default: default
+            k8soperator:
+              type: object
+              additionalProperties: false
+              properties:
+                package:
+                  type: object
+                  additionalProperties: false
+                  properties:
+                    cert-manager:
+                      type: object
+                      additionalProperties: false
+                      properties:
+                        install:
+                          type: boolean
+                          default: true
+                    contour:
+                      type: object
+                      additionalProperties: false
+                      properties:
+                        install:
+                          type: boolean
+                          default: false
+                    gemfire:
+                      type: object
+                      additionalProperties: false
+                      properties:
+                        install:
+                          type: boolean
+                          default: false
+                    gpss:
+                      type: object
+                      additionalProperties: false
+                      properties:
+                        install:
+                          type: boolean
+                          default: false
+                    postgres:
+                      type: object
+                      additionalProperties: false
+                      properties:
+                        install:
+                          type: boolean
+                          default: true
+                        package:
+                          type: object
+                          additionalProperties: false
+                          properties:
+                            repo:
+                              type: object
+                              additionalProperties: false
+                              properties:
+                                user:
+                                  type: string
+                                  default: ""
+                                password:
+                                  type: string
+                                  default: ""
+                    rabbitmq:
+                      type: object
+                      additionalProperties: false
+                      properties:
+                        install:
+                          type: boolean
+                          default: true
+                        package:
+                          type: object
+                          additionalProperties: false
+                          properties:
+                            repo:
+                              type: object
+                              additionalProperties: false
+                              properties:
+                                user:
+                                  type: string
+                                  default: ""
+                                password:
+                                  type: string
+                                  default: ""
+            postgres:
+              type: object
+              additionalProperties: false
+              properties:
+                count:
+                  type: integer
+                  default: 1
+                storage_class:
+                  type: string
+                  default: default
+                instance_version:
+                  type: string
+                  default: postgres-17
+            rabbitmq:
+              type: object
+              additionalProperties: false
+              properties:
+                count:
+                  type: integer
+                  default: 1
+            repo:
+              type: object
+              additionalProperties: false
+              properties:
+                url:
+                  type: string
+                  default: registry.packages.broadcom.com
+                user:
+                  type: string
+                  default: ""
+                password:
+                  type: string
+                  default: ""
+            version:
+              type: string
+              default: 1.6.6
+            task_runner_version:
+              type: string
+              default: 2.11.8
+        postgres:
+          type: object
+          additionalProperties: false
+          properties:
+            count:
+              type: integer
+              default: 1
+            storage_class:
+              type: string
+              default: default
+            instance_version:
+              type: integer
+              default: 14
+        rabbitmq:
+          type: object
+          additionalProperties: false
+          properties:
+            count:
+              type: integer
+              default: 1
+        repo:
+          type: object
+          additionalProperties: false
+          properties:
+            url:
+              type: string
+              default: registry.packages.broadcom.com/p-scdf-for-kubernetes
+            user:
+              type: string
+              default: ""
+            password:
+              type: string
+              default: ""
+        version:
+          type: string
+          default: 1.6.6
+        digest:
+          type: object
+          additionalProperties: false
+          properties:
+            server:
+              type: string
+              default: sha256:7c644386c0d134295bc6266fedfe87b5fb688ffd463a40090d4fd43a3117bd3f
+            skipper:
+              type: string
+              default: sha256:4e0a8bf0eec418aec532d3f0ddc6383e92a7692819476f6f1d56cc6f491732f0
+            ctr:
+              type: string
+              default: sha256:5dac95f68f545632e6d4a9bc6ed7b112acacba24b297ce72383c31454bb71c9e
+
+
+  template:
+    spec:
+      fetch:
+      - git:
+          url: https://github.com/mhoshi-vm/tap-carvel
+          ref: origin/pkgr
+          subPath: manifests/scdf.tanzu.japan.com/1.6.6
+      template:
+        - ytt:
+            valuesFrom:
+              - downwardAPI:
+                  items:
+                    - name: namespace
+                      fieldPath: metadata.namespace
+      deploy:
+      - kapp: {}

@@ -1,0 +1,48 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:yaml", "yaml")
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: scdf-kapp-sa
+  namespace: #@ data.values.namespace
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: #@ "{}-scdf-kapp-role-binding".format(data.values.namespace)
+  namespace: #@ data.values.namespace
+subjects:
+  - kind: ServiceAccount
+    name: scdf-kapp-sa
+    namespace: #@ data.values.namespace
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+---
+apiVersion: packaging.carvel.dev/v1alpha1
+kind: PackageInstall
+metadata:
+  name: k8s-operators
+  namespace: #@ data.values.namespace
+spec:
+  serviceAccountName: scdf-kapp-sa
+  packageRef:
+    refName: k8s-operators.tanzu.japan.com
+    versionSelection:
+      constraints: ">0.0.0"
+  values:
+    - secretRef:
+        name: k8s-operators-values
+        key: values.yml
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: k8s-operators-values
+  namespace: #@ data.values.namespace
+stringData:
+  values.yml: #@ yaml.encode(data.values.k8soperator.package)
+
