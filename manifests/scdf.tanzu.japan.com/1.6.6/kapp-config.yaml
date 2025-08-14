@@ -1,0 +1,12 @@
+apiVersion: kapp.k14s.io/v1alpha1
+kind: Config
+rebaseRules:
+  - path:
+      - spec
+      - image
+    type: copy
+    sources: [ existing ]
+    resourceMatchers:
+      - apiVersionKindMatcher:
+          apiVersion: rabbitmq.com/v1beta1
+          kind: RabbitmqCluster
