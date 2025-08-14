@@ -25,6 +25,8 @@ kind: RabbitmqCluster
 metadata:
   name: #@ "rmq-" + str(j)
   namespace: #@ data.values.namespace
+  annotations:
+    kapp.k14s.io/change-group: "rmq"
 spec:
   imagePullSecrets:
     - name: repo-secret
