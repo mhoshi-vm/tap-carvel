@@ -40,6 +40,7 @@ spec:
     - inline:
         paths:
           kbld.yaml: #@ yaml.encode(kbld())
+      path: kbld
   template:
     - ytt:
         ignoreUnknownComments: true
