@@ -36,10 +36,10 @@ spec:
         image: #@ data.values.repo.url + "/p-scdf-for-kubernetes/scdf-pro-package:" + data.values.version
         secretRef:
           name: repo-secret
+      path: scdf
     - inline:
         paths:
           kbld.yaml: #@ yaml.encode(kbld())
-      path: scdf
   template:
     - ytt:
         ignoreUnknownComments: true
