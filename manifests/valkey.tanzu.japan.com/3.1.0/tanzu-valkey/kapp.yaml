@@ -16,7 +16,7 @@ spec:
       path: valkey/
   template:
     - helmTemplate:
-        path: valkey/vmware-sql-valkey-operator/
+        path: valkey/
         valuesFrom:
           - secretRef:
               name: default-valkey
