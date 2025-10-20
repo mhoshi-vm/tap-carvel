@@ -1,0 +1,42 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: Package
+metadata:
+  name: valkey.tanzu.japan.com.3.1.0
+spec:
+  refName: valkey.tanzu.japan.com
+  version: 3.1.0
+  valuesSchema:
+    openAPIv3:
+      title: valkey.tanzu-jp values schema
+      properties:
+        namespace:
+          type: string
+          default: valkey-install
+        repo:
+          type: object
+          additionalProperties: false
+          properties:
+            url:
+              type: string
+              default: tanzu-valkey.packages.broadcom.com/tanzu-valkey-helm
+            user:
+              type: string
+              default: ""
+            password:
+              type: string
+              default: ""
+        version:
+          type: string
+          default: 3.1.0
+
+  template:
+    spec:
+      fetch:
+      - git:
+          url: https://github.com/mhoshi-vm/tap-carvel
+          ref: origin/pkgr
+          subPath: manifests/valkey.tanzu.japan.com/3.1.0
+      template:
+      - ytt: {}
+      deploy:
+      - kapp: {}

@@ -1,0 +1,10 @@
+#@data/values-schema
+---
+namespace: valkey-install
+
+repo:
+  url: tanzu-valkey.packages.broadcom.com/tanzu-valkey-helm
+  user: ""
+  password: ""
+version: 3.1.0
+

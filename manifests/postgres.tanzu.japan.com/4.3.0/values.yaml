@@ -1,0 +1,10 @@
+#@data/values-schema
+---
+namespace: postgres-install
+
+repo:
+  url: tanzu-sql-postgres.packages.broadcom.com/vmware-sql-postgres-operator
+  user: ""
+  password: ""
+version: v4.3.0
+

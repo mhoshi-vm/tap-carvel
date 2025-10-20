@@ -1,0 +1,11 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: PackageMetadata
+metadata:
+  name: valkey.tanzu.japan.com
+spec:
+  displayName: "Tanzu Valkey"
+  shortDescription: "Tanzu Valkey"
+  supportDescription: "https://carvel.dev/"
+  providerName: "Broadcom"
+  maintainers:
+  - name: "Machi Hoshino"

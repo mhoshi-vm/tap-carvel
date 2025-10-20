@@ -1,0 +1,17 @@
+#@data/values-schema
+---
+namespace: tap-install
+
+repo:
+  url: tanzu.packages.broadcom.com/tanzu-application-platform/tap-packages
+  user: ""
+  password: ""
+
+internal_harbor:
+  domain: example.com
+  enabled: true
+
+version: 1.12.4
+
+
+

@@ -1,0 +1,46 @@
+#@ load("@ytt:data", "data")
+
+---
+apiVersion: kappctrl.k14s.io/v1alpha1
+kind: App
+metadata:
+  name: valkey-helm
+  namespace: #@ data.values.namespace
+spec:
+  serviceAccountName: kapp-sa
+  fetch:
+    - image:
+        url:  #@ data.values.repo.url + ":" + data.values.version
+        secretRef:
+          name: repo-secret
+      path: valkey/
+  template:
+    - helmTemplate:
+        path: valkey/vmware-sql-valkey-operator/
+        valuesFrom:
+          - secretRef:
+              name: default-valkey
+  deploy:
+    - kapp: {}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: default-valkey
+  namespace: #@ data.values.namespace
+stringData:
+  default-valkey: |
+    ---
+    operator:
+      image:
+        tag: 3.1.0
+      resources:
+        limits:
+          cpu: 1
+          memory: 1Gi
+        requests:
+          cpu: 0.1
+          memory: 128Mi
+
+
+
