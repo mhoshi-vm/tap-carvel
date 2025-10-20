@@ -62,6 +62,17 @@ rabbitmq:
     version: 4.1.0
     operator_version: 4.1.0
 
+valkey:
+  install: true
+  ref_suffix: tanzu.japan.com
+  #@schema/type any=True
+  package:
+    repo:
+      url: tanzu-valkey.packages.broadcom.com/tanzu-valkey-helm
+      user: ""
+      password: ""
+    version: 3.1.0
+
 postgres:
   install: true
   ref_suffix: tanzu.japan.com
