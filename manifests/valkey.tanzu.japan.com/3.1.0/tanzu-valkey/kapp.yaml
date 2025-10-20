@@ -16,7 +16,7 @@ spec:
       path: valkey/
   template:
     - helmTemplate:
-        path: valkey/tanzu-valkey/
+        path: valkey/tanzu-valkey-helm/
         valuesFrom:
           - secretRef:
               name: default-valkey
