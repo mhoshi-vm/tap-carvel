@@ -1,0 +1,46 @@
+#@ load("@ytt:data", "data")
+
+---
+apiVersion: packaging.carvel.dev/v1alpha1
+kind: PackageRepository
+metadata:
+  name: rmq-pack
+  namespace: #@ data.values.namespace
+  annotations:
+    kapp.k14s.io/change-group: "pkgr"
+spec:
+  fetch:
+    imgpkgBundle:
+      image: #@ data.values.repo.url + ":" + data.values.version
+---
+apiVersion: packaging.carvel.dev/v1alpha1
+kind: PackageInstall
+metadata:
+  name: rabbitmq
+  namespace: #@ data.values.namespace
+  annotations:
+    kapp.k14s.io/change-rule.upsert: "upsert after upserting pkgr"
+    kapp.k14s.io/change-rule.delete: "delete before deleting pkgr"
+    ext.packaging.carvel.dev/ytt-paths-from-secret-name.0: "namespace-overlay"
+spec:
+  serviceAccountName: kapp-sa 
+  packageRef:
+    refName: rabbitmq.tanzu.vmware.com
+    versionSelection:
+      constraints: #@ data.values.operator_version
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: namespace-overlay
+  namespace: #@ data.values.namespace
+stringData:
+  overlay.yaml: |
+    #@ load("@ytt:overlay", "overlay")
+    
+    #@overlay/match by=overlay.subset({"kind":"Namespace", "metadata": {"name": "rabbitmq-system"}}), expects="0+"
+    ---
+    metadata:
+      labels:
+        #@overlay/match missing_ok=True
+        pod-security.kubernetes.io/enforce: baseline

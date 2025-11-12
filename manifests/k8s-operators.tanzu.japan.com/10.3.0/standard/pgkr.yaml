@@ -1,0 +1,16 @@
+#@ load("@ytt:data", "data")
+
+#@ if data.values.standard.package_repo.install:
+---
+apiVersion: packaging.carvel.dev/v1alpha1
+kind: PackageRepository
+metadata:
+  name: standard-pack
+  namespace: #@ data.values.namespace
+  annotations:
+    kapp.k14s.io/change-group: "standard-pack"
+spec:
+  fetch:
+    imgpkgBundle:
+      image: #@ data.values.standard.package_repo.repo + ":" + data.values.standard.package_repo.version
+#@ end

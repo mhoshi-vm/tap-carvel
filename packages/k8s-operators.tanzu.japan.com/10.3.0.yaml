@@ -1,0 +1,207 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: Package
+metadata:
+  name: k8s-operators.tanzu.japan.com.10.3.0
+spec:
+  refName: k8s-operators.tanzu.japan.com
+  version: 10.3.0
+  valuesSchema:
+    openAPIv3:
+      title: k8s-operators.tanzu-jp values schema
+      properties:
+        namespace:
+          type: string
+          default: default
+        standard:
+          type: object
+          additionalProperties: false
+          properties:
+            package_repo:
+              type: object
+              additionalProperties: false
+              properties:
+                install:
+                  type: boolean
+                  default: true
+                repo:
+                  type: string
+                  default: projects.packages.broadcom.com/tkg/packages/standard/repo
+                version:
+                  type: string
+                  default: v2025.6.18
+        cert-manager:
+          type: object
+          additionalProperties: false
+          properties:
+            install:
+              type: boolean
+              default: true
+            ref_suffix:
+              type: string
+              default: tanzu.vmware.com
+            package:
+              nullable: true
+              default: { }
+        contour:
+          type: object
+          additionalProperties: false
+          properties:
+            install:
+              type: boolean
+              default: true
+            ref_suffix:
+              type: string
+              default: tanzu.vmware.com
+            package:
+              nullable: true
+              default:
+                envoy:
+                  service:
+                    type: LoadBalancer
+        harbor:
+          type: object
+          additionalProperties: false
+          properties:
+            install:
+              type: boolean
+              default: true
+            ref_suffix:
+              type: string
+              default: tanzu.vmware.com
+            secrets_template:
+              type: boolean
+              default: true
+            package:
+              nullable: true
+              default:
+                hostname: harbor.example.com
+                persistence:
+                  persistentVolumeClaim:
+                    registry:
+                      storageClass: tkg-ds
+                      size: 200Gi
+                    jobservice:
+                      jobLog:
+                        storageClass: tkg-ds
+                        size: 1Gi
+                    database:
+                      storageClass: tkg-ds
+                      size: 1Gi
+                    redis:
+                      storageClass: tkg-ds
+                      size: 1Gi
+                    trivy:
+                      storageClass: tkg-ds
+                      size: 5Gi
+        rabbitmq:
+          type: object
+          additionalProperties: false
+          properties:
+            install:
+              type: boolean
+              default: true
+            ref_suffix:
+              type: string
+              default: tanzu.japan.com
+            package:
+              nullable: true
+              default:
+                repo:
+                  url: rabbitmq-kubernetes.packages.broadcom.com/tanzu-rabbitmq-package-repo
+                  user: ""
+                  password: ""
+                version: 4.1.0
+                operator_version: 4.1.0
+        postgres:
+          type: object
+          additionalProperties: false
+          properties:
+            install:
+              type: boolean
+              default: true
+            ref_suffix:
+              type: string
+              default: tanzu.japan.com
+            package:
+              nullable: true
+              default:
+                repo:
+                  url: tanzu-sql-postgres.packages.broadcom.com/vmware-sql-postgres-operator
+                  user: ""
+                  password: ""
+                version: v4.1.0
+        gemfire:
+          type: object
+          additionalProperties: false
+          properties:
+            install:
+              type: boolean
+              default: true
+            ref_suffix:
+              type: string
+              default: tanzu.japan.com
+            package:
+              nullable: true
+              default:
+                repo:
+                  url: registry.packages.broadcom.com/tanzu-gemfire-for-kubernetes/gemfire-for-kubernetes-carvel-bundle
+                  user: ""
+                  password: ""
+                version: 2.5.0
+                gmc:
+                  install: true
+                  repo:
+                    url: registry.packages.broadcom.com/gemfire-management-console/gemfire-management-console
+                  version: 1.3.0
+        gpss:
+          type: object
+          additionalProperties: false
+          properties:
+            install:
+              type: boolean
+              default: true
+            ref_suffix:
+              type: string
+              default: tanzu.japan.com
+            package:
+              nullable: true
+              default:
+                repo:
+                  url: helm-gpss-operator
+                  user: ""
+                  password: ""
+                version: 1.0.0
+                controller:
+                  repo:
+                    url: controller
+                  version: 1.0.0
+        etcd:
+          type: object
+          additionalProperties: false
+          properties:
+            install:
+              type: boolean
+              default: true
+            ref_suffix:
+              type: string
+              default: tanzu.japan.com
+            package:
+              nullable: true
+              default:
+                namespace: etcd
+  template:
+    spec:
+      fetch:
+      - git:
+          url: https://github.com/mhoshi-vm/tap-carvel
+          ref: origin/pkgr
+          subPath: manifests/k8s-operators.tanzu.japan.com/10.3.0
+      template:
+      - ytt:
+          valuesFrom:
+            - downwardAPI:
+                items:
+                  - name: namespace
+                    fieldPath: metadata.namespace
+      deploy:
+        - kapp: {}

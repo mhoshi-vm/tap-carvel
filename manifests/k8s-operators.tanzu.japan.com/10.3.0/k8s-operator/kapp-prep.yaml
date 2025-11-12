@@ -1,0 +1,78 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:yaml", "yaml")
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: kapp-sa
+  namespace: #@ data.values.namespace
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: #@ "{}-kapp-role-binding".format(data.values.namespace)
+  namespace: #@ data.values.namespace
+subjects:
+  - kind: ServiceAccount
+    name: kapp-sa
+    namespace: #@ data.values.namespace
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+---
+#@ last_change_group=""
+#@ for pkg in ["cert-manager", "contour", "harbor", "gemfire", "gpss", "postgres", "rabbitmq", "valkey", "etcd"]:
+  #@ if data.values[pkg].install:
+---
+apiVersion: packaging.carvel.dev/v1alpha1
+kind: PackageInstall
+metadata:
+  name: #@ "{}-pkg".format(pkg)
+  namespace: #@ data.values.namespace
+  annotations:
+    ext.packaging.carvel.dev/ytt-paths-from-secret-name.0: #@ "{}-values".format(pkg)
+    #@ if/end hasattr(data.values[pkg], "secrets_template") and data.values[pkg].secrets_template:
+    ext.packaging.carvel.dev/ytt-paths-from-secret-name.1: #@ "{}-values-secrets".format(pkg)
+    #@ change_group=""
+    #@ change_rule=""
+    #@ if pkg == "cert-manager":
+    #@  change_group=pkg
+    #@  last_change_group=pkg
+    #@  if data.values.standard.package_repo.install:
+    #@  change_rule="upsert after upserting standard-pack"
+    #@  end
+    #@ elif pkg == "contour" or pkg == "harbor":
+    #@  change_group=pkg
+    #@  change_rule="upsert after upserting {}".format(last_change_group)
+    #@  last_change_group=pkg
+    #@ else:
+    #@  if last_change_group != "":
+    #@  change_rule="upsert after upserting {}".format(last_change_group)
+    #@  end
+    #@ end
+    #@ if/end change_group != "":
+    kapp.k14s.io/change-group: #@ change_group
+    #@ if/end change_rule != "":
+    kapp.k14s.io/change-rule: #@ change_rule
+spec:
+  serviceAccountName: kapp-sa
+  packageRef:
+    refName: #@ "{}.{}".format(pkg, data.values[pkg].ref_suffix)
+    versionSelection:
+      constraints: ">0.0.0"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: #@ "{}-values".format(pkg)
+  namespace: #@ data.values.namespace
+stringData:
+  #@yaml/text-templated-strings
+  data-values.yaml: |
+    #@data/values
+    ---
+    (@= yaml.encode(data.values[pkg].package)@)
+  #@ end
+#@ end
