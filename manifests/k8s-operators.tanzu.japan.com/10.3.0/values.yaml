@@ -11,44 +11,18 @@ standard:
 
 cert-manager:
   install: true
-  ref_suffix: tanzu.vmware.com
+  ref_suffix: kubernetes.vmware.com
   #@schema/type any=True
   package: {}
 
 contour:
   install: true
-  ref_suffix: tanzu.vmware.com
+  ref_suffix: kubernetes.vmware.com
   #@schema/type any=True
   package:
     envoy:
       service:
         type: LoadBalancer
-
-harbor:
-  install: true
-  ref_suffix: tanzu.vmware.com
-  secrets_template: true
-  #@schema/type any=True
-  package:
-    hostname: harbor.example.com
-    persistence:
-      persistentVolumeClaim:
-        registry:
-          storageClass: tkg-ds
-          size: 200Gi
-        jobservice:
-          jobLog:
-            storageClass: tkg-ds
-            size: 1Gi
-        database:
-          storageClass: tkg-ds
-          size: 1Gi
-        redis:
-          storageClass: tkg-ds
-          size: 1Gi
-        trivy:
-          storageClass: tkg-ds
-          size: 5Gi
 
 rabbitmq:
   install: true

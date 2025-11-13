@@ -25,10 +25,10 @@ spec:
                   default: true
                 repo:
                   type: string
-                  default: projects.packages.broadcom.com/tkg/packages/standard/repo
+                  default: projects.packages.broadcom.com/vsphere/supervisor/packages/2025.10.22/vks-standard-packages
                 version:
                   type: string
-                  default: v2025.6.18
+                  default: 3.5.0-20251022
         cert-manager:
           type: object
           additionalProperties: false
@@ -38,7 +38,7 @@ spec:
               default: true
             ref_suffix:
               type: string
-              default: tanzu.vmware.com
+              default: kubernetes.vmware.com
             package:
               nullable: true
               default: { }
@@ -51,48 +51,13 @@ spec:
               default: true
             ref_suffix:
               type: string
-              default: tanzu.vmware.com
+              default: kubernetes.vmware.com
             package:
               nullable: true
               default:
                 envoy:
                   service:
                     type: LoadBalancer
-        harbor:
-          type: object
-          additionalProperties: false
-          properties:
-            install:
-              type: boolean
-              default: true
-            ref_suffix:
-              type: string
-              default: tanzu.vmware.com
-            secrets_template:
-              type: boolean
-              default: true
-            package:
-              nullable: true
-              default:
-                hostname: harbor.example.com
-                persistence:
-                  persistentVolumeClaim:
-                    registry:
-                      storageClass: tkg-ds
-                      size: 200Gi
-                    jobservice:
-                      jobLog:
-                        storageClass: tkg-ds
-                        size: 1Gi
-                    database:
-                      storageClass: tkg-ds
-                      size: 1Gi
-                    redis:
-                      storageClass: tkg-ds
-                      size: 1Gi
-                    trivy:
-                      storageClass: tkg-ds
-                      size: 5Gi
         rabbitmq:
           type: object
           additionalProperties: false
@@ -110,8 +75,26 @@ spec:
                   url: rabbitmq-kubernetes.packages.broadcom.com/tanzu-rabbitmq-package-repo
                   user: ""
                   password: ""
-                version: 4.1.0
-                operator_version: 4.1.0
+                version: 4.2.0
+                operator_version: 4.2.0
+        valkey:
+          type: object
+          additionalProperties: false
+          properties:
+            install:
+              type: boolean
+              default: true
+            ref_suffix:
+              type: string
+              default: tanzu.japan.com
+            package:
+              nullable: true
+              default:
+                repo:
+                  url: tanzu-valkey.packages.broadcom.com/tanzu-valkey-helm
+                  user: ""
+                  password: ""
+                version: 3.2.1
         postgres:
           type: object
           additionalProperties: false
@@ -129,7 +112,7 @@ spec:
                   url: tanzu-sql-postgres.packages.broadcom.com/vmware-sql-postgres-operator
                   user: ""
                   password: ""
-                version: v4.1.0
+                version: v4.3.0
         gemfire:
           type: object
           additionalProperties: false
@@ -188,7 +171,7 @@ spec:
             package:
               nullable: true
               default:
-                namespace: etcd
+                namespace: gpss-etcd
   template:
     spec:
       fetch:
