@@ -1,0 +1,97 @@
+#@data/values-schema
+---
+namespace: default
+
+
+standard:
+  package_repo:
+    install: true
+    repo:  projects.packages.broadcom.com/vsphere/supervisor/vks-standard-packages/3.6.0-20260521/vks-standard-packages
+    version: 3.6.0-20260521
+
+cert-manager:
+  install: true
+  ref_suffix: kubernetes.vmware.com
+  #@schema/type any=True
+  package: {}
+
+contour:
+  install: true
+  ref_suffix: kubernetes.vmware.com
+  #@schema/type any=True
+  package:
+    envoy:
+      service:
+        type: LoadBalancer
+
+rabbitmq:
+  install: true
+  ref_suffix: tanzu.japan.com
+  #@schema/type any=True
+  package:
+    repo:
+      url: rabbitmq-kubernetes.packages.broadcom.com/tanzu-rabbitmq-package-repo
+      user: ""
+      password: ""
+    version: 4.3.2
+    operator_version: 4.3.2
+
+valkey:
+  install: false
+  ref_suffix: tanzu.japan.com
+  #@schema/type any=True
+  package:
+    repo:
+      url: tanzu-valkey.packages.broadcom.com/tanzu-valkey-helm
+      user: ""
+      password: ""
+    version: 3.2.1
+
+postgres:
+  install: true
+  ref_suffix: tanzu.japan.com
+  #@schema/type any=True
+  package:
+    repo:
+      url: tanzu-sql-postgres.packages.broadcom.com/vmware-sql-postgres-operator
+      user: ""
+      password: ""
+    version: v4.3.0
+
+gemfire:
+  install: false
+  ref_suffix: tanzu.japan.com
+  #@schema/type any=True
+  package:
+    repo:
+      url: registry.packages.broadcom.com/tanzu-gemfire-for-kubernetes/gemfire-for-kubernetes-carvel-bundle
+      user: ""
+      password: ""
+    version: 2.5.0
+    gmc:
+      install: true
+      repo:
+        url: registry.packages.broadcom.com/gemfire-management-console/gemfire-management-console
+      version: 1.3.0
+
+gpss:
+  install: false
+  ref_suffix: tanzu.japan.com
+  #@schema/type any=True
+  package:
+    repo:
+      url: helm-gpss-operator
+      user: ""
+      password: ""
+    version: 1.0.0
+    controller:
+      repo:
+        url: controller
+      version: 1.0.0
+
+etcd:
+  install: false
+  ref_suffix: tanzu.japan.com
+  #@schema/type any=True
+  package:
+    namespace: gpss-etcd

@@ -1,0 +1,191 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: Package
+metadata:
+  name: k8s-operators.tanzu.japan.com.10.4.0
+spec:
+  refName: k8s-operators.tanzu.japan.com
+  version: 10.4.0
+  valuesSchema:
+    openAPIv3:
+      title: k8s-operators.tanzu-jp values schema
+      properties:
+        namespace:
+          type: string
+          default: default
+        standard:
+          type: object
+          additionalProperties: false
+          properties:
+            package_repo:
+              type: object
+              additionalProperties: false
+              properties:
+                install:
+                  type: boolean
+                  default: true
+                repo:
+                  type: string
+                  default: projects.packages.broadcom.com/vsphere/supervisor/vks-standard-packages/3.6.0-20260521/vks-standard-packages
+                version:
+                  type: string
+                  default: 3.6.0-20260521
+        cert-manager:
+          type: object
+          additionalProperties: false
+          properties:
+            install:
+              type: boolean
+              default: true
+            ref_suffix:
+              type: string
+              default: kubernetes.vmware.com
+            package:
+              nullable: true
+              default: { }
+        contour:
+          type: object
+          additionalProperties: false
+          properties:
+            install:
+              type: boolean
+              default: true
+            ref_suffix:
+              type: string
+              default: kubernetes.vmware.com
+            package:
+              nullable: true
+              default:
+                envoy:
+                  service:
+                    type: LoadBalancer
+        rabbitmq:
+          type: object
+          additionalProperties: false
+          properties:
+            install:
+              type: boolean
+              default: true
+            ref_suffix:
+              type: string
+              default: tanzu.japan.com
+            package:
+              nullable: true
+              default:
+                repo:
+                  url: rabbitmq-kubernetes.packages.broadcom.com/tanzu-rabbitmq-package-repo
+                  user: ""
+                  password: ""
+                version: 4.3.2
+                operator_version: 4.3.2
+        valkey:
+          type: object
+          additionalProperties: false
+          properties:
+            install:
+              type: boolean
+              default: false
+            ref_suffix:
+              type: string
+              default: tanzu.japan.com
+            package:
+              nullable: true
+              default:
+                repo:
+                  url: tanzu-valkey.packages.broadcom.com/tanzu-valkey-helm
+                  user: ""
+                  password: ""
+                version: 3.2.1
+        postgres:
+          type: object
+          additionalProperties: false
+          properties:
+            install:
+              type: boolean
+              default: true
+            ref_suffix:
+              type: string
+              default: tanzu.japan.com
+            package:
+              nullable: true
+              default:
+                repo:
+                  url: tanzu-sql-postgres.packages.broadcom.com/vmware-sql-postgres-operator
+                  user: ""
+                  password: ""
+                version: v4.3.0
+        gemfire:
+          type: object
+          additionalProperties: false
+          properties:
+            install:
+              type: boolean
+              default: false
+            ref_suffix:
+              type: string
+              default: tanzu.japan.com
+            package:
+              nullable: true
+              default:
+                repo:
+                  url: registry.packages.broadcom.com/tanzu-gemfire-for-kubernetes/gemfire-for-kubernetes-carvel-bundle
+                  user: ""
+                  password: ""
+                version: 2.5.0
+                gmc:
+                  install: true
+                  repo:
+                    url: registry.packages.broadcom.com/gemfire-management-console/gemfire-management-console
+                  version: 1.3.0
+        gpss:
+          type: object
+          additionalProperties: false
+          properties:
+            install:
+              type: boolean
+              default: false
+            ref_suffix:
+              type: string
+              default: tanzu.japan.com
+            package:
+              nullable: true
+              default:
+                repo:
+                  url: helm-gpss-operator
+                  user: ""
+                  password: ""
+                version: 1.0.0
+                controller:
+                  repo:
+                    url: controller
+                  version: 1.0.0
+        etcd:
+          type: object
+          additionalProperties: false
+          properties:
+            install:
+              type: boolean
+              default: false
+            ref_suffix:
+              type: string
+              default: tanzu.japan.com
+            package:
+              nullable: true
+              default:
+                namespace: gpss-etcd
+
+  template:
+    spec:
+      fetch:
+      - git:
+          url: https://github.com/mhoshi-vm/tap-carvel
+          ref: origin/pkgr
+          subPath: manifests/k8s-operators.tanzu.japan.com/10.4.0
+      template:
+      - ytt:
+          valuesFrom:
+            - downwardAPI:
+                items:
+                  - name: namespace
+                    fieldPath: metadata.namespace
+      deploy:
+        - kapp: {}
