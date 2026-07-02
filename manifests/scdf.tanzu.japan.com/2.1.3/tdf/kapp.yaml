@@ -133,6 +133,28 @@ spec:
 apiVersion: v1
 kind: Secret
 metadata:
+  name: tanzu-dataflow-docker-repo-secret
+  namespace: tdf-install
+type: kubernetes.io/dockerconfigjson
+#@ repo = data.values.repo
+data:
+  #@ url = "tanzu-dataflow-docker.packages.broadcom.com"
+  #@ user = repo.user
+  #@ password = repo.password
+  .dockerconfigjson: #@ base64.encode(json.encode(dockerhub_config(url, user, password)))
+---
+apiVersion: secretgen.carvel.dev/v1alpha1
+kind: SecretExport
+metadata:
+  name: tanzu-dataflow-docker-repo-secret
+  namespace: tdf-install
+spec:
+  toNamespaces:
+    - "*"
+---
+apiVersion: v1
+kind: Secret
+metadata:
   name: tanzu-dataflow-registry-secret
   namespace: tdf-install
   annotations:
