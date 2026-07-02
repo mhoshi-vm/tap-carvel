@@ -10,4 +10,10 @@ repo:
   url: tanzu-dataflow.packages.broadcom.com/dataflow
   user: ""
   password: ""
+
+imageRepo:
+  url: registry.packages.broadcom.com
+  user: ""
+  password: ""
+
 version: 2.1.3
