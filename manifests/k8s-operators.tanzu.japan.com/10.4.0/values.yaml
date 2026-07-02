@@ -89,7 +89,7 @@ gpss:
         url: controller
       version: 1.0.0
 
-tdf:
+scdf:
   install: false
   ref_suffix: tanzu.japan.com
   #@schema/type any=True
