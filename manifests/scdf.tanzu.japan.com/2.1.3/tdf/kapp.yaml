@@ -54,7 +54,7 @@ spec:
 #@ def tdf_values():
 deployer:
   imagePullSecrets:
-  -  name: tanzu-dataflow-registry-secret
+  -  tanzu-dataflow-registry-secret
 
 database:
   mysql:
