@@ -89,6 +89,18 @@ gpss:
         url: controller
       version: 1.0.0
 
+tdf:
+  install: false
+  ref_suffix: tanzu.japan.com
+  #@schema/type any=True
+  package:
+    repo:
+      url: tanzu-dataflow.packages.broadcom.com/dataflow
+      user: ""
+      password: ""
+    version: 2.1.3
+
+
 etcd:
   install: false
   ref_suffix: tanzu.japan.com

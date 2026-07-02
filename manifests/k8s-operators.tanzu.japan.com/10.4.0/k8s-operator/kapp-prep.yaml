@@ -23,7 +23,7 @@ roleRef:
   name: cluster-admin
 ---
 #@ last_change_group=""
-#@ for pkg in ["cert-manager", "contour", "gemfire", "gpss", "postgres", "rabbitmq", "valkey", "etcd"]:
+#@ for pkg in ["cert-manager", "contour", "gemfire", "gpss", "postgres", "rabbitmq", "valkey", "tdf", "etcd"]:
   #@ if data.values[pkg].install:
 ---
 apiVersion: packaging.carvel.dev/v1alpha1
