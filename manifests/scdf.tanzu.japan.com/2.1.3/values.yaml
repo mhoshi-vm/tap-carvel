@@ -1,6 +1,6 @@
 #@data/values-schema
 ---
-namespace: default
+namespace: tdf-install
 
 ingress:
   enabled: true
