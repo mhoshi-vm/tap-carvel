@@ -15,7 +15,7 @@ auths: #@ docker_config
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: #@ data.values.namespace
+  name: tdf-install
   labels:
     pod-security.kubernetes.io/enforce: baseline
 ---
@@ -23,7 +23,7 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: repo-secret
-  namespace: #@ data.values.namespace
+  namespace: tdf-install
 type: kubernetes.io/dockerconfigjson
 #@ repo = data.values.repo
 data:
@@ -36,7 +36,7 @@ apiVersion: secretgen.carvel.dev/v1alpha1
 kind: SecretExport
 metadata:
   name: repo-secret
-  namespace: #@ data.values.namespace
+  namespace: tdf-install
 spec:
   toNamespaces:
     - "*"
@@ -45,7 +45,7 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: kapp-sa
-  namespace: #@ data.values.namespace
+  namespace: tdf-install
 secrets:
   - name: repo-secret
 imagePullSecrets:
@@ -55,11 +55,11 @@ kind: ClusterRoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: #@ "{}-kapp-role-binding".format(data.values.namespace)
-  namespace: #@ data.values.namespace
+  namespace: tdf-install
 subjects:
   - kind: ServiceAccount
     name: kapp-sa
-    namespace: #@ data.values.namespace
+    namespace: tdf-install
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
