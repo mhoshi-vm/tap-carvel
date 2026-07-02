@@ -52,6 +52,10 @@ spec:
     - kapp: {}
 ---
 #@ def tdf_values():
+deployer:
+  imagePullSecrets:
+  -  name: tanzu-dataflow-registry-secret
+
 database:
   mysql:
     enabled: false
@@ -62,6 +66,17 @@ database:
 rabbitmq:
   imagePullSecretName: tanzu-dataflow-registry-secret
 server:
+  configuration:
+    containerRegistries:
+      ghcr:
+        registry-host: ghcr.io
+        authorization-type: dockeroauth2
+      tanzu-dataflow:
+        registry-host: tanzu-dataflow-docker.packages.broadcom.com
+        authorization-type: dockeroauth2
+        user: #@ data.values.repo.user
+        secret: #@ data.values.repo.password
+
   ingress:
     enabled: #@ data.values.ingress.enabled
     hostname: #@ data.values.ingress.domain
