@@ -1,6 +1,7 @@
 #@ load("@ytt:data", "data")
 #@ load("@ytt:yaml", "yaml")
 #@ load("@ytt:json", "json")
+#@ load("@ytt:base64", "base64")
 
 #@ def dockerhub_config_fragment(user, password):
 username: #@ user
