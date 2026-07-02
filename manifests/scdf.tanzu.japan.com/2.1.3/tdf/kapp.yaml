@@ -48,6 +48,10 @@ spec:
         valuesFrom:
           - secretRef:
               name: change-default-reg-secret
+    - ytt:
+        paths:
+        - "-"
+        - kapp-config.yaml
   deploy:
     - kapp: {}
 ---
