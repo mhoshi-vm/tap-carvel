@@ -28,8 +28,11 @@ database:
   mysql:
     enabled: false
   postgresql:
+    imagePullSecretName: tanzu-dataflow-registry-secret
     enabled: true
 
+rabbitmq:
+  imagePullSecretName: tanzu-dataflow-registry-secret
 server:
   ingress:
     enabled: #@ data.values.ingress.enabled
