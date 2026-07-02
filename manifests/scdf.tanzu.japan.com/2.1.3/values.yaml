@@ -1,0 +1,13 @@
+#@data/values-schema
+---
+namespace: default
+
+ingress:
+  enabled: true
+  domain: dataflow.example.com
+
+repo:
+  url: tanzu-dataflow.packages.broadcom.com/dataflow
+  user: ""
+  password: ""
+version: 2.1.3

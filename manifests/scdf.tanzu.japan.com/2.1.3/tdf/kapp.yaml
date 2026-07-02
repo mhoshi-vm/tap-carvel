@@ -1,0 +1,69 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:yaml", "yaml")
+---
+apiVersion: kappctrl.k14s.io/v1alpha1
+kind: App
+metadata:
+  name: tdf-helm
+  namespace: #@ data.values.namespace
+spec:
+  serviceAccountName: kapp-sa
+  fetch:
+    - image:
+        url:  #@ data.values.repo.url + ":" + data.values.version
+        secretRef:
+          name: repo-secret
+      path: tdf/
+  template:
+    - helmTemplate:
+        path: tdf/dataflow/
+        valuesFrom:
+          - secretRef:
+              name: change-default-reg-secret
+  deploy:
+    - kapp: {}
+---
+#@ def tdf_values():
+database:
+  mysql:
+    enabled: false
+  postgresql:
+    enabled: true
+
+server:
+  ingress:
+    enabled: #@ data.values.ingress.enabled
+    hostname: #@ data.values.ingress.domain
+  resources:
+    requests:
+      memory: "2Gi"
+      cpu: "1000m"
+    limits:
+      memory: "4Gi"
+      cpu: "2000m"
+
+skipper:
+  resources:
+    requests:
+      memory: "1Gi"
+      cpu: "500m"
+    limits:
+      memory: "2Gi"
+      cpu: "1000m"
+#@ end
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: change-default-reg-secret
+  namespace: #@ data.values.namespace
+stringData:
+  #@yaml/text-templated-strings
+  change-default-reg-secret.yml: |
+     (@= yaml.encode(tdf_values())@)
+    
+    
+    
+    
+    
+    
