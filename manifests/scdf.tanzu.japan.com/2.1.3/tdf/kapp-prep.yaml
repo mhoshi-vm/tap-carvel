@@ -54,7 +54,7 @@ imagePullSecrets:
 kind: ClusterRoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: #@ "{}-kapp-role-binding".format(data.values.namespace)
+  name: #@ "{}-kapp-role-binding".format("tdf-install")
   namespace: tdf-install
 subjects:
   - kind: ServiceAccount
