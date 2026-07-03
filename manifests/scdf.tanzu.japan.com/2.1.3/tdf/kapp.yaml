@@ -39,6 +39,7 @@ spec:
           - secretRef:
               name: change-default-reg-secret
     - ytt:
+        ignoreUnknownComments: true
         paths:
         - "-"
         - kapp/
