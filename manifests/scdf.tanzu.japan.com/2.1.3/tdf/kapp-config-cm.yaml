@@ -1,0 +1,76 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kapp-config
+  namespace: tdf-install
+data:
+  kapp-config.yaml: |
+    apiVersion: kapp.k14s.io/v1alpha1
+    kind: Config
+    
+    changeGroupBindings:
+      - name: "change-groups.kapp.k14s.io/tdf"
+        resourceMatchers:
+          - notMatcher:
+              matcher:
+                anyMatcher:
+                  matchers:
+                    - apiVersionKindMatcher: {apiVersion: apps/v1, kind: Deployment}
+                    - apiVersionKindMatcher: {apiVersion: v1, kind: Pod}
+      - name: "change-groups.kapp.k14s.io/tdf-deployment"
+        resourceMatchers:
+          - apiVersionKindMatcher: {apiVersion: apps/v1, kind: Deployment}
+    
+    changeRuleBindings:
+      - rules:
+          - "upsert after upserting change-groups.kapp.k14s.io/tdf"
+        resourceMatchers:
+          - apiVersionKindMatcher: {apiVersion: apps/v1, kind: Deployment}
+      - rules:
+          - "upsert after upserting change-groups.kapp.k14s.io/tdf-deployment"
+        resourceMatchers:
+          - apiVersionKindMatcher: {apiVersion: v1, kind: Pod}
+    
+    rebaseRules:
+      # ---------------------------------------------------------
+      # Tanzu Postgres (sql.tanzu.vmware.com/v1) Rebase Rules
+      # ---------------------------------------------------------
+      - paths:
+          - [metadata, annotations, "sql.tanzu.vmware.com/custom-config-hash"]
+          - [metadata, labels, app]
+          - [metadata, labels, postgres-instance]
+          - [spec, backupLocation]
+          - [spec, customConfig]
+          - [spec, dataPodConfig]
+          - [spec, dedicatedWalLogVolume]
+          - [spec, deploymentOptions]
+          - [spec, highAvailability]
+          - [spec, ldapSync]
+          - [spec, pgConfig]
+          - [spec, resources]
+          - [spec, seccompProfile]
+          - [spec, trustedCaCertificates]
+        type: copy
+        sources: [new, existing]
+        resourceMatchers:
+          - apiVersionKindMatcher: {apiVersion: sql.tanzu.vmware.com/v1, kind: Postgres}
+    
+      # ---------------------------------------------------------
+      # RabbitMQ (rabbitmq.com/v1beta1) Rebase Rules
+      # ---------------------------------------------------------
+      - paths:
+          - [metadata, annotations, "rabbitmq.com/erlang-version"]
+          - [metadata, annotations, "rabbitmq.com/version"]
+          - [spec, delayStartSeconds]
+          - [spec, image]
+          - [spec, override]
+          - [spec, persistence]
+          - [spec, rabbitmq]
+          - [spec, resources]
+          - [spec, secretBackend]
+          - [spec, service]
+          - [spec, tls]
+        type: copy
+        sources: [new, existing]
+        resourceMatchers:
+          - apiVersionKindMatcher: {apiVersion: rabbitmq.com/v1beta1, kind: RabbitmqCluster}

@@ -21,27 +21,17 @@ metadata:
 spec:
   serviceAccountName: kapp-sa
   fetch:
+    - inline:
+        pathsFrom:
+          - configMapRef:
+              name: kapp-config
+      # Relative path to place the fetched artifacts
+      path: kapp/
     - image:
         url:  #@ data.values.repo.url + ":" + data.values.version
         secretRef:
           name: repo-secret
       path: tdf/
-    - inline:
-        paths:
-          kapp-config.yaml: |
-            apiVersion: kapp.k14s.io/v1alpha1
-            kind: Config
-            changeGroupBindings:
-              - name: tdf-install
-                resourceMatchers:
-                  - kindNamespaceNameMatcher: {kind: Deployment, namespace: tdf-install, name: tdf-helm-dataflow-server}
-                  - kindNamespaceNameMatcher: {kind: Deployment, namespace: tdf-install, name: tdf-helm-dataflow-server}
-            changeRuleBindings:
-              - name: smoke-test
-                resourceMatchers:
-                  - kindNamespaceNameMatcher: {kind: Pod, namespace: tdf-install, name: tdf-helm-dataflow-smoke-test}
-                rules:
-                  - "upsert after upserting tdf-install"
   template:
     - helmTemplate:
         path: tdf/dataflow/
@@ -51,7 +41,7 @@ spec:
     - ytt:
         paths:
         - "-"
-        - kapp-config.yaml
+        - kapp/
   deploy:
     - kapp: {}
 ---
